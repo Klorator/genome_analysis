@@ -1,1 +1,15 @@
-test file.
+#!/bin/bash -l
+
+# SLURM setup
+
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J template_title
+
+#SBATCH -p pelle
+#SBATCH -n 1
+#SBATCH -t 15:00
+
+# Script
+
+cd $HOME
+ls -l
