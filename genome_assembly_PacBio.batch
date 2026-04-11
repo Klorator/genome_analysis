@@ -10,8 +10,11 @@
 
 set -euo pipefail
 
-# Script
+# Modules
 module load canu/2.3-GCCcore-13.3.0-Java-17
+module load SAMtools/1.22.1-GCC-13.3.0
+
+# Script
 
 cd "$HOME/genome_analysis"
 
@@ -32,7 +35,7 @@ fi
 canu \
   -p "$PREFIX" \
   -d "${OUTDIR}/${PREFIX}" \
-  genomeSize=3m \
+  genomeSize=2.8m \
   gridOptions="-A uppmax2026-1-61 -M pelle -t 05:00:00" \
   maxThreads=4 \
   corThreads=4 \
