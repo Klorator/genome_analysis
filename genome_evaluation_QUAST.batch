@@ -5,13 +5,13 @@
 #SBATCH -J quast_eval
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
-#SBATCH -n 4
-#SBATCH -t 05:00:00
+#SBATCH -n 1
+#SBATCH -t 00:20:00
 
 set -euo pipefail
 
 # Modules
-module load QUAST || module load quast
+module load QUAST/5.3.0-gfbf-2024a
 
 # Script
 cd "$HOME/genome_analysis"
@@ -35,7 +35,8 @@ if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
 fi
 
 quast.py "$ASSEMBLY_FASTA" \
-  --threads 4 \
-  --output-dir "${OUTDIR}/${PREFIX}_QUAST"
+  --threads 1 \
+  --output-dir "${OUTDIR}/${PREFIX}_QUAST" \
+  --k-mer-stats
 
 tar -czf "${OUTDIR}/${PREFIX}_QUAST_output.tar.gz" -C "$OUTDIR" "${PREFIX}_QUAST"
