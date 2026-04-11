@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # Script
-module load canu
+module load canu/2.3-GCCcore-13.3.0-Java-17
 
 cd "$HOME/genome_analysis"
 
