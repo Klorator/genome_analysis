@@ -1,0 +1,41 @@
+#!/bin/bash -l
+
+# SLURM setup
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J quast_eval
+#SBATCH --mail-type=ALL
+#SBATCH -p pelle
+#SBATCH -n 4
+#SBATCH -t 05:00:00
+
+set -euo pipefail
+
+# Modules
+module load QUAST || module load quast
+
+# Script
+cd "$HOME/genome_analysis"
+
+ASSEMBLY_DIR="analysis/01_genomeAssembly"
+OUTDIR="analysis/02_genomeEvaluation"
+PREFIX="E_faecium_PacBio"
+EXPECTED_ASSEMBLY="${ASSEMBLY_DIR}/${PREFIX}/${PREFIX}.contigs.fasta"
+
+mkdir -p "$OUTDIR"
+
+if [ -f "$EXPECTED_ASSEMBLY" ]; then
+  ASSEMBLY_FASTA="$EXPECTED_ASSEMBLY"
+else
+  ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f -name "*.contigs.fasta" | head -n 1)
+fi
+
+if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
+  echo "No Canu contig FASTA found in ${ASSEMBLY_DIR}" >&2
+  exit 1
+fi
+
+quast.py "$ASSEMBLY_FASTA" \
+  --threads 4 \
+  --output-dir "${OUTDIR}/${PREFIX}_QUAST"
+
+tar -czf "${OUTDIR}/${PREFIX}_QUAST_output.tar.gz" -C "$OUTDIR" "${PREFIX}_QUAST"
