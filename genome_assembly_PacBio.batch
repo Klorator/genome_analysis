@@ -32,15 +32,21 @@ if [ ${#pacbio_files[@]} -eq 0 ]; then
   exit 1
 fi
 
-canu \
-  -p "$PREFIX" \
-  -d "${OUTDIR}/${PREFIX}" \
-  genomeSize=2.8m \
-  gridOptions="-A uppmax2026-1-61 -M pelle -t 05:00:00" \
-  maxThreads=4 \
-  corThreads=4 \
-  oeaThreads=4 \
-  cnsThreads=4 \
+canu_cmd=(
+  canu
+  -p "$PREFIX"
+  -d "${OUTDIR}/${PREFIX}"
+  genomeSize=2.8m
+  gridOptions="-A uppmax2026-1-61 -M pelle -t 05:00:00"
+  maxThreads=4
+  corThreads=4
+  oeaThreads=4
+  cnsThreads=4
   -pacbio-raw "${pacbio_files[@]}"
+)
+echo "Running: ${canu_cmd[*]}"
+"${canu_cmd[@]}"
 
-tar -czf "${OUTDIR}/${PREFIX}_canu_output.tar.gz" -C "$OUTDIR" "$PREFIX"
+tar_cmd=(tar -czf "${OUTDIR}/${PREFIX}_canu_output.tar.gz" -C "$OUTDIR" "$PREFIX")
+echo "Running: ${tar_cmd[*]}"
+"${tar_cmd[@]}"

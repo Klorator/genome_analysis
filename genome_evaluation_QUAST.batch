@@ -34,9 +34,15 @@ if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
   exit 1
 fi
 
-quast.py "$ASSEMBLY_FASTA" \
-  --threads 1 \
-  --output-dir "${OUTDIR}/${PREFIX}_QUAST" \
+quast_cmd=(
+  quast.py "$ASSEMBLY_FASTA"
+  --threads 1
+  --output-dir "${OUTDIR}/${PREFIX}_QUAST"
   --k-mer-stats
+)
+echo "Running: ${quast_cmd[*]}"
+"${quast_cmd[@]}"
 
-tar -czf "${OUTDIR}/${PREFIX}_QUAST_output.tar.gz" -C "$OUTDIR" "${PREFIX}_QUAST"
+tar_cmd=(tar -czf "${OUTDIR}/${PREFIX}_QUAST_output.tar.gz" -C "$OUTDIR" "${PREFIX}_QUAST")
+echo "Running: ${tar_cmd[*]}"
+"${tar_cmd[@]}"
