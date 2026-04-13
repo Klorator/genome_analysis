@@ -6,9 +6,9 @@
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
 #SBATCH -n 4
-#SBATCH -t 05:00:00
+#SBATCH -t 03:00:00
 
-set -euo pipefail
+# set -euo pipefail
 
 # Modules
 module load canu/2.3-GCCcore-13.3.0-Java-17
@@ -22,27 +22,27 @@ INPUT_DIR="data/PacBio"
 OUTDIR="analysis/01_genomeAssembly"
 PREFIX="E_faecium_PacBio"
 
-mkdir -p "$OUTDIR"
+# mkdir -p "$OUTDIR"
 
-shopt -s nullglob
-pacbio_files=("${INPUT_DIR}"/*.fastq.gz)
+# shopt -s nullglob
+# pacbio_files=("${INPUT_DIR}"/*.fastq.gz)
 
-if [ ${#pacbio_files[@]} -eq 0 ]; then
-  echo "No input files found in ${INPUT_DIR}" >&2
-  exit 1
-fi
+# if [ ${#pacbio_files[@]} -eq 0 ]; then
+#   echo "No input files found in ${INPUT_DIR}" >&2
+#   exit 1
+# fi
 
 canu_cmd=(
   canu
-  -p "$PREFIX"
-  -d "${OUTDIR}/${PREFIX}"
+  -p "E_faecium_PacBio"
+  -d "analysis/01_genomeAssembly/E_faecium_PacBio"
   genomeSize=2.8m
-  gridOptions="-A uppmax2026-1-61 -M pelle -t 05:00:00"
+  gridOptions="-A uppmax2026-1-61 -M pelle -t 03:00:00"
   maxThreads=4
   corThreads=4
   oeaThreads=4
   cnsThreads=4
-  -pacbio-raw "${pacbio_files[@]}"
+  -pacbio data/PacBio/*.fastq.gz
 )
 echo "Running: ${canu_cmd[*]}"
 "${canu_cmd[@]}"
