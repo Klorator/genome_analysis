@@ -6,7 +6,6 @@
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
 #SBATCH -n 1
-#SBATCH --mem=64G
 #SBATCH -t 06:00:00
 
 set -euo pipefail
@@ -39,28 +38,48 @@ for input_file in "$ILLUMINA_R1" "$ILLUMINA_R2" "$NANOPORE_READS"; do
     exit 1
   fi
 done
-
 echo "Assembly run prefix: ${RUN_PREFIX}"
 echo "Output directory: ${RUN_OUTDIR}"
 echo "Threads: ${THREADS}"
 echo "SPAdes memory limit (GB): ${SPADES_MEM_GB}"
-echo "Illumina R1: ${ILLUMINA_R1}"
-echo "Illumina R2: ${ILLUMINA_R2}"
-echo "Nanopore reads: ${NANOPORE_READS}"
 
+# Prepare local workdir on node storage
+WORKDIR="${SNIC_TMP:-/tmp}/spades_${SLURM_JOB_ID:-$$}"
+mkdir -p "$WORKDIR/input" "$WORKDIR/output"
+echo "WORKDIR=$WORKDIR"
+
+# Copy inputs (dereference symlinks) to local storage
+rsync -avL "$(dirname "$ILLUMINA_R1")/" "$WORKDIR/input/"
+
+R1_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R1")"
+R2_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R2")"
+NANO_LOCAL="$WORKDIR/input/$(basename "$NANOPORE_READS")"
+
+echo "Illumina R1 (local): ${R1_LOCAL}"
+echo "Illumina R2 (local): ${R2_LOCAL}"
+echo "Nanopore reads (local): ${NANO_LOCAL}"
+
+# Run SPAdes in WORKDIR
+SPADES_OUT_LOCAL="$WORKDIR/output/$RUN_PREFIX"
 spades_cmd=(
   spades.py
-  --pe1-1 "$ILLUMINA_R1"
-  --pe1-2 "$ILLUMINA_R2"
-  --nanopore "$NANOPORE_READS"
-  --careful
+  --pe1-1 "$R1_LOCAL"
+  --pe1-2 "$R2_LOCAL"
+  --nanopore "$NANO_LOCAL"
+  -k 21
   -t "$THREADS"
-  -m "$SPADES_MEM_GB"
-  -o "$RUN_OUTDIR"
+  -o "$SPADES_OUT_LOCAL"
 )
 echo "Running: ${spades_cmd[*]}"
 "${spades_cmd[@]}"
 
-tar_cmd=(tar -czf "${OUTDIR}/${RUN_PREFIX}_spades_output.tar.gz" -C "$OUTDIR" "$RUN_PREFIX")
-echo "Running: ${tar_cmd[*]}"
-"${tar_cmd[@]}"
+# Ensure OUTDIR exists and copy results back
+mkdir -p "$RUN_OUTDIR"
+rsync -av "$SPADES_OUT_LOCAL/" "$RUN_OUTDIR/"
+
+# Create tarball in HOME/outdir
+tar -czf "${OUTDIR}/${RUN_PREFIX}_spades_output.tar.gz" -C "$OUTDIR" "$RUN_PREFIX"
+
+# Cleanup local workdir
+rm -rf "$WORKDIR"
+

@@ -1,0 +1,88 @@
+#!/bin/bash -l
+
+# SLURM setup
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J preprocess_fastp
+#SBATCH --mail-type=END,FAIL
+#SBATCH -p pelle
+#SBATCH -n 1
+#SBATCH -t 01:00:00
+
+set -euo pipefail
+
+# Modules
+module load FastQC/0.12.1-Java-17
+module load Trimmomatic/0.39-Java-17
+
+# Work in repository
+cd "$HOME/genome_analysis"
+
+OUTDIR="analysis/00_preprocessing"
+PREFIX="preprocess_fastp"
+RUN_TAG=$(date +%Y%m%d_%H%M%S)
+RUN_PREFIX="${PREFIX}_${RUN_TAG}"
+THREADS=1
+
+mkdir -p "$OUTDIR"
+
+# Input files (adjust names if needed)
+ILLUMINA_R1="data/Illumina/E745-1.L500_SZAXPI015146-56_1_clean.fq.gz"
+ILLUMINA_R2="data/Illumina/E745-1.L500_SZAXPI015146-56_2_clean.fq.gz"
+
+for input_file in "$ILLUMINA_R1" "$ILLUMINA_R2"; do
+  if [ ! -f "$input_file" ]; then
+    echo "Missing input file: $input_file" >&2
+    exit 1
+  fi
+done
+
+# Use local node storage
+WORKDIR="${SNIC_TMP:-/tmp}/preprocess_${SLURM_JOB_ID:-$$}"
+mkdir -p "$WORKDIR/input" "$WORKDIR/output/pre_qc" "$WORKDIR/output/post_qc"
+echo "WORKDIR=$WORKDIR"
+
+# Ensure results are copied back and tmp cleaned on exit
+cleanup() {
+  mkdir -p "${OUTDIR}/${RUN_PREFIX}"
+  rsync -av --remove-source-files "$WORKDIR/output/" "${OUTDIR}/${RUN_PREFIX}/" || true
+  rsync -av --remove-source-files "$WORKDIR/trimmed/" "${OUTDIR}/${RUN_PREFIX}/trimmed/" || true
+  rm -rf "$WORKDIR"
+}
+trap cleanup EXIT
+
+# Copy (dereference symlinks) inputs to local storage
+rsync -avL "$(dirname "$ILLUMINA_R1")/" "$WORKDIR/input/"
+
+R1_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R1")"
+R2_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R2")"
+
+echo "Running FastQC (pre-trim)"
+fastqc -t "$THREADS" -o "$WORKDIR/output/pre_qc" "$R1_LOCAL" "$R2_LOCAL"
+
+mkdir -p "$WORKDIR/trimmed"
+
+echo "Running Trimmomatic (paired-end trimming)"
+TRIM_R1_P_UN="$WORKDIR/trimmed/$(basename "$ILLUMINA_R1" .gz).paired.fastq"
+TRIM_R1_U_UN="$WORKDIR/trimmed/$(basename "$ILLUMINA_R1" .gz).unpaired.fastq"
+TRIM_R2_P_UN="$WORKDIR/trimmed/$(basename "$ILLUMINA_R2" .gz).paired.fastq"
+TRIM_R2_U_UN="$WORKDIR/trimmed/$(basename "$ILLUMINA_R2" .gz).unpaired.fastq"
+
+trimmomatic PE -threads "$THREADS" -phred33 \
+  "$R1_LOCAL" "$R2_LOCAL" \
+  "$TRIM_R1_P_UN" "$TRIM_R1_U_UN" \
+  "$TRIM_R2_P_UN" "$TRIM_R2_U_UN" \
+  ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+echo "Gzipping trimmed paired outputs"
+gzip -c "$TRIM_R1_P_UN" > "$TRIM_R1_P_UN.gz" && rm -f "$TRIM_R1_P_UN"
+gzip -c "$TRIM_R2_P_UN" > "$TRIM_R2_P_UN.gz" && rm -f "$TRIM_R2_P_UN"
+
+echo "Running FastQC (post-trim)"
+fastqc -t "$THREADS" -o "$WORKDIR/output/post_qc" "$WORKDIR/trimmed"/*.gz
+
+# Explicit copy-back (trap will also run)
+mkdir -p "${OUTDIR}/${RUN_PREFIX}"
+rsync -av "$WORKDIR/output/" "${OUTDIR}/${RUN_PREFIX}/" || true
+rsync -av "$WORKDIR/trimmed/" "${OUTDIR}/${RUN_PREFIX}/trimmed/" || true
+
+echo "Preprocessing complete. Results in ${OUTDIR}/${RUN_PREFIX}"
