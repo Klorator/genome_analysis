@@ -5,7 +5,7 @@
 #SBATCH -J canu_PacBio
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
-#SBATCH -n 4
+#SBATCH -n 2
 #SBATCH -t 03:00:00
 
 set -euo pipefail
@@ -66,10 +66,10 @@ canu_cmd=(
   -d "${WORKDIR}/${RUN_PREFIX}"
   genomeSize=2.8m
   useGrid=false
-  maxThreads=4
-  corThreads=4
-  oeaThreads=4
-  cnsThreads=4
+  # maxThreads=4
+  # corThreads=4
+  # oeaThreads=4
+  # cnsThreads=4
   -pacbio
   "${pacbio_local[@]}"
 )
