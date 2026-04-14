@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # Modules
-module load Prokka
+module load prokka/1.14.5-gompi-2024a
 
 # Script
 cd "$HOME/genome_analysis"
@@ -19,27 +19,28 @@ cd "$HOME/genome_analysis"
 ASSEMBLY_DIR="analysis/01_genomeAssembly"
 OUTDIR="analysis/03_genomeAnnotation"
 PROKKA_OUTDIR="${OUTDIR}/prokka"
-PREFIX="E_faecium_PacBio"
-EXPECTED_ASSEMBLY="${ASSEMBLY_DIR}/${PREFIX}/${PREFIX}.contigs.fasta"
 
 mkdir -p "$OUTDIR" "$PROKKA_OUTDIR"
 
-if [ -f "$EXPECTED_ASSEMBLY" ]; then
-  ASSEMBLY_FASTA="$EXPECTED_ASSEMBLY"
-else
-  ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f -name "*.contigs.fasta" | head -n 1)
-fi
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "*.contigs.fasta" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
   echo "No Canu contig FASTA found in ${ASSEMBLY_DIR}" >&2
   exit 1
 fi
 
+RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
+OUTPUT_DIR="${PROKKA_OUTDIR}/${RUN_PREFIX}"
+
+echo "Selected assembly FASTA: ${ASSEMBLY_FASTA}"
+echo "Annotation run prefix: ${RUN_PREFIX}"
+echo "Output directory: ${OUTPUT_DIR}"
+
 prokka_cmd=(
   prokka
   "$ASSEMBLY_FASTA"
-  --outdir "${PROKKA_OUTDIR}/${PREFIX}"
-  --prefix "${PREFIX}"
+  --outdir "$OUTPUT_DIR"
+  --prefix "${RUN_PREFIX}"
   --locustag "EFAE"
   --cpus 4
   --kingdom Bacteria
@@ -48,6 +49,6 @@ prokka_cmd=(
 echo "Running: ${prokka_cmd[*]}"
 "${prokka_cmd[@]}"
 
-tar_cmd=(tar -czf "${PROKKA_OUTDIR}/${PREFIX}_prokka_output.tar.gz" -C "$PROKKA_OUTDIR" "${PREFIX}")
+tar_cmd=(tar -czf "${PROKKA_OUTDIR}/${RUN_PREFIX}_prokka_output.tar.gz" -C "$PROKKA_OUTDIR" "$RUN_PREFIX")
 echo "Running: ${tar_cmd[*]}"
 "${tar_cmd[@]}"

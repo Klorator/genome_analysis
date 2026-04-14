@@ -19,26 +19,27 @@ cd "$HOME/genome_analysis"
 ASSEMBLY_DIR="analysis/01_genomeAssembly"
 OUTDIR="analysis/02_genomeEvaluation"
 BUSCO_OUTDIR="${OUTDIR}/busco"
-PREFIX="E_faecium_PacBio"
-EXPECTED_ASSEMBLY="${ASSEMBLY_DIR}/${PREFIX}/${PREFIX}.contigs.fasta"
 
 mkdir -p "$OUTDIR" "$BUSCO_OUTDIR"
 
-if [ -f "$EXPECTED_ASSEMBLY" ]; then
-  ASSEMBLY_FASTA="$EXPECTED_ASSEMBLY"
-else
-  ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f -name "*.contigs.fasta" | head -n 1)
-fi
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "*.contigs.fasta" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
   echo "No Canu contig FASTA found in ${ASSEMBLY_DIR}" >&2
   exit 1
 fi
 
+RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
+OUTPUT_DIR="${BUSCO_OUTDIR}/${RUN_PREFIX}"
+
+echo "Selected assembly FASTA: ${ASSEMBLY_FASTA}"
+echo "Evaluation run prefix: ${RUN_PREFIX}"
+echo "Output directory: ${OUTPUT_DIR}"
+
 busco_cmd=(
   busco
   --in "$ASSEMBLY_FASTA"
-  --out "${PREFIX}"
+  --out "${RUN_PREFIX}"
   --out_path "$BUSCO_OUTDIR"
   --mode genome
   --cpu 1

@@ -21,32 +21,38 @@ cd "$HOME/genome_analysis"
 INPUT_DIR="data/PacBio"
 OUTDIR="analysis/01_genomeAssembly"
 PREFIX="E_faecium_PacBio"
+RUN_TAG=$(date +%Y%m%d_%H%M%S)
+RUN_PREFIX="${PREFIX}_${RUN_TAG}"
 
-# mkdir -p "$OUTDIR"
+mkdir -p "$OUTDIR"
 
-# shopt -s nullglob
-# pacbio_files=("${INPUT_DIR}"/*.fastq.gz)
+shopt -s nullglob
+pacbio_files=("${INPUT_DIR}"/*.fastq.gz)
 
-# if [ ${#pacbio_files[@]} -eq 0 ]; then
-#   echo "No input files found in ${INPUT_DIR}" >&2
-#   exit 1
-# fi
+if [ ${#pacbio_files[@]} -eq 0 ]; then
+  echo "No input files found in ${INPUT_DIR}" >&2
+  exit 1
+fi
+
+echo "Found ${#pacbio_files[@]} PacBio input files"
+echo "Assembly run prefix: ${RUN_PREFIX}"
 
 canu_cmd=(
   canu
-  -p "E_faecium_PacBio"
-  -d "analysis/01_genomeAssembly/E_faecium_PacBio"
+  -p "$RUN_PREFIX"
+  -d "${OUTDIR}/${RUN_PREFIX}"
   genomeSize=2.8m
   gridOptions="-A uppmax2026-1-61 -M pelle -t 03:00:00"
   maxThreads=4
   corThreads=4
   oeaThreads=4
   cnsThreads=4
-  -pacbio data/PacBio/*.fastq.gz
+  -pacbio
+  "${pacbio_files[@]}"
 )
 echo "Running: ${canu_cmd[*]}"
 "${canu_cmd[@]}"
 
-tar_cmd=(tar -czf "${OUTDIR}/${PREFIX}_canu_output.tar.gz" -C "$OUTDIR" "$PREFIX")
+tar_cmd=(tar -czf "${OUTDIR}/${RUN_PREFIX}_canu_output.tar.gz" -C "$OUTDIR" "$RUN_PREFIX")
 echo "Running: ${tar_cmd[*]}"
 "${tar_cmd[@]}"

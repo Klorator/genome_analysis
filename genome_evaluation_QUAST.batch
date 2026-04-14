@@ -19,31 +19,32 @@ cd "$HOME/genome_analysis"
 ASSEMBLY_DIR="analysis/01_genomeAssembly"
 OUTDIR="analysis/02_genomeEvaluation"
 QUAST_OUTDIR="${OUTDIR}/quast"
-PREFIX="E_faecium_PacBio"
-EXPECTED_ASSEMBLY="${ASSEMBLY_DIR}/${PREFIX}/${PREFIX}.contigs.fasta"
 
 mkdir -p "$OUTDIR" "$QUAST_OUTDIR"
 
-if [ -f "$EXPECTED_ASSEMBLY" ]; then
-  ASSEMBLY_FASTA="$EXPECTED_ASSEMBLY"
-else
-  ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f -name "*.contigs.fasta" | head -n 1)
-fi
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "*.contigs.fasta" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
   echo "No Canu contig FASTA found in ${ASSEMBLY_DIR}" >&2
   exit 1
 fi
 
+RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
+OUTPUT_DIR="${QUAST_OUTDIR}/${RUN_PREFIX}"
+
+echo "Selected assembly FASTA: ${ASSEMBLY_FASTA}"
+echo "Evaluation run prefix: ${RUN_PREFIX}"
+echo "Output directory: ${OUTPUT_DIR}"
+
 quast_cmd=(
   quast.py "$ASSEMBLY_FASTA"
   --threads 1
-  --output-dir "${QUAST_OUTDIR}/${PREFIX}"
+  --output-dir "$OUTPUT_DIR"
   --k-mer-stats
 )
 echo "Running: ${quast_cmd[*]}"
 "${quast_cmd[@]}"
 
-tar_cmd=(tar -czf "${QUAST_OUTDIR}/${PREFIX}_quast_output.tar.gz" -C "$QUAST_OUTDIR" "${PREFIX}")
+tar_cmd=(tar -czf "${QUAST_OUTDIR}/${RUN_PREFIX}_quast_output.tar.gz" -C "$QUAST_OUTDIR" "$RUN_PREFIX")
 echo "Running: ${tar_cmd[*]}"
 "${tar_cmd[@]}"
