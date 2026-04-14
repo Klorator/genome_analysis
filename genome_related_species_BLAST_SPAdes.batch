@@ -1,0 +1,87 @@
+#!/bin/bash -l
+
+# SLURM setup
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J blast_spades
+#SBATCH --mail-type=ALL
+#SBATCH -p pelle
+#SBATCH -n 1
+#SBATCH --mem=32G
+#SBATCH -t 02:00:00
+
+set -euo pipefail
+
+# Modules
+module load BLAST+/2.17.0-gompi-2024a
+
+# Script
+cd "$HOME/genome_analysis"
+
+ASSEMBLY_DIR="analysis/01_genomeAssembly"
+OUTDIR="analysis/03_genomeSynteny"
+BLAST_OUTDIR="${OUTDIR}/blast_species_spades"
+THREADS=1
+BLAST_DB="nt"
+MAX_TARGET_SEQS=50
+ASSEMBLY_NAME_FILTER="*SPAdes*"
+
+mkdir -p "$OUTDIR" "$BLAST_OUTDIR"
+
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.contigs.fasta" -o -name "*.scaffolds.fasta" -o -name "contigs.fasta" -o -name "scaffolds.fasta" \) -path "*/${ASSEMBLY_NAME_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+
+if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
+  echo "No SPAdes assembly FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_NAME_FILTER}" >&2
+  exit 1
+fi
+
+RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
+RUN_OUTDIR="${BLAST_OUTDIR}/${RUN_PREFIX}"
+RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits.tsv"
+SPECIES_SUMMARY_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_species_summary.tsv"
+
+mkdir -p "$RUN_OUTDIR"
+
+echo "Selected assembly FASTA: ${ASSEMBLY_FASTA}"
+echo "BLAST run prefix: ${RUN_PREFIX}"
+echo "Output directory: ${RUN_OUTDIR}"
+echo "BLAST database: ${BLAST_DB}"
+echo "Threads: ${THREADS}"
+
+blast_cmd=(
+  blastn
+  -query "$ASSEMBLY_FASTA"
+  -db "$BLAST_DB"
+  -num_threads "$THREADS"
+  -max_target_seqs "$MAX_TARGET_SEQS"
+  -max_hsps 1
+  -evalue 1e-20
+  -outfmt "6 qseqid sseqid pident length evalue bitscore staxids sscinames stitle"
+  -out "$RESULTS_TSV"
+)
+echo "Running: ${blast_cmd[*]}"
+"${blast_cmd[@]}"
+
+if [ ! -s "$RESULTS_TSV" ]; then
+  echo "BLAST produced no hits: ${RESULTS_TSV}" >&2
+  exit 1
+fi
+
+awk -F'\t' '
+  {
+    species=$8
+    if (species == "" || species == "N/A") species="Unknown"
+    count[species]++
+    if (!(species in best_bitscore) || $6 > best_bitscore[species]) best_bitscore[species]=$6
+  }
+  END {
+    print "species\thit_count\tbest_bitscore"
+    for (s in count) print s "\t" count[s] "\t" best_bitscore[s]
+  }
+' "$RESULTS_TSV" | sort -t$'\t' -k2,2nr -k3,3nr > "$SPECIES_SUMMARY_TSV"
+
+echo "Top species hits (first 10):"
+head -n 11 "$SPECIES_SUMMARY_TSV"
+
+tar_cmd=(tar -czf "${BLAST_OUTDIR}/${RUN_PREFIX}_blast_species_output.tar.gz" -C "$BLAST_OUTDIR" "$RUN_PREFIX")
+echo "Running: ${tar_cmd[*]}"
+"${tar_cmd[@]}"

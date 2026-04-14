@@ -1,0 +1,66 @@
+#!/bin/bash -l
+
+# SLURM setup
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J spades_assembly
+#SBATCH --mail-type=ALL
+#SBATCH -p pelle
+#SBATCH -n 1
+#SBATCH --mem=64G
+#SBATCH -t 06:00:00
+
+set -euo pipefail
+
+# Modules
+module load SPAdes/4.2.0-GCC-13.3.0
+
+# Script
+cd "$HOME/genome_analysis"
+
+OUTDIR="analysis/01_genomeAssembly"
+PREFIX="E_faecium_SPAdes"
+RUN_TAG=$(date +%Y%m%d_%H%M%S)
+RUN_PREFIX="${PREFIX}_${RUN_TAG}"
+RUN_OUTDIR="${OUTDIR}/${RUN_PREFIX}"
+THREADS=1
+SPADES_MEM_GB=60
+
+mkdir -p "$OUTDIR"
+
+shopt -s nullglob
+
+ILLUMINA_R1="data/Illumina/E745-1.L500_SZAXPI015146-56_1_clean.fq.gz"
+ILLUMINA_R2="data/Illumina/E745-1.L500_SZAXPI015146-56_2_clean.fq.gz"
+NANOPORE_READS="data/Nanopore/E745_all.fasta.gz"
+
+for input_file in "$ILLUMINA_R1" "$ILLUMINA_R2" "$NANOPORE_READS"; do
+  if [ ! -f "$input_file" ]; then
+    echo "Missing input file: $input_file" >&2
+    exit 1
+  fi
+done
+
+echo "Assembly run prefix: ${RUN_PREFIX}"
+echo "Output directory: ${RUN_OUTDIR}"
+echo "Threads: ${THREADS}"
+echo "SPAdes memory limit (GB): ${SPADES_MEM_GB}"
+echo "Illumina R1: ${ILLUMINA_R1}"
+echo "Illumina R2: ${ILLUMINA_R2}"
+echo "Nanopore reads: ${NANOPORE_READS}"
+
+spades_cmd=(
+  spades.py
+  --pe1-1 "$ILLUMINA_R1"
+  --pe1-2 "$ILLUMINA_R2"
+  --nanopore "$NANOPORE_READS"
+  --careful
+  -t "$THREADS"
+  -m "$SPADES_MEM_GB"
+  -o "$RUN_OUTDIR"
+)
+echo "Running: ${spades_cmd[*]}"
+"${spades_cmd[@]}"
+
+tar_cmd=(tar -czf "${OUTDIR}/${RUN_PREFIX}_spades_output.tar.gz" -C "$OUTDIR" "$RUN_PREFIX")
+echo "Running: ${tar_cmd[*]}"
+"${tar_cmd[@]}"

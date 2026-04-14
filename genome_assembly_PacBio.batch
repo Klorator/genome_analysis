@@ -42,7 +42,7 @@ canu_cmd=(
   -p "$RUN_PREFIX"
   -d "${OUTDIR}/${RUN_PREFIX}"
   genomeSize=2.8m
-  gridOptions="-A uppmax2026-1-61 -M pelle -t 03:00:00"
+  useGrid=false
   maxThreads=4
   corThreads=4
   oeaThreads=4
