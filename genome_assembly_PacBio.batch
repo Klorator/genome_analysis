@@ -8,7 +8,7 @@
 #SBATCH -n 4
 #SBATCH -t 03:00:00
 
-# set -euo pipefail
+set -euo pipefail
 
 # Modules
 module load canu/2.3-GCCcore-13.3.0-Java-17

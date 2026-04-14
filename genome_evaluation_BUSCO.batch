@@ -2,7 +2,7 @@
 
 # SLURM setup
 #SBATCH -A uppmax2026-1-61
-#SBATCH -J quast_eval
+#SBATCH -J busco_eval
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
 #SBATCH -n 1
@@ -11,18 +11,18 @@
 set -euo pipefail
 
 # Modules
-module load QUAST/5.3.0-gfbf-2024a
+module load BUSCO/5.8.2-gfbf-2024a
 
 # Script
 cd "$HOME/genome_analysis"
 
 ASSEMBLY_DIR="analysis/01_genomeAssembly"
 OUTDIR="analysis/02_genomeEvaluation"
-QUAST_OUTDIR="${OUTDIR}/quast"
+BUSCO_OUTDIR="${OUTDIR}/busco"
 PREFIX="E_faecium_PacBio"
 EXPECTED_ASSEMBLY="${ASSEMBLY_DIR}/${PREFIX}/${PREFIX}.contigs.fasta"
 
-mkdir -p "$OUTDIR" "$QUAST_OUTDIR"
+mkdir -p "$OUTDIR" "$BUSCO_OUTDIR"
 
 if [ -f "$EXPECTED_ASSEMBLY" ]; then
   ASSEMBLY_FASTA="$EXPECTED_ASSEMBLY"
@@ -35,15 +35,14 @@ if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
   exit 1
 fi
 
-quast_cmd=(
-  quast.py "$ASSEMBLY_FASTA"
-  --threads 1
-  --output-dir "${QUAST_OUTDIR}/${PREFIX}"
-  --k-mer-stats
+busco_cmd=(
+  busco
+  --in "$ASSEMBLY_FASTA"
+  --out "${PREFIX}"
+  --out_path "$BUSCO_OUTDIR"
+  --mode genome
+  --cpu 1
+  --auto-lineage-prok
 )
-echo "Running: ${quast_cmd[*]}"
-"${quast_cmd[@]}"
-
-tar_cmd=(tar -czf "${QUAST_OUTDIR}/${PREFIX}_quast_output.tar.gz" -C "$QUAST_OUTDIR" "${PREFIX}")
-echo "Running: ${tar_cmd[*]}"
-"${tar_cmd[@]}"
+echo "Running: ${busco_cmd[*]}"
+"${busco_cmd[@]}"
