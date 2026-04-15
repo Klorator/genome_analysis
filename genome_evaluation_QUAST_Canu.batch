@@ -38,6 +38,7 @@ echo "Output directory: ${OUTPUT_DIR}"
 quast_cmd=(
   quast.py "$ASSEMBLY_FASTA"
   --threads 1
+  --gene-finding
   --output-dir "$OUTPUT_DIR"
   --k-mer-stats
 )
