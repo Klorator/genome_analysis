@@ -14,8 +14,6 @@ set -euo pipefail
 module load canu/2.3-GCCcore-13.3.0-Java-17
 module load SAMtools/1.22.1-GCC-13.3.0
 
-# Script
-
 cd "$HOME/genome_analysis"
 
 INPUT_DIR="data/PacBio"
@@ -42,20 +40,17 @@ fi
 echo "Found ${#pacbio_files[@]} PacBio input files"
 echo "Assembly run prefix: ${RUN_PREFIX}"
 
-# Copy inputs to local node storage
+# Copy inputs to local node storage (don't preserve ownership/permissions)
 mkdir -p "$WORKDIR/input"
-rsync -av "${INPUT_DIR}/" "$WORKDIR/input/"
+rsync -av --no-perms --no-owner --no-group "${INPUT_DIR}/" "$WORKDIR/input/"
 
 # Build list of local input files
 pacbio_local=("$WORKDIR/input"/*.fastq.gz)
 
-# Ensure OUTDIR exists on HOME
-mkdir -p "$OUTDIR"
-
-# Ensure we copy results back on exit (successful or not)
 cleanup() {
-  rsync -av --remove-source-files "${WORKDIR}/${RUN_PREFIX}" "${OUTDIR}/" || true
-  rm -rf "$WORKDIR"
+  rsync -av "${WORKDIR}/${RUN_PREFIX}" "${OUTDIR}/" || true
+  chmod -R u+w "$WORKDIR" || true
+  rm -rf "$WORKDIR" || true
 }
 trap cleanup EXIT
 

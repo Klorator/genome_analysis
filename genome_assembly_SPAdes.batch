@@ -48,11 +48,21 @@ WORKDIR="${SNIC_TMP:-/tmp}/spades_${SLURM_JOB_ID:-$$}"
 mkdir -p "$WORKDIR/input" "$WORKDIR/output"
 echo "WORKDIR=$WORKDIR"
 
-# Copy inputs (dereference symlinks) to local storage
-rsync -avL "$(dirname "$ILLUMINA_R1")/" "$WORKDIR/input/"
+## Prefer trimmed Illumina reads produced by preprocessing
+PREPROC_ROOT="$HOME/genome_analysis/analysis/00_preprocessing"
+LATEST_PREPROC_DIR=$(ls -1d "$PREPROC_ROOT"/preprocess_fastp_* 2>/dev/null | sort | tail -n1 || true)
+if [ -n "$LATEST_PREPROC_DIR" ] && [ -d "$LATEST_PREPROC_DIR/trimmed" ]; then
+  echo "Using trimmed reads from: $LATEST_PREPROC_DIR"
+  rsync -avL "$LATEST_PREPROC_DIR/trimmed/" "$WORKDIR/input/"
+  R1_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R1" .gz).paired.fastq.gz"
+  R2_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R2" .gz).paired.fastq.gz"
+else
+  echo "No preprocessed trimmed reads found in $PREPROC_ROOT — falling back to raw inputs"
+  rsync -avL "$(dirname "$ILLUMINA_R1")/" "$WORKDIR/input/"
+  R1_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R1")"
+  R2_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R2")"
+fi
 
-R1_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R1")"
-R2_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R2")"
 NANO_LOCAL="$WORKDIR/input/$(basename "$NANOPORE_READS")"
 
 echo "Illumina R1 (local): ${R1_LOCAL}"
