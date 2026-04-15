@@ -1,0 +1,149 @@
+WORKDIR=/scratch/Illumina_prep_4901683
+sending incremental file list
+./
+E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+
+sent 261,163,008 bytes  received 57 bytes  174,108,710.00 bytes/sec
+total size is 261,099,040  speedup is 1.00
+Running FastQC (pre-trim)
+application/gzip
+Started analysis of E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+application/gzip
+Approx 5% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 10% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 15% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 20% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 25% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 30% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 35% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 40% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 45% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 50% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 55% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 60% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 65% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 70% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 75% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 80% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 85% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 90% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Approx 95% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Analysis complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+Started analysis of E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 5% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 10% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 15% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 20% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 25% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 30% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 35% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 40% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 45% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 50% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 55% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 60% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 65% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 70% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 75% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 80% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 85% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 90% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Approx 95% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Analysis complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+Running Trimmomatic (paired-end trimming)
+TrimmomaticPE: Started with arguments:
+ -threads 1 -phred33 /scratch/Illumina_prep_4901683/input/E745-1.L500_SZAXPI015146-56_1_clean.fq.gz /scratch/Illumina_prep_4901683/input/E745-1.L500_SZAXPI015146-56_2_clean.fq.gz /scratch/Illumina_prep_4901683/trimmed/E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq /scratch/Illumina_prep_4901683/trimmed/E745-1.L500_SZAXPI015146-56_1_clean.fq.unpaired.fastq /scratch/Illumina_prep_4901683/trimmed/E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq /scratch/Illumina_prep_4901683/trimmed/E745-1.L500_SZAXPI015146-56_2_clean.fq.unpaired.fastq ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+java.io.FileNotFoundException: /gorilla/home/raha1670/genome_analysis/TruSeq3-PE.fa (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:216)
+	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:157)
+	at org.usadellab.trimmomatic.fasta.FastaParser.parse(FastaParser.java:54)
+	at org.usadellab.trimmomatic.trim.IlluminaClippingTrimmer.loadSequences(IlluminaClippingTrimmer.java:110)
+	at org.usadellab.trimmomatic.trim.IlluminaClippingTrimmer.makeIlluminaClippingTrimmer(IlluminaClippingTrimmer.java:71)
+	at org.usadellab.trimmomatic.trim.TrimmerFactory.makeTrimmer(TrimmerFactory.java:32)
+	at org.usadellab.trimmomatic.Trimmomatic.createTrimmers(Trimmomatic.java:59)
+	at org.usadellab.trimmomatic.TrimmomaticPE.run(TrimmomaticPE.java:552)
+	at org.usadellab.trimmomatic.Trimmomatic.main(Trimmomatic.java:80)
+Input Read Pairs: 1666667 Both Surviving: 1666564 (99.99%) Forward Only Surviving: 103 (0.01%) Reverse Only Surviving: 0 (0.00%) Dropped: 0 (0.00%)
+TrimmomaticPE: Completed successfully
+Gzipping trimmed paired outputs
+Running FastQC (post-trim)
+application/gzip
+application/gzip
+Started analysis of E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 5% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 10% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 15% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 20% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 25% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 30% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 35% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 40% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 45% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 50% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 55% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 60% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 65% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 70% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 75% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 80% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 85% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 90% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Approx 95% complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Analysis complete for E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+Started analysis of E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 5% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 10% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 15% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 20% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 25% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 30% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 35% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 40% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 45% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 50% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 55% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 60% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 65% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 70% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 75% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 80% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 85% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 90% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Approx 95% complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+Analysis complete for E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+sending incremental file list
+./
+post_qc/
+post_qc/E745-1.L500_SZAXPI015146-56_1_clean.fq.paired_fastqc.html
+post_qc/E745-1.L500_SZAXPI015146-56_1_clean.fq.paired_fastqc.zip
+post_qc/E745-1.L500_SZAXPI015146-56_2_clean.fq.paired_fastqc.html
+post_qc/E745-1.L500_SZAXPI015146-56_2_clean.fq.paired_fastqc.zip
+pre_qc/
+pre_qc/E745-1.L500_SZAXPI015146-56_1_clean_fastqc.html
+pre_qc/E745-1.L500_SZAXPI015146-56_1_clean_fastqc.zip
+pre_qc/E745-1.L500_SZAXPI015146-56_2_clean_fastqc.html
+pre_qc/E745-1.L500_SZAXPI015146-56_2_clean_fastqc.zip
+
+sent 4,005,112 bytes  received 187 bytes  8,010,598.00 bytes/sec
+total size is 4,003,349  speedup is 1.00
+sending incremental file list
+created directory /home/raha1670/genome_analysis/analysis/01_genomeAssembly/Illumina_prep/Illumina_prep_20260415_115917/trimmed
+./
+E745-1.L500_SZAXPI015146-56_1_clean.fq.paired.fastq.gz
+E745-1.L500_SZAXPI015146-56_1_clean.fq.unpaired.fastq
+E745-1.L500_SZAXPI015146-56_2_clean.fq.paired.fastq.gz
+E745-1.L500_SZAXPI015146-56_2_clean.fq.unpaired.fastq
+
+sent 263,139,057 bytes  received 227 bytes  175,426,189.33 bytes/sec
+total size is 263,074,418  speedup is 1.00
+Preprocessing complete. Results in /home/raha1670/genome_analysis/analysis/01_genomeAssembly/Illumina_prep/Illumina_prep_20260415_115917
+sending incremental file list
+
+sent 454 bytes  received 14 bytes  936.00 bytes/sec
+total size is 4,003,349  speedup is 8,554.16
+sending incremental file list
+
+sent 252 bytes  received 12 bytes  528.00 bytes/sec
+total size is 263,074,418  speedup is 996,494.01

@@ -1,0 +1,1837 @@
+Using WORKDIR: /scratch/genome_assembly_4901507
+Found 6 PacBio input files
+Assembly run prefix: E_faecium_PacBio_20260415_114224
+sending incremental file list
+./
+m131023_233432_42174_c100519312550000001823081209281335_s1_X0.1.subreads.fastq.gz
+m131023_233432_42174_c100519312550000001823081209281335_s1_X0.2.subreads.fastq.gz
+m131023_233432_42174_c100519312550000001823081209281335_s1_X0.3.subreads.fastq.gz
+m131024_200535_42174_c100563672550000001823084212221342_s1_p0.1.subreads.fastq.gz
+m131024_200535_42174_c100563672550000001823084212221342_s1_p0.2.subreads.fastq.gz
+m131024_200535_42174_c100563672550000001823084212221342_s1_p0.3.subreads.fastq.gz
+
+sent 487,893,601 bytes  received 133 bytes  195,157,493.60 bytes/sec
+total size is 487,773,948  speedup is 1.00
+Running: canu -p E_faecium_PacBio_20260415_114224 -d /scratch/genome_assembly_4901507/E_faecium_PacBio_20260415_114224 genomeSize=2.8m useGrid=false maxThreads=2 corThreads=2 oeaThreads=2 cnsThreads=2 -pacbio /scratch/genome_assembly_4901507/input/m131023_233432_42174_c100519312550000001823081209281335_s1_X0.1.subreads.fastq.gz /scratch/genome_assembly_4901507/input/m131023_233432_42174_c100519312550000001823081209281335_s1_X0.2.subreads.fastq.gz /scratch/genome_assembly_4901507/input/m131023_233432_42174_c100519312550000001823081209281335_s1_X0.3.subreads.fastq.gz /scratch/genome_assembly_4901507/input/m131024_200535_42174_c100563672550000001823084212221342_s1_p0.1.subreads.fastq.gz /scratch/genome_assembly_4901507/input/m131024_200535_42174_c100563672550000001823084212221342_s1_p0.2.subreads.fastq.gz /scratch/genome_assembly_4901507/input/m131024_200535_42174_c100563672550000001823084212221342_s1_p0.3.subreads.fastq.gz
+-- canu 2.3
+--
+-- CITATIONS
+--
+-- For 'standard' assemblies of PacBio or Nanopore reads:
+--   Koren S, Walenz BP, Berlin K, Miller JR, Phillippy AM.
+--   Canu: scalable and accurate long-read assembly via adaptive k-mer weighting and repeat separation.
+--   Genome Res. 2017 May;27(5):722-736.
+--   http://doi.org/10.1101/gr.215087.116
+-- 
+-- Read and contig alignments during correction and consensus use:
+--   Šošic M, Šikic M.
+--   Edlib: a C/C ++ library for fast, exact sequence alignment using edit distance.
+--   Bioinformatics. 2017 May 1;33(9):1394-1395.
+--   http://doi.org/10.1093/bioinformatics/btw753
+-- 
+-- Overlaps are generated using:
+--   Berlin K, et al.
+--   Assembling large genomes with single-molecule sequencing and locality-sensitive hashing.
+--   Nat Biotechnol. 2015 Jun;33(6):623-30.
+--   http://doi.org/10.1038/nbt.3238
+-- 
+--   Myers EW, et al.
+--   A Whole-Genome Assembly of Drosophila.
+--   Science. 2000 Mar 24;287(5461):2196-204.
+--   http://doi.org/10.1126/science.287.5461.2196
+-- 
+-- Corrected read consensus sequences are generated using an algorithm derived from FALCON-sense:
+--   Chin CS, et al.
+--   Phased diploid genome assembly with single-molecule real-time sequencing.
+--   Nat Methods. 2016 Dec;13(12):1050-1054.
+--   http://doi.org/10.1038/nmeth.4035
+-- 
+-- Contig consensus sequences are generated using an algorithm derived from pbdagcon:
+--   Chin CS, et al.
+--   Nonhybrid, finished microbial genome assemblies from long-read SMRT sequencing data.
+--   Nat Methods. 2013 Jun;10(6):563-9
+--   http://doi.org/10.1038/nmeth.2474
+-- 
+-- CONFIGURE CANU
+--
+-- Detected Java(TM) Runtime Environment '17.0.15' (from '/sw/arch/eb/software/Java/17.0.15/bin/java') without -d64 support.
+-- Detected gnuplot version '6.0 patchlevel 1   ' (from 'gnuplot') and image format 'png'.
+-- Detected samtools version '1.22.1' / htslib version '1.22.1' (from 'samtools').
+--
+-- Detected 2 CPUs and 12 gigabytes of memory on the local machine.
+--
+-- Detected Slurm with 'sinfo' binary in /usr/bin/sinfo.
+--          Slurm disabled by useGrid=false
+--
+-- Local machine mode enabled; grid support not detected or not allowed.
+--
+-- Found untrimmed raw PacBio CLR reads in the input files.
+--
+-- Job limits:
+--      2 CPUs              (maxThreads option).
+--
+--                                (tag)Concurrency
+--                         (tag)Threads          |
+--                (tag)Memory         |          |
+--        (tag)             |         |          |       total usage      algorithm
+--        -------  ----------  --------   --------  --------------------  -----------------------------
+-- Local: meryl     12.000 GB    2 CPUs x   1 job     12.000 GB   2 CPUs  (k-mer counting)
+-- Local: cormhap    6.000 GB    2 CPUs x   1 job      6.000 GB   2 CPUs  (overlap detection with mhap)
+-- Local: obtovl     4.000 GB    2 CPUs x   1 job      4.000 GB   2 CPUs  (overlap detection)
+-- Local: utgovl     4.000 GB    2 CPUs x   1 job      4.000 GB   2 CPUs  (overlap detection)
+-- Local: cor        -.--- GB    2 CPUs x   - jobs     -.--- GB   - CPUs  (read correction)
+-- Local: ovb        4.000 GB    1 CPU  x   2 jobs     8.000 GB   2 CPUs  (overlap store bucketizer)
+-- Local: ovs        8.000 GB    1 CPU  x   1 job      8.000 GB   1 CPU   (overlap store sorting)
+-- Local: red       12.000 GB    2 CPUs x   1 job     12.000 GB   2 CPUs  (read error detection)
+-- Local: oea        8.000 GB    2 CPUs x   1 job      8.000 GB   2 CPUs  (overlap error adjustment)
+-- Local: bat       12.000 GB    2 CPUs x   1 job     12.000 GB   2 CPUs  (contig construction with bogart)
+-- Local: cns        -.--- GB    2 CPUs x   - jobs     -.--- GB   - CPUs  (consensus)
+--
+-- Generating assembly 'E_faecium_PacBio_20260415_114224' in '/scratch/genome_assembly_4901507/E_faecium_PacBio_20260415_114224':
+--   genomeSize:
+--     2800000
+--
+--   Overlap Generation Limits:
+--     corOvlErrorRate 0.2400 ( 24.00%)
+--     obtOvlErrorRate 0.0450 (  4.50%)
+--     utgOvlErrorRate 0.0450 (  4.50%)
+--
+--   Overlap Processing Limits:
+--     corErrorRate    0.2500 ( 25.00%)
+--     obtErrorRate    0.0450 (  4.50%)
+--     utgErrorRate    0.0450 (  4.50%)
+--     cnsErrorRate    0.0750 (  7.50%)
+--
+--   Stages to run:
+--     correct raw reads.
+--     trim corrected reads.
+--     assemble corrected and trimmed reads.
+--
+--
+-- BEGIN STORE CREATION
+----------------------------------------
+-- Starting command on Wed Apr 15 11:42:27 2026 with 1598.791 GB free disk space
+
+    cd .
+    ./E_faecium_PacBio_20260415_114224.seqStore.sh \
+    > ./E_faecium_PacBio_20260415_114224.seqStore.err 2>&1
+
+-- Finished on Wed Apr 15 11:42:35 2026 (8 seconds) with 1598.633 GB free disk space
+----------------------------------------
+--
+-- In sequence store './E_faecium_PacBio_20260415_114224.seqStore':
+--   Found 100836 reads.
+--   Found 533813323 bases (190.64 times coverage).
+--    Histogram of raw reads:
+--    
+--    G=533813323                        sum of  ||               length     num
+--    NG         length     index       lengths  ||                range    seqs
+--    ----- ------------ --------- ------------  ||  ------------------- -------
+--    00010        12179      3821     53393103  ||       1000-1554         8676|---------------------------------------------------------------
+--    00020        10167      8654    106772804  ||       1555-2109         8252|------------------------------------------------------------
+--    00030         8845     14295    160149047  ||       2110-2664         8071|-----------------------------------------------------------
+--    00040         7801     20729    213525954  ||       2665-3219         7555|-------------------------------------------------------
+--    00050         6915     28005    266907829  ||       3220-3774         7176|-----------------------------------------------------
+--    00060         6059     36227    320293628  ||       3775-4329         6765|--------------------------------------------------
+--    00070         5084     45821    373673172  ||       4330-4884         6403|-----------------------------------------------
+--    00080         4068     57528    427052881  ||       4885-5439         5754|------------------------------------------
+--    00090         2878     72960    480434278  ||       5440-5994         5320|---------------------------------------
+--    00100         1000    100836    533813323  ||       5995-6549         5326|---------------------------------------
+--    001.000x              100836    533813323  ||       6550-7104         5250|---------------------------------------
+--                                               ||       7105-7659         4567|----------------------------------
+--                                               ||       7660-8214         3758|----------------------------
+--                                               ||       8215-8769         3270|------------------------
+--                                               ||       8770-9324         2755|---------------------
+--                                               ||       9325-9879         2209|-----------------
+--                                               ||       9880-10434        1961|---------------
+--                                               ||      10435-10989        1515|------------
+--                                               ||      10990-11544        1277|----------
+--                                               ||      11545-12099        1003|--------
+--                                               ||      12100-12654         862|-------
+--                                               ||      12655-13209         733|------
+--                                               ||      13210-13764         570|-----
+--                                               ||      13765-14319         499|----
+--                                               ||      14320-14874         409|---
+--                                               ||      14875-15429         303|---
+--                                               ||      15430-15984         216|--
+--                                               ||      15985-16539         150|--
+--                                               ||      16540-17094          97|-
+--                                               ||      17095-17649          51|-
+--                                               ||      17650-18204          31|-
+--                                               ||      18205-18759          26|-
+--                                               ||      18760-19314          12|-
+--                                               ||      19315-19869           5|-
+--                                               ||      19870-20424           3|-
+--                                               ||      20425-20979           4|-
+--                                               ||      20980-21534           1|-
+--                                               ||      21535-22089           0|
+--                                               ||      22090-22644           0|
+--                                               ||      22645-23199           1|-
+--    
+--
+-- BEGIN CORRECTION
+----------------------------------------
+-- Starting command on Wed Apr 15 11:42:36 2026 with 1598.632 GB free disk space
+
+    cd correction/0-mercounts
+    ./meryl-configure.sh \
+    > ./meryl-configure.err 2>&1
+
+-- Finished on Wed Apr 15 11:42:36 2026 (fast as lightning) with 1598.632 GB free disk space
+----------------------------------------
+--  segments   memory batches
+--  -------- -------- -------
+--        01  1.38 GB       2
+--        02  0.69 GB       2
+--        04  0.35 GB       2
+--        06  -.-- GB       -  (segment size too small)
+--        08  -.-- GB       -  (segment size too small)
+--        12  -.-- GB       -  (segment size too small)
+--        16  -.-- GB       -  (segment size too small)
+--        20  -.-- GB       -  (segment size too small)
+--        24  -.-- GB       -  (segment size too small)
+--        32  -.-- GB       -  (segment size too small)
+--        40  -.-- GB       -  (segment size too small)
+--        48  -.-- GB       -  (segment size too small)
+--        56  -.-- GB       -  (segment size too small)
+--        64  -.-- GB       -  (segment size too small)
+--        96  -.-- GB       -  (segment size too small)
+--
+--  For 100836 reads with 533813323 bases, limit to 5 batches.
+--  Will count kmers using 01 jobs, each using 3 GB and 2 threads.
+--
+-- Finished stage 'merylConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'meryl' concurrent execution on Wed Apr 15 11:42:36 2026 with 1598.632 GB free disk space (1 processes; 1 concurrently)
+
+    cd correction/0-mercounts
+    ./meryl-count.sh 1 > ./meryl-count.000001.out 2>&1
+
+-- Finished on Wed Apr 15 11:43:17 2026 (41 seconds) with 1597.234 GB free disk space
+----------------------------------------
+-- Found 1 Kmer counting (meryl) outputs.
+-- Finished stage 'cor-merylCountCheck', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'meryl' concurrent execution on Wed Apr 15 11:43:17 2026 with 1597.234 GB free disk space (1 processes; 1 concurrently)
+
+    cd correction/0-mercounts
+    ./meryl-process.sh 1 > ./meryl-process.000001.out 2>&1
+
+-- Finished on Wed Apr 15 11:43:32 2026 (15 seconds) with 1598.294 GB free disk space
+----------------------------------------
+-- Meryl finished successfully.  Kmer frequency histogram:
+--
+--  16-mers                                                                                           Fraction
+--    Occurrences   NumMers                                                                         Unique Total
+--       1-     1         0                                                                        0.0000 0.0000
+--       2-     2  44779897 ********************************************************************** 0.6022 0.3152
+--       3-     4  19325203 ******************************                                         0.7846 0.4583
+--       5-     7   5544988 ********                                                               0.9013 0.5908
+--       8-    11   1661602 **                                                                     0.9453 0.6679
+--      12-    16    797661 *                                                                      0.9618 0.7117
+--      17-    22    639664                                                                        0.9713 0.7488
+--      23-    29    610128                                                                        0.9796 0.7931
+--      30-    37    500796                                                                        0.9876 0.8489
+--      38-    46    290171                                                                        0.9939 0.9055
+--      47-    56    114194                                                                        0.9974 0.9446
+--      57-    67     38942                                                                        0.9988 0.9631
+--      68-    79     17297                                                                        0.9993 0.9708
+--      80-    92     10152                                                                        0.9995 0.9750
+--      93-   106      5694                                                                        0.9996 0.9779
+--     107-   121      3277                                                                        0.9997 0.9798
+--     122-   137      2282                                                                        0.9997 0.9811
+--     138-   154      2110                                                                        0.9998 0.9822
+--     155-   172      1968                                                                        0.9998 0.9832
+--     173-   191      1537                                                                        0.9998 0.9843
+--     192-   211      1495                                                                        0.9998 0.9853
+--     212-   232      1734                                                                        0.9999 0.9864
+--     233-   254      1799                                                                        0.9999 0.9878
+--     255-   277      1614                                                                        0.9999 0.9893
+--     278-   301      1151                                                                        0.9999 0.9908
+--     302-   326       742                                                                        0.9999 0.9920
+--     327-   352       516                                                                        1.0000 0.9928
+--     353-   379       499                                                                        1.0000 0.9934
+--     380-   407       471                                                                        1.0000 0.9940
+--     408-   436       404                                                                        1.0000 0.9947
+--     437-   466       266                                                                        1.0000 0.9953
+--     467-   497       222                                                                        1.0000 0.9957
+--     498-   529       141                                                                        1.0000 0.9960
+--     530-   562        86                                                                        1.0000 0.9963
+--     563-   596        47                                                                        1.0000 0.9965
+--     597-   631        47                                                                        1.0000 0.9966
+--     632-   667        27                                                                        1.0000 0.9967
+--     668-   704        24                                                                        1.0000 0.9967
+--     705-   742        29                                                                        1.0000 0.9968
+--     743-   781        26                                                                        1.0000 0.9968
+--     782-   821        27                                                                        1.0000 0.9969
+--
+--           0 (max occurrences)
+--   284160311 (total mers, non-unique)
+--    74359185 (distinct mers, non-unique)
+--           0 (unique mers)
+-- Finished stage 'meryl-process', reset canuIteration.
+--
+-- Removing meryl database 'correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16'.
+--
+-- OVERLAPPER (mhap) (correction)
+--
+-- Set corMhapSensitivity=low based on read coverage of 190.64.
+--
+-- PARAMETERS: hashes=256, minMatches=3, threshold=0.8
+--
+-- Given 5.4 GB, can fit 16200 reads per block.
+-- For 8 blocks, set stride to 2 blocks.
+-- Logging partitioning to 'correction/1-overlapper/partitioning.log'.
+-- Configured 7 mhap precompute jobs.
+-- Configured 13 mhap overlap jobs.
+-- Finished stage 'cor-mhapConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'cormhap' concurrent execution on Wed Apr 15 11:43:32 2026 with 1598.632 GB free disk space (7 processes; 1 concurrently)
+
+    cd correction/1-overlapper
+    ./precompute.sh 1 > ./precompute.000001.out 2>&1
+    ./precompute.sh 2 > ./precompute.000002.out 2>&1
+    ./precompute.sh 3 > ./precompute.000003.out 2>&1
+    ./precompute.sh 4 > ./precompute.000004.out 2>&1
+    ./precompute.sh 5 > ./precompute.000005.out 2>&1
+    ./precompute.sh 6 > ./precompute.000006.out 2>&1
+    ./precompute.sh 7 > ./precompute.000007.out 2>&1
+
+-- Finished on Wed Apr 15 12:27:10 2026 (2618 seconds) with 1596.929 GB free disk space
+----------------------------------------
+-- All 7 mhap precompute jobs finished successfully.
+-- Finished stage 'cor-mhapPrecomputeCheck', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'cormhap' concurrent execution on Wed Apr 15 12:27:10 2026 with 1596.929 GB free disk space (13 processes; 1 concurrently)
+
+    cd correction/1-overlapper
+    ./mhap.sh 1 > ./mhap.000001.out 2>&1
+    ./mhap.sh 2 > ./mhap.000002.out 2>&1
+    ./mhap.sh 3 > ./mhap.000003.out 2>&1
+    ./mhap.sh 4 > ./mhap.000004.out 2>&1
+    ./mhap.sh 5 > ./mhap.000005.out 2>&1
+    ./mhap.sh 6 > ./mhap.000006.out 2>&1
+    ./mhap.sh 7 > ./mhap.000007.out 2>&1
+    ./mhap.sh 8 > ./mhap.000008.out 2>&1
+    ./mhap.sh 9 > ./mhap.000009.out 2>&1
+    ./mhap.sh 10 > ./mhap.000010.out 2>&1
+    ./mhap.sh 11 > ./mhap.000011.out 2>&1
+    ./mhap.sh 12 > ./mhap.000012.out 2>&1
+    ./mhap.sh 13 > ./mhap.000013.out 2>&1
+
+-- Finished on Wed Apr 15 12:30:41 2026 (211 seconds) with 1596.857 GB free disk space
+----------------------------------------
+-- Found 13 mhap overlap output files.
+-- Finished stage 'cor-mhapCheck', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 12:30:41 2026 with 1596.857 GB free disk space
+
+    cd correction
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/ovStoreConfig \
+     -S ../E_faecium_PacBio_20260415_114224.seqStore \
+     -M 4-8 \
+     -L ./1-overlapper/ovljob.files \
+     -create ./E_faecium_PacBio_20260415_114224.ovlStore.config \
+     > ./E_faecium_PacBio_20260415_114224.ovlStore.config.txt \
+    2> ./E_faecium_PacBio_20260415_114224.ovlStore.config.err
+
+-- Finished on Wed Apr 15 12:30:41 2026 (like a bat out of hell) with 1596.857 GB free disk space
+----------------------------------------
+--
+-- Creating overlap store correction/E_faecium_PacBio_20260415_114224.ovlStore using:
+--      1 bucket
+--      1 slice
+--        using at most 1 GB memory each
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'ovS' concurrent execution on Wed Apr 15 12:30:41 2026 with 1596.857 GB free disk space (1 processes; 1 concurrently)
+
+    cd correction
+    ./E_faecium_PacBio_20260415_114224.ovlStore.sh 1 > ./E_faecium_PacBio_20260415_114224.ovlStore.000001.out 2>&1
+
+-- Finished on Wed Apr 15 12:30:43 2026 (2 seconds) with 1596.716 GB free disk space
+----------------------------------------
+-- Checking store.
+----------------------------------------
+-- Starting command on Wed Apr 15 12:30:43 2026 with 1596.716 GB free disk space
+
+    cd correction
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/ovStoreDump \
+     -S ../E_faecium_PacBio_20260415_114224.seqStore \
+     -O  ./E_faecium_PacBio_20260415_114224.ovlStore \
+     -counts \
+     > ./E_faecium_PacBio_20260415_114224.ovlStore/counts.dat 2> ./E_faecium_PacBio_20260415_114224.ovlStore/counts.err
+
+-- Finished on Wed Apr 15 12:30:43 2026 (furiously fast) with 1596.715 GB free disk space
+----------------------------------------
+--
+-- Overlap store 'correction/E_faecium_PacBio_20260415_114224.ovlStore' successfully constructed.
+-- Found 7118626 overlaps for 87233 reads; 13603 reads have no overlaps.
+--
+--
+-- Purged 1.775 GB in 33 overlap output files.
+-- Finished stage 'cor-createOverlapStore', reset canuIteration.
+-- Set corMinCoverage=4 based on read coverage of 190.64.
+-- Computing correction layouts.
+--   Local  filter coverage   80
+--   Global filter coverage   40
+----------------------------------------
+-- Starting command on Wed Apr 15 12:30:43 2026 with 1598.491 GB free disk space
+
+    cd correction
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/generateCorrectionLayouts \
+      -S ../E_faecium_PacBio_20260415_114224.seqStore \
+      -O  ./E_faecium_PacBio_20260415_114224.ovlStore \
+      -C  ./E_faecium_PacBio_20260415_114224.corStore.WORKING \
+      -eC 80 \
+      -xC 40 \
+    > ./E_faecium_PacBio_20260415_114224.corStore.err 2>&1
+
+-- Finished on Wed Apr 15 12:30:44 2026 (one second) with 1598.379 GB free disk space
+----------------------------------------
+-- Finished stage 'cor-buildCorrectionLayoutsConfigure', reset canuIteration.
+-- Computing correction layouts.
+----------------------------------------
+-- Starting command on Wed Apr 15 12:30:44 2026 with 1598.379 GB free disk space
+
+    cd correction/2-correction
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/filterCorrectionLayouts \
+      -S  ../../E_faecium_PacBio_20260415_114224.seqStore \
+      -C     ../E_faecium_PacBio_20260415_114224.corStore \
+      -R      ./E_faecium_PacBio_20260415_114224.readsToCorrect.WORKING \
+      -cc 4 \
+      -cl 1000 \
+      -g  2800000 \
+      -c  40 \
+    > ./E_faecium_PacBio_20260415_114224.readsToCorrect.err 2>&1
+
+-- Finished on Wed Apr 15 12:30:45 2026 (one second) with 1598.372 GB free disk space
+----------------------------------------
+--                             original      original
+--                            raw reads     raw reads
+--   category                w/overlaps  w/o/overlaps
+--   -------------------- ------------- -------------
+--   Number of Reads              77120         23716
+--   Number of Bases          424235527      44270436
+--   Coverage                   151.513        15.811
+--   Median                        4942             0
+--   Mean                          5500          1866
+--   N50                           7019          5948
+--   Minimum                       1000             0
+--   Maximum                      21204         20592
+--   
+--                                        --------corrected---------  ----------rescued----------
+--                             evidence                     expected                     expected
+--   category                     reads            raw     corrected            raw     corrected
+--   -------------------- -------------  ------------- -------------  ------------- -------------
+--   Number of Reads              76512          11677         11677            473           473
+--   Number of Bases          424254991      118224004     112000438        2099210       1043916
+--   Coverage                   151.520         42.223        40.000          0.750         0.373
+--   Median                        4988           9558          9029           3676          1854
+--   Mean                          5544          10124          9591           4438          2207
+--   N50                           7017          10057          9396           6013          2584
+--   Minimum                       1000           7473          7471           1051          1001
+--   Maximum                      20948          19923         18422          17911          6850
+--   
+--                        --------uncorrected--------
+--                                           expected
+--   category                       raw     corrected
+--   -------------------- ------------- -------------
+--   Number of Reads              88686         88686
+--   Number of Bases          348182749     192138609
+--   Coverage                   124.351        68.621
+--   Median                        3590          1261
+--   Mean                          3926          2166
+--   N50                           5864          5102
+--   Minimum                          0             0
+--   Maximum                      21204         18970
+--   
+--   Maximum Memory           714635102
+-- Finished stage 'cor-filterCorrectionLayouts', reset canuIteration.
+--
+-- Correction jobs estimated to need at most 0.665 GB for computation.
+-- Correction jobs will request 6 GB each.
+--
+-- Local: cor        6.000 GB    2 CPUs x   1 job      6.000 GB   2 CPUs  (read correction)
+--
+--
+-- Configuring correction jobs:
+--   Reads estimated to need at most 0.665 GB for computation.
+--   Jobs will request 6 GB each.
+----------------------------------------
+-- Starting command on Wed Apr 15 12:30:45 2026 with 1598.372 GB free disk space
+
+    cd correction/2-correction
+    ./correctReadsPartition.sh \
+    > ./correctReadsPartition.err 2>&1
+
+-- Finished on Wed Apr 15 12:30:45 2026 (fast as lightning) with 1598.372 GB free disk space
+----------------------------------------
+-- Finished stage 'cor-generateCorrectedReadsConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'cor' concurrent execution on Wed Apr 15 12:30:45 2026 with 1598.372 GB free disk space (2 processes; 1 concurrently)
+
+    cd correction/2-correction
+    ./correctReads.sh 1 > ./correctReads.000001.out 2>&1
+    ./correctReads.sh 2 > ./correctReads.000002.out 2>&1
+
+-- Finished on Wed Apr 15 13:04:45 2026 (2040 seconds) with 1598.148 GB free disk space
+----------------------------------------
+-- Found 2 read correction output files.
+-- Finished stage 'cor-generateCorrectedReadsCheck', reset canuIteration.
+-- Found 2 read correction output files.
+-- Finished stage 'cor-generateCorrectedReadsCheck', reset canuIteration.
+--
+-- Loading corrected reads into corStore and seqStore.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:04:46 2026 with 1598.148 GB free disk space
+
+    cd correction
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/loadCorrectedReads \
+      -S ../E_faecium_PacBio_20260415_114224.seqStore \
+      -C ./E_faecium_PacBio_20260415_114224.corStore \
+      -L ./2-correction/corjob.files \
+    >  ./E_faecium_PacBio_20260415_114224.loadCorrectedReads.log \
+    2> ./E_faecium_PacBio_20260415_114224.loadCorrectedReads.err
+
+-- Finished on Wed Apr 15 13:04:46 2026 (one second) with 1598.09 GB free disk space
+----------------------------------------
+--
+-- In sequence store './E_faecium_PacBio_20260415_114224.seqStore':
+--   Found 11706 reads.
+--   Found 99959239 bases (35.69 times coverage).
+--    Histogram of corrected reads:
+--    
+--    G=99959239                         sum of  ||               length     num
+--    NG         length     index       lengths  ||                range    seqs
+--    ----- ------------ --------- ------------  ||  ------------------- -------
+--    00010        12249       737      9999341  ||       1002-1420          126|-----
+--    00020        10764      1613     19999831  ||       1421-1839           54|---
+--    00030         9900      2583     29993664  ||       1840-2258           66|---
+--    00040         9228      3630     39988481  ||       2259-2677           49|--
+--    00050         8672      4749     49984486  ||       2678-3096           55|---
+--    00060         8256      5931     59976936  ||       3097-3515           52|--
+--    00070         7888      7171     69977331  ||       3516-3934           49|--
+--    00080         7538      8468     79974256  ||       3935-4353           57|---
+--    00090         7178      9825     89969793  ||       4354-4772           84|----
+--    00100         1002     11706     99959239  ||       4773-5191           94|----
+--    001.000x               11706     99959239  ||       5192-5610           90|----
+--                                               ||       5611-6029          136|------
+--                                               ||       6030-6448          141|------
+--                                               ||       6449-6867          292|------------
+--                                               ||       6868-7286          883|----------------------------------
+--                                               ||       7287-7705         1667|---------------------------------------------------------------
+--                                               ||       7706-8124         1468|--------------------------------------------------------
+--                                               ||       8125-8543         1264|------------------------------------------------
+--                                               ||       8544-8962          964|-------------------------------------
+--                                               ||       8963-9381          750|-----------------------------
+--                                               ||       9382-9800          637|-------------------------
+--                                               ||       9801-10219         555|---------------------
+--                                               ||      10220-10638         436|-----------------
+--                                               ||      10639-11057         353|--------------
+--                                               ||      11058-11476         265|-----------
+--                                               ||      11477-11895         234|---------
+--                                               ||      11896-12314         179|-------
+--                                               ||      12315-12733         173|-------
+--                                               ||      12734-13152         131|-----
+--                                               ||      13153-13571         112|-----
+--                                               ||      13572-13990          77|---
+--                                               ||      13991-14409          63|---
+--                                               ||      14410-14828          43|--
+--                                               ||      14829-15247          32|--
+--                                               ||      15248-15666          29|--
+--                                               ||      15667-16085          21|-
+--                                               ||      16086-16504          12|-
+--                                               ||      16505-16923           8|-
+--                                               ||      16924-17342           1|-
+--                                               ||      17343-17761           4|-
+--    
+--
+-- Purging correctReads output after loading into stores.
+-- Purged 2 .cns outputs.
+-- Purged 4 .out job log outputs.
+--
+-- No corrected reads generated, overlaps used for correction saved.
+-- Finished stage 'cor-loadCorrectedReads', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:04:49 2026 with 1598.314 GB free disk space
+
+    cd .
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/sqStoreDumpFASTQ \
+      -corrected \
+      -S ./E_faecium_PacBio_20260415_114224.seqStore \
+      -o ./E_faecium_PacBio_20260415_114224.correctedReads.gz \
+      -fasta \
+      -nolibname \
+    > E_faecium_PacBio_20260415_114224.correctedReads.fasta.err 2>&1
+
+-- Finished on Wed Apr 15 13:04:50 2026 (one second) with 1598.283 GB free disk space
+----------------------------------------
+--
+-- Corrected reads saved in 'E_faecium_PacBio_20260415_114224.correctedReads.fasta.gz'.
+-- Finished stage 'cor-dumpCorrectedReads', reset canuIteration.
+--
+-- BEGIN TRIMMING
+----------------------------------------
+-- Starting command on Wed Apr 15 13:04:50 2026 with 1598.283 GB free disk space
+
+    cd trimming/0-mercounts
+    ./meryl-configure.sh \
+    > ./meryl-configure.err 2>&1
+
+-- Finished on Wed Apr 15 13:04:51 2026 (one second) with 1598.283 GB free disk space
+----------------------------------------
+--  segments   memory batches
+--  -------- -------- -------
+--        01  0.40 GB       2
+--        02  -.-- GB       -  (segment size too small)
+--        04  -.-- GB       -  (segment size too small)
+--        06  -.-- GB       -  (segment size too small)
+--        08  -.-- GB       -  (segment size too small)
+--        12  -.-- GB       -  (segment size too small)
+--        16  -.-- GB       -  (segment size too small)
+--        20  -.-- GB       -  (segment size too small)
+--        24  -.-- GB       -  (segment size too small)
+--        32  -.-- GB       -  (segment size too small)
+--        40  -.-- GB       -  (segment size too small)
+--        48  -.-- GB       -  (segment size too small)
+--        56  -.-- GB       -  (segment size too small)
+--        64  -.-- GB       -  (segment size too small)
+--        96  -.-- GB       -  (segment size too small)
+--
+--  For 11706 reads with 99959239 bases, limit to 1 batch.
+--  Will count kmers using 01 jobs, each using 2 GB and 2 threads.
+--
+-- Finished stage 'merylConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'meryl' concurrent execution on Wed Apr 15 13:04:51 2026 with 1598.283 GB free disk space (1 processes; 1 concurrently)
+
+    cd trimming/0-mercounts
+    ./meryl-count.sh 1 > ./meryl-count.000001.out 2>&1
+
+-- Finished on Wed Apr 15 13:04:58 2026 (7 seconds) with 1598.241 GB free disk space
+----------------------------------------
+-- Found 1 Kmer counting (meryl) outputs.
+-- Finished stage 'obt-merylCountCheck', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'meryl' concurrent execution on Wed Apr 15 13:04:58 2026 with 1598.241 GB free disk space (1 processes; 1 concurrently)
+
+    cd trimming/0-mercounts
+    ./meryl-process.sh 1 > ./meryl-process.000001.out 2>&1
+
+-- Finished on Wed Apr 15 13:04:59 2026 (one second) with 1598.261 GB free disk space
+----------------------------------------
+-- Meryl finished successfully.  Kmer frequency histogram:
+--
+--  22-mers                                                                                           Fraction
+--    Occurrences   NumMers                                                                         Unique Total
+--       1-     1         0                                                                        0.0000 0.0000
+--       2-     2    243174 **********************************                                     0.0752 0.0050
+--       3-     4    125665 ******************                                                     0.0996 0.0075
+--       5-     7    124725 *****************                                                      0.1251 0.0113
+--       8-    11    215052 ******************************                                         0.1681 0.0214
+--      12-    16    256874 ************************************                                   0.2338 0.0445
+--      17-    22    312828 ********************************************                           0.3153 0.0856
+--      23-    29    445443 ****************************************************************       0.4141 0.1537
+--      30-    37    487194 ********************************************************************** 0.5538 0.2807
+--      38-    46    478925 ********************************************************************   0.7029 0.4527
+--      47-    56    326557 **********************************************                         0.8450 0.6563
+--      57-    67    140220 ********************                                                   0.9397 0.8211
+--      68-    79     28744 ****                                                                   0.9776 0.8994
+--      80-    92     14187 **                                                                     0.9858 0.9194
+--      93-   106      7134 *                                                                      0.9898 0.9310
+--     107-   121      7486 *                                                                      0.9920 0.9385
+--     122-   137      1756                                                                        0.9941 0.9463
+--     138-   154      1094                                                                        0.9946 0.9486
+--     155-   172      2454                                                                        0.9950 0.9504
+--     173-   191      1030                                                                        0.9957 0.9544
+--     192-   211      1657                                                                        0.9961 0.9564
+--     212-   232      1067                                                                        0.9966 0.9600
+--     233-   254      1325                                                                        0.9969 0.9622
+--     255-   277       842                                                                        0.9973 0.9655
+--     278-   301      1225                                                                        0.9976 0.9679
+--     302-   326       369                                                                        0.9979 0.9715
+--     327-   352      1625                                                                        0.9981 0.9728
+--     353-   379      2882                                                                        0.9986 0.9787
+--     380-   407       134                                                                        0.9994 0.9895
+--     408-   436        29                                                                        0.9995 0.9899
+--     437-   466        32                                                                        0.9995 0.9900
+--     467-   497        77                                                                        0.9995 0.9902
+--     498-   529       288                                                                        0.9995 0.9905
+--     530-   562       376                                                                        0.9996 0.9922
+--     563-   596       365                                                                        0.9997 0.9942
+--     597-   631       318                                                                        0.9998 0.9965
+--     632-   667       166                                                                        0.9999 0.9985
+--     668-   704         7                                                                        1.0000 0.9995
+--     705-   742        10                                                                        1.0000 0.9996
+--     743-   781         3                                                                        1.0000 0.9997
+--     782-   821         3                                                                        1.0000 0.9997
+--
+--           0 (max occurrences)
+--    96418108 (total mers, non-unique)
+--     3233367 (distinct mers, non-unique)
+--           0 (unique mers)
+-- Finished stage 'meryl-process', reset canuIteration.
+--
+-- Removing meryl database 'trimming/0-mercounts/E_faecium_PacBio_20260415_114224.ms22'.
+--
+-- OVERLAPPER (normal) (trimming) erate=0.045
+--
+----------------------------------------
+-- Starting command on Wed Apr 15 13:04:59 2026 with 1598.283 GB free disk space
+
+    cd trimming/1-overlapper
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/overlapInCorePartition \
+     -S  ../../E_faecium_PacBio_20260415_114224.seqStore \
+     -hl 80000000 \
+     -rl 1000000000 \
+     -ol 500 \
+     -o  ./E_faecium_PacBio_20260415_114224.partition \
+    > ./E_faecium_PacBio_20260415_114224.partition.err 2>&1
+
+-- Finished on Wed Apr 15 13:04:59 2026 (furiously fast) with 1598.283 GB free disk space
+----------------------------------------
+--
+-- Configured 2 overlapInCore jobs.
+-- Finished stage 'obt-overlapConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'obtovl' concurrent execution on Wed Apr 15 13:04:59 2026 with 1598.283 GB free disk space (2 processes; 1 concurrently)
+
+    cd trimming/1-overlapper
+    ./overlap.sh 1 > ./overlap.000001.out 2>&1
+    ./overlap.sh 2 > ./overlap.000002.out 2>&1
+
+-- Finished on Wed Apr 15 13:07:37 2026 (158 seconds) with 1598.265 GB free disk space
+----------------------------------------
+-- Found 2 overlapInCore output files.
+--
+-- overlapInCore compute 'trimming/1-overlapper':
+--   kmer hits
+--     with no overlap          2850949   1425474.5 +- 603893.939
+--     with an overlap           933581    466790.5 +- 181943.524
+--
+--   overlaps                    933578      466789 +- 181942.817
+--     contained                      0           0 +- 0
+--     dovetail                       0           0 +- 0
+--
+--   overlaps rejected
+--     multiple per pair              0           0 +- 0
+--     bad short window               0           0 +- 0
+--     bad long window                0           0 +- 0
+-- Finished stage 'obt-overlapCheck', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:07:37 2026 with 1598.265 GB free disk space
+
+    cd trimming
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/ovStoreConfig \
+     -S ../E_faecium_PacBio_20260415_114224.seqStore \
+     -M 3 \
+     -L ./1-overlapper/ovljob.files \
+     -create ./E_faecium_PacBio_20260415_114224.ovlStore.config \
+     > ./E_faecium_PacBio_20260415_114224.ovlStore.config.txt \
+    2> ./E_faecium_PacBio_20260415_114224.ovlStore.config.err
+
+-- Finished on Wed Apr 15 13:07:37 2026 (fast as lightning) with 1598.265 GB free disk space
+----------------------------------------
+--
+-- Creating overlap store trimming/E_faecium_PacBio_20260415_114224.ovlStore using:
+--      1 bucket
+--      1 slice
+--        using at most 1 GB memory each
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'ovS' concurrent execution on Wed Apr 15 13:07:37 2026 with 1598.265 GB free disk space (1 processes; 1 concurrently)
+
+    cd trimming
+    ./E_faecium_PacBio_20260415_114224.ovlStore.sh 1 > ./E_faecium_PacBio_20260415_114224.ovlStore.000001.out 2>&1
+
+-- Finished on Wed Apr 15 13:07:38 2026 (one second) with 1598.222 GB free disk space
+----------------------------------------
+-- Checking store.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:07:38 2026 with 1598.222 GB free disk space
+
+    cd trimming
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/ovStoreDump \
+     -S ../E_faecium_PacBio_20260415_114224.seqStore \
+     -O  ./E_faecium_PacBio_20260415_114224.ovlStore \
+     -counts \
+     > ./E_faecium_PacBio_20260415_114224.ovlStore/counts.dat 2> ./E_faecium_PacBio_20260415_114224.ovlStore/counts.err
+
+-- Finished on Wed Apr 15 13:07:38 2026 (fast as lightning) with 1598.221 GB free disk space
+----------------------------------------
+--
+-- Overlap store 'trimming/E_faecium_PacBio_20260415_114224.ovlStore' successfully constructed.
+-- Found 1867162 overlaps for 11704 reads; 89132 reads have no overlaps.
+--
+--
+-- Purged 0.017 GB in 6 overlap output files.
+-- Finished stage 'obt-createOverlapStore', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:07:38 2026 with 1598.24 GB free disk space
+
+    cd trimming/3-overlapbasedtrimming
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/trimReads \
+      -S  ../../E_faecium_PacBio_20260415_114224.seqStore \
+      -O  ../E_faecium_PacBio_20260415_114224.ovlStore \
+      -Co ./E_faecium_PacBio_20260415_114224.1.trimReads.clear \
+      -e  0.045 \
+      -minlength 1000 \
+      -ol 500 \
+      -oc 2 \
+      -o  ./E_faecium_PacBio_20260415_114224.1.trimReads \
+    >     ./E_faecium_PacBio_20260415_114224.1.trimReads.err 2>&1
+
+-- Finished on Wed Apr 15 13:07:40 2026 (2 seconds) with 1598.236 GB free disk space
+----------------------------------------
+--  PARAMETERS:
+--  ----------
+--     1000    (reads trimmed below this many bases are deleted)
+--   0.0450    (use overlaps at or below this fraction error)
+--      500    (break region if overlap is less than this long, for 'largest covered' algorithm)
+--        2    (break region if overlap coverage is less than this many reads, for 'largest covered' algorithm)
+--  
+--  INPUT READS:
+--  -----------
+--  100836 reads     99959239 bases (reads processed)
+--       0 reads            0 bases (reads not processed, previously deleted)
+--       0 reads            0 bases (reads not processed, in a library where trimming isn't allowed)
+--  
+--  OUTPUT READS:
+--  ------------
+--    7013 reads     55746799 bases (trimmed reads output)
+--    4646 reads     39424636 bases (reads with no change, kept as is)
+--   89132 reads         3859 bases (reads with no overlaps, deleted)
+--      45 reads       108294 bases (reads with short trimmed length, deleted)
+--  
+--  TRIMMING DETAILS:
+--  ----------------
+--    4338 reads      1902963 bases (bases trimmed from the 5' end of a read)
+--    4218 reads      2772688 bases (bases trimmed from the 3' end of a read)
+-- Finished stage 'obt-trimReads', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:07:40 2026 with 1598.236 GB free disk space
+
+    cd trimming/3-overlapbasedtrimming
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/splitReads \
+      -S  ../../E_faecium_PacBio_20260415_114224.seqStore \
+      -O  ../E_faecium_PacBio_20260415_114224.ovlStore \
+      -Ci ./E_faecium_PacBio_20260415_114224.1.trimReads.clear \
+      -Co ./E_faecium_PacBio_20260415_114224.2.splitReads.clear \
+      -e  0.045 \
+      -minlength 1000 \
+      -o  ./E_faecium_PacBio_20260415_114224.2.splitReads \
+    >     ./E_faecium_PacBio_20260415_114224.2.splitReads.err 2>&1
+
+-- Finished on Wed Apr 15 13:07:40 2026 (in the blink of an eye) with 1598.235 GB free disk space
+----------------------------------------
+--  PARAMETERS:
+--  ----------
+--     1000    (reads trimmed below this many bases are deleted)
+--   0.0450    (use overlaps at or below this fraction error)
+--  INPUT READS:
+--  -----------
+--   11659 reads     99847086 bases (reads processed)
+--   89177 reads       112153 bases (reads not processed, previously deleted)
+--       0 reads            0 bases (reads not processed, in a library where trimming isn't allowed)
+--  
+--  PROCESSED:
+--  --------
+--       0 reads            0 bases (no overlaps)
+--       0 reads            0 bases (no coverage after adjusting for trimming done already)
+--       0 reads            0 bases (processed for chimera)
+--       0 reads            0 bases (processed for spur)
+--   11659 reads     99847086 bases (processed for subreads)
+--  
+--  READS WITH SIGNALS:
+--  ------------------
+--       0 reads            0 signals (number of 5' spur signal)
+--       0 reads            0 signals (number of 3' spur signal)
+--       0 reads            0 signals (number of chimera signal)
+--      12 reads           12 signals (number of subread signal)
+--  
+--  SIGNALS:
+--  -------
+--       0 reads            0 bases (size of 5' spur signal)
+--       0 reads            0 bases (size of 3' spur signal)
+--       0 reads            0 bases (size of chimera signal)
+--      12 reads         4498 bases (size of subread signal)
+--  
+--  TRIMMING:
+--  --------
+--       3 reads        14455 bases (trimmed from the 5' end of the read)
+--       9 reads        38233 bases (trimmed from the 3' end of the read)
+-- Finished stage 'obt-splitReads', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:07:40 2026 with 1598.235 GB free disk space
+
+    cd trimming/3-overlapbasedtrimming
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/loadTrimmedReads \
+      -S ../../E_faecium_PacBio_20260415_114224.seqStore \
+      -c ./E_faecium_PacBio_20260415_114224.2.splitReads.clear \
+    > ./E_faecium_PacBio_20260415_114224.loadTrimmedReads.err 2>&1
+
+-- Finished on Wed Apr 15 13:07:41 2026 (one second) with 1598.228 GB free disk space
+----------------------------------------
+--
+-- In sequence store './E_faecium_PacBio_20260415_114224.seqStore':
+--   Found 11659 reads.
+--   Found 95118747 bases (33.97 times coverage).
+--    Histogram of corrected-trimmed reads:
+--    
+--    G=95118747                         sum of  ||               length     num
+--    NG         length     index       lengths  ||                range    seqs
+--    ----- ------------ --------- ------------  ||  ------------------- -------
+--    00010        11455       749      9522986  ||       1001-1400          124|------
+--    00020        10231      1632     19024639  ||       1401-1800           70|---
+--    00030         9447      2601     28544818  ||       1801-2200           71|---
+--    00040         8851      3641     38051399  ||       2201-2600           56|---
+--    00050         8402      4745     47563536  ||       2601-3000           58|---
+--    00060         8025      5904     57077279  ||       3001-3400           64|---
+--    00070         7681      7115     66588217  ||       3401-3800           54|---
+--    00080         7360      8380     76099473  ||       3801-4200           64|---
+--    00090         6832      9710     85609108  ||       4201-4600          100|-----
+--    00100         1001     11659     95118747  ||       4601-5000          141|------
+--    001.000x               11659     95118747  ||       5001-5400          120|------
+--                                               ||       5401-5800          177|--------
+--                                               ||       5801-6200          263|-----------
+--                                               ||       6201-6600          337|---------------
+--                                               ||       6601-7000          496|---------------------
+--                                               ||       7001-7400         1264|-----------------------------------------------------
+--                                               ||       7401-7800         1507|---------------------------------------------------------------
+--                                               ||       7801-8200         1335|--------------------------------------------------------
+--                                               ||       8201-8600         1128|------------------------------------------------
+--                                               ||       8601-9000          857|------------------------------------
+--                                               ||       9001-9400          695|------------------------------
+--                                               ||       9401-9800          539|-----------------------
+--                                               ||       9801-10200         473|--------------------
+--                                               ||      10201-10600         371|----------------
+--                                               ||      10601-11000         303|-------------
+--                                               ||      11001-11400         216|----------
+--                                               ||      11401-11800         187|--------
+--                                               ||      11801-12200         130|------
+--                                               ||      12201-12600         131|------
+--                                               ||      12601-13000          88|----
+--                                               ||      13001-13400          81|----
+--                                               ||      13401-13800          46|--
+--                                               ||      13801-14200          35|--
+--                                               ||      14201-14600          23|-
+--                                               ||      14601-15000          22|-
+--                                               ||      15001-15400          13|-
+--                                               ||      15401-15800           9|-
+--                                               ||      15801-16200           6|-
+--                                               ||      16201-16600           3|-
+--                                               ||      16601-17000           2|-
+--    
+--
+-- No trimmed reads generated, overlaps used for trimming saved.
+-- Finished stage 'obt-dumpReads', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:07:41 2026 with 1598.229 GB free disk space
+
+    cd .
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/sqStoreDumpFASTQ \
+      -trimmed \
+      -S ./E_faecium_PacBio_20260415_114224.seqStore \
+      -o ./E_faecium_PacBio_20260415_114224.trimmedReads.gz \
+      -fasta \
+      -trimmed -normal -nolibname \
+    > ./E_faecium_PacBio_20260415_114224.trimmedReads.fasta.err 2>&1
+
+-- Finished on Wed Apr 15 13:07:42 2026 (one second) with 1598.2 GB free disk space
+----------------------------------------
+--
+-- Trimmed reads saved in 'E_faecium_PacBio_20260415_114224.trimmedReads.fasta.gz'.
+-- Finished stage 'cor-dumpTrimmedReads', reset canuIteration.
+--
+-- BEGIN ASSEMBLY
+----------------------------------------
+-- Starting command on Wed Apr 15 13:07:42 2026 with 1598.2 GB free disk space
+
+    cd unitigging/0-mercounts
+    ./meryl-configure.sh \
+    > ./meryl-configure.err 2>&1
+
+-- Finished on Wed Apr 15 13:07:42 2026 (in the blink of an eye) with 1598.2 GB free disk space
+----------------------------------------
+--  segments   memory batches
+--  -------- -------- -------
+--        01  0.38 GB       2
+--        02  -.-- GB       -  (segment size too small)
+--        04  -.-- GB       -  (segment size too small)
+--        06  -.-- GB       -  (segment size too small)
+--        08  -.-- GB       -  (segment size too small)
+--        12  -.-- GB       -  (segment size too small)
+--        16  -.-- GB       -  (segment size too small)
+--        20  -.-- GB       -  (segment size too small)
+--        24  -.-- GB       -  (segment size too small)
+--        32  -.-- GB       -  (segment size too small)
+--        40  -.-- GB       -  (segment size too small)
+--        48  -.-- GB       -  (segment size too small)
+--        56  -.-- GB       -  (segment size too small)
+--        64  -.-- GB       -  (segment size too small)
+--        96  -.-- GB       -  (segment size too small)
+--
+--  For 11659 reads with 95118747 bases, limit to 1 batch.
+--  Will count kmers using 01 jobs, each using 2 GB and 2 threads.
+--
+-- Finished stage 'merylConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'meryl' concurrent execution on Wed Apr 15 13:07:42 2026 with 1598.2 GB free disk space (1 processes; 1 concurrently)
+
+    cd unitigging/0-mercounts
+    ./meryl-count.sh 1 > ./meryl-count.000001.out 2>&1
+
+-- Finished on Wed Apr 15 13:07:49 2026 (7 seconds) with 1598.162 GB free disk space
+----------------------------------------
+-- Found 1 Kmer counting (meryl) outputs.
+-- Finished stage 'utg-merylCountCheck', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'meryl' concurrent execution on Wed Apr 15 13:07:49 2026 with 1598.162 GB free disk space (1 processes; 1 concurrently)
+
+    cd unitigging/0-mercounts
+    ./meryl-process.sh 1 > ./meryl-process.000001.out 2>&1
+
+-- Finished on Wed Apr 15 13:07:50 2026 (one second) with 1598.178 GB free disk space
+----------------------------------------
+-- Meryl finished successfully.  Kmer frequency histogram:
+--
+--  22-mers                                                                                           Fraction
+--    Occurrences   NumMers                                                                         Unique Total
+--       1-     1         0                                                                        0.0000 0.0000
+--       2-     2    209539 *****************************                                          0.0662 0.0045
+--       3-     4    112123 ***************                                                        0.0887 0.0069
+--       5-     7    133622 ******************                                                     0.1154 0.0110
+--       8-    11    212009 *****************************                                          0.1603 0.0219
+--      12-    16    267090 *************************************                                  0.2264 0.0456
+--      17-    22    334977 **********************************************                         0.3128 0.0902
+--      23-    29    468367 *****************************************************************      0.4217 0.1674
+--      30-    37    502752 ********************************************************************** 0.5700 0.3047
+--      38-    46    464411 ****************************************************************       0.7266 0.4897
+--      47-    56    290846 ****************************************                               0.8675 0.6964
+--      57-    67    102954 **************                                                         0.9522 0.8474
+--      68-    79     25450 ***                                                                    0.9799 0.9056
+--      80-    92     10662 *                                                                      0.9873 0.9242
+--      93-   106      9559 *                                                                      0.9902 0.9329
+--     107-   121      3072                                                                        0.9933 0.9433
+--     122-   137      1387                                                                        0.9942 0.9469
+--     138-   154      2150                                                                        0.9946 0.9487
+--     155-   172      1742                                                                        0.9953 0.9524
+--     173-   191      1948                                                                        0.9958 0.9553
+--     192-   211      1123                                                                        0.9965 0.9593
+--     212-   232       719                                                                        0.9968 0.9615
+--     233-   254      1335                                                                        0.9970 0.9635
+--     255-   277       754                                                                        0.9974 0.9668
+--     278-   301       808                                                                        0.9977 0.9692
+--     302-   326       795                                                                        0.9979 0.9715
+--     327-   352      2069                                                                        0.9982 0.9745
+--     353-   379      2021                                                                        0.9989 0.9822
+--     380-   407        27                                                                        0.9995 0.9898
+--     408-   436        43                                                                        0.9995 0.9899
+--     437-   466        65                                                                        0.9995 0.9901
+--     467-   497       116                                                                        0.9995 0.9904
+--     498-   529       491                                                                        0.9995 0.9910
+--     530-   562       233                                                                        0.9997 0.9938
+--     563-   596       486                                                                        0.9998 0.9952
+--     597-   631       201                                                                        0.9999 0.9982
+--     632-   667        15                                                                        1.0000 0.9995
+--     668-   704         8                                                                        1.0000 0.9996
+--     705-   742         3                                                                        1.0000 0.9997
+--     743-   781         5                                                                        1.0000 0.9997
+--     782-   821         3                                                                        1.0000 0.9997
+--
+--           0 (max occurrences)
+--    92213663 (total mers, non-unique)
+--     3166001 (distinct mers, non-unique)
+--           0 (unique mers)
+-- Finished stage 'meryl-process', reset canuIteration.
+--
+-- Removing meryl database 'unitigging/0-mercounts/E_faecium_PacBio_20260415_114224.ms22'.
+--
+-- OVERLAPPER (normal) (assembly) erate=0.045
+--
+----------------------------------------
+-- Starting command on Wed Apr 15 13:07:50 2026 with 1598.2 GB free disk space
+
+    cd unitigging/1-overlapper
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/overlapInCorePartition \
+     -S  ../../E_faecium_PacBio_20260415_114224.seqStore \
+     -hl 80000000 \
+     -rl 1000000000 \
+     -ol 500 \
+     -o  ./E_faecium_PacBio_20260415_114224.partition \
+    > ./E_faecium_PacBio_20260415_114224.partition.err 2>&1
+
+-- Finished on Wed Apr 15 13:07:51 2026 (one second) with 1598.199 GB free disk space
+----------------------------------------
+--
+-- Configured 2 overlapInCore jobs.
+-- Finished stage 'utg-overlapConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'utgovl' concurrent execution on Wed Apr 15 13:07:51 2026 with 1598.199 GB free disk space (2 processes; 1 concurrently)
+
+    cd unitigging/1-overlapper
+    ./overlap.sh 1 > ./overlap.000001.out 2>&1
+    ./overlap.sh 2 > ./overlap.000002.out 2>&1
+
+-- Finished on Wed Apr 15 13:12:41 2026 (290 seconds) with 1598.191 GB free disk space
+----------------------------------------
+-- Found 2 overlapInCore output files.
+--
+-- overlapInCore compute 'unitigging/1-overlapper':
+--   kmer hits
+--     with no overlap          3076771   1538385.5 +- 922131.589
+--     with an overlap           417662      208831 +- 119444.477
+--
+--   overlaps                    417662      208831 +- 119444.477
+--     contained                  60145     30072.5 +- 17309.266
+--     dovetail                  357517    178758.5 +- 102135.21
+--
+--   overlaps rejected
+--     multiple per pair              0           0 +- 0
+--     bad short window               0           0 +- 0
+--     bad long window                0           0 +- 0
+-- Finished stage 'utg-overlapCheck', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:12:41 2026 with 1598.191 GB free disk space
+
+    cd unitigging
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/ovStoreConfig \
+     -S ../E_faecium_PacBio_20260415_114224.seqStore \
+     -M 3 \
+     -L ./1-overlapper/ovljob.files \
+     -create ./E_faecium_PacBio_20260415_114224.ovlStore.config \
+     > ./E_faecium_PacBio_20260415_114224.ovlStore.config.txt \
+    2> ./E_faecium_PacBio_20260415_114224.ovlStore.config.err
+
+-- Finished on Wed Apr 15 13:12:41 2026 (in the blink of an eye) with 1598.191 GB free disk space
+----------------------------------------
+--
+-- Creating overlap store unitigging/E_faecium_PacBio_20260415_114224.ovlStore using:
+--      1 bucket
+--      1 slice
+--        using at most 1 GB memory each
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'ovS' concurrent execution on Wed Apr 15 13:12:41 2026 with 1598.191 GB free disk space (1 processes; 1 concurrently)
+
+    cd unitigging
+    ./E_faecium_PacBio_20260415_114224.ovlStore.sh 1 > ./E_faecium_PacBio_20260415_114224.ovlStore.000001.out 2>&1
+
+-- Finished on Wed Apr 15 13:12:42 2026 (one second) with 1598.167 GB free disk space
+----------------------------------------
+-- Checking store.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:12:42 2026 with 1598.167 GB free disk space
+
+    cd unitigging
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/ovStoreDump \
+     -S ../E_faecium_PacBio_20260415_114224.seqStore \
+     -O  ./E_faecium_PacBio_20260415_114224.ovlStore \
+     -counts \
+     > ./E_faecium_PacBio_20260415_114224.ovlStore/counts.dat 2> ./E_faecium_PacBio_20260415_114224.ovlStore/counts.err
+
+-- Finished on Wed Apr 15 13:12:42 2026 (furiously fast) with 1598.166 GB free disk space
+----------------------------------------
+--
+-- Overlap store 'unitigging/E_faecium_PacBio_20260415_114224.ovlStore' successfully constructed.
+-- Found 835324 overlaps for 11659 reads; 89177 reads have no overlaps.
+--
+--
+-- Purged 0.008 GB in 6 overlap output files.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:12:42 2026 with 1598.175 GB free disk space
+
+    cd unitigging
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/ovStoreStats \
+     -C 33.97 \
+     -S ../E_faecium_PacBio_20260415_114224.seqStore \
+     -O  ./E_faecium_PacBio_20260415_114224.ovlStore \
+     -o  ./E_faecium_PacBio_20260415_114224.ovlStore \
+     > ./E_faecium_PacBio_20260415_114224.ovlStore.summary.err 2>&1
+
+-- Finished on Wed Apr 15 13:12:42 2026 (lickety-split) with 1598.175 GB free disk space
+----------------------------------------
+--
+-- Overlap store 'unitigging/E_faecium_PacBio_20260415_114224.ovlStore' contains:
+--
+--   category            reads     %          read length        feature size or coverage  analysis
+--   ----------------  -------  -------  ----------------------  ------------------------  --------------------
+--   middle-missing          1    0.01    11456.00 +- 0.00           571.00 +- 0.00       (bad trimming)
+--   middle-hump             1    0.01     2924.00 +- 0.00           650.00 +- 0.00       (bad trimming)
+--   no-5-prime              9    0.08     6698.78 +- 3191.57        218.67 +- 346.25     (bad trimming)
+--   no-3-prime              9    0.08     2800.78 +- 1458.85        296.33 +- 560.64     (bad trimming)
+--   
+--   low-coverage          250    2.14     5202.72 +- 3282.69          6.90 +- 2.31       (easy to assemble, potential for lower quality consensus)
+--   unique               7055   60.51     8082.26 +- 2120.16         34.13 +- 9.40       (easy to assemble, perfect, yay)
+--   repeat-cont            88    0.75     5894.12 +- 2357.29         91.73 +- 45.28      (potential for consensus errors, no impact on assembly)
+--   repeat-dove             1    0.01     9715.00 +- 0.00            72.51 +- 5.68       (hard to assemble, likely won't assemble correctly or even at all)
+--   
+--   span-repeat          2027   17.39     8634.11 +- 1977.86       2698.63 +- 2214.19    (read spans a large repeat, usually easy to assemble)
+--   uniq-repeat-cont     1730   14.84     7902.75 +- 1672.77                             (should be uniquely placed, low potential for consensus errors, no impact on assembly)
+--   uniq-repeat-dove      404    3.47    10541.47 +- 2038.19                             (will end contigs, potential to misassemble)
+--   uniq-anchor            84    0.72     8780.95 +- 1744.61       1123.86 +- 2147.56    (repeat read, with unique section, probable bad read)
+-- Finished stage 'utg-createOverlapStore', reset canuIteration.
+--
+-- Loading read lengths.
+-- Loading number of overlaps per read.
+--
+-- Configure RED for 12gb memory.
+--                   Batches of at most (unlimited) reads.
+--                                      500000000 bases.
+--                   Expecting evidence of at most 536870912 bases per iteration.
+--
+--           Total                                               Reads                 Olaps Evidence
+--    Job   Memory      Read Range         Reads        Bases   Memory        Olaps   Memory   Memory  (Memory in MB)
+--   ---- -------- ------------------- --------- ------------ -------- ------------ -------- --------
+--      1 12288.09         1-74145          9242     75434091  9208.55       658444     7.54  1024.00
+--      2  5490.70     74146-100836         2464     19796809  2416.68       176880     2.02  1024.00
+--   ---- -------- ------------------- --------- ------------ -------- ------------ -------- --------
+--                                                   95230900                835324
+-- Finished stage 'readErrorDetectionConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'red' concurrent execution on Wed Apr 15 13:12:42 2026 with 1598.175 GB free disk space (2 processes; 1 concurrently)
+
+    cd unitigging/3-overlapErrorAdjustment
+    ./red.sh 1 > ./red.000001.out 2>&1
+    ./red.sh 2 > ./red.000002.out 2>&1
+
+-- Finished on Wed Apr 15 13:13:06 2026 (24 seconds) with 1598.173 GB free disk space
+----------------------------------------
+-- Found 2 read error detection output files.
+-- Finished stage 'readErrorDetectionCheck', reset canuIteration.
+--
+-- Loading read lengths.
+-- Loading number of overlaps per read.
+--
+-- Configure OEA for 8gb memory.
+--                   Batches of at most (unlimited) reads.
+--                                      300000000 bases.
+--
+--           Total                                               Reads                 Olaps  Adjusts
+--    Job   Memory      Read Range         Reads        Bases   Memory        Olaps   Memory   Memory  (Memory in MB)
+--   ---- -------- ------------------- --------- ------------ -------- ------------ -------- --------
+--      1  2499.16         1-100836        11706     95230900    99.18       835324    25.49   326.49
+--   ---- -------- ------------------- --------- ------------ -------- ------------ -------- --------
+--                                                   95230900                835324
+-- Finished stage 'overlapErrorAdjustmentConfigure', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'oea' concurrent execution on Wed Apr 15 13:13:06 2026 with 1598.173 GB free disk space (1 processes; 1 concurrently)
+
+    cd unitigging/3-overlapErrorAdjustment
+    ./oea.sh 1 > ./oea.000001.out 2>&1
+
+-- Finished on Wed Apr 15 13:13:11 2026 (5 seconds) with 1598.171 GB free disk space
+----------------------------------------
+-- Found 1 overlap error adjustment output files.
+-- Finished stage 'overlapErrorAdjustmentCheck', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:13:11 2026 with 1598.171 GB free disk space
+
+    cd unitigging/3-overlapErrorAdjustment
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/loadErates \
+      -S ../../E_faecium_PacBio_20260415_114224.seqStore \
+      -O ../E_faecium_PacBio_20260415_114224.ovlStore \
+      -L ./oea.files \
+    > ./oea.apply.err 2>&1
+
+-- Finished on Wed Apr 15 13:13:11 2026 (fast as lightning) with 1598.17 GB free disk space
+----------------------------------------
+-- No report available.
+-- Finished stage 'updateOverlapStore', reset canuIteration.
+-- Finished stage 'unitig', reset canuIteration.
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'bat' concurrent execution on Wed Apr 15 13:13:11 2026 with 1598.17 GB free disk space (1 processes; 1 concurrently)
+
+    cd unitigging/4-unitigger
+    ./unitigger.sh 1 > ./unitigger.000001.out 2>&1
+
+-- Finished on Wed Apr 15 13:13:13 2026 (2 seconds) with 1598.168 GB free disk space
+----------------------------------------
+-- Unitigger finished successfully.
+--  
+--  ERROR RATES
+--  -----------
+--                                                   --------threshold------
+--  13540                        fraction error      fraction        percent
+--  samples                              (1e-5)         error          error
+--                   --------------------------      --------       --------
+--  command line (-eg)                           ->   4500.00        4.5000%
+--  command line (-ef)                           ->  -----.--      ---.----%
+--  command line (-eM)                           ->   4500.00        4.5000%
+--  mean + std.dev      23.20 +-  12 *    91.30  ->   1118.79        1.1188%  (enabled)
+--  median + mad         0.00 +-  12 *     0.00  ->      0.00        0.0000%
+--  90th percentile                              ->     73.00        0.0730%
+--  
+--  BEST EDGE FILTERING
+--  -------------------
+--  At graph threshold 4.5000%, reads:
+--    available to have edges:         1902
+--    with at least one edge:          1901
+--  
+--  At max threshold 4.5000%, reads:  (not computed)
+--    available to have edges:            0
+--    with at least one edge:             0
+--  
+--  At tight threshold 0.0730%, reads with:
+--    both edges below error threshold:      1089  (80.00% minReadsBest threshold = 1520)
+--    one  edge  above error threshold:       499
+--    both edges above error threshold:       313
+--    at least one edge:                     1901
+--  
+--  At loose threshold 1.1188%, reads with:
+--    both edges below error threshold:      1890  (80.00% minReadsBest threshold = 1520)
+--    one  edge  above error threshold:        11
+--    both edges above error threshold:         0
+--    at least one edge:                     1901
+--  
+--  
+--  INITIAL EDGES
+--  -------- ----------------------------------------
+--      9738 reads are contained
+--     89204 reads have no best edges (singleton)
+--        16 reads have only one best edge (spur) 
+--                 16 are mutual best
+--      1878 reads have two best edges 
+--                  6 have one mutual best edge
+--               1868 have two mutual best edges
+--  
+--  
+--  FINAL EDGES
+--  -------- ----------------------------------------
+--      9738 reads are contained
+--     89205 reads have no best edges (singleton)
+--        19 reads have only one best edge (spur) 
+--                 15 are mutual best
+--      1874 reads have two best edges 
+--                  7 have one mutual best edge
+--               1863 have two mutual best edges
+--  
+--  
+--  EDGE FILTERING
+--  -------- ------------------------------------------
+--         0 reads are ignored
+--        25 reads have a gap in overlap coverage
+--         0 reads have lopsided best edges
+-- Found, in version 1, after unitig construction:
+--   contigs:      9 sequences, total length 3104245 bp (including 0 repeats of total length 0 bp).
+--   bubbles:      1 sequences, total length 15021 bp.
+--   unassembled:  48 sequences, total length 234696 bp.
+--
+-- Contig sizes based on genome size 2.8mbp:
+--
+--            NG (bp)  LG (contigs)    sum (bp)
+--         ----------  ------------  ----------
+--     10     2766417             1     2766417
+--     20     2766417             1     2766417
+--     30     2766417             1     2766417
+--     40     2766417             1     2766417
+--     50     2766417             1     2766417
+--     60     2766417             1     2766417
+--     70     2766417             1     2766417
+--     80     2766417             1     2766417
+--     90     2766417             1     2766417
+--    100      199585             2     2966002
+--    110       15451             7     3085271
+--
+-- Finished stage 'unitigCheck', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:13:13 2026 with 1598.168 GB free disk space
+
+    cd unitigging
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/utgcns \
+      -S ../E_faecium_PacBio_20260415_114224.seqStore \
+      -T  ./E_faecium_PacBio_20260415_114224.ctgStore 1 \
+      -partition 0.8 1 0.1 \
+    > ./E_faecium_PacBio_20260415_114224.ctgStore/partitioning.log 2>&1
+
+-- Finished on Wed Apr 15 13:13:13 2026 (furiously fast) with 1598.116 GB free disk space
+----------------------------------------
+-- Using slow alignment for consensus (iteration '0').
+-- Configured 2 consensus jobs.
+-- Finished stage 'consensusConfigure', reset canuIteration.
+--
+-- Local: cns        3.125 GB    2 CPUs x   1 job      3.125 GB   2 CPUs  (consensus)
+--
+--
+-- Running jobs.  First attempt out of 2.
+----------------------------------------
+-- Starting 'cns' concurrent execution on Wed Apr 15 13:13:13 2026 with 1598.116 GB free disk space (2 processes; 1 concurrently)
+
+    cd unitigging/5-consensus
+    ./consensus.sh 1 > ./consensus.000001.out 2>&1
+    ./consensus.sh 2 > ./consensus.000002.out 2>&1
+
+-- Finished on Wed Apr 15 13:14:41 2026 (88 seconds) with 1598.107 GB free disk space
+----------------------------------------
+-- Using slow alignment for consensus (iteration '1').
+-- Configured 2 consensus jobs.
+-- All 2 consensus jobs finished successfully.
+-- Finished stage 'consensusCheck', reset canuIteration.
+-- Using slow alignment for consensus (iteration '0').
+-- Configured 2 consensus jobs.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:14:41 2026 with 1598.107 GB free disk space
+
+    cd unitigging
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/tgStoreLoad \
+      -S ../E_faecium_PacBio_20260415_114224.seqStore \
+      -T  ./E_faecium_PacBio_20260415_114224.ctgStore 2 \
+      -L ./5-consensus/ctgcns.files \
+    > ./5-consensus/ctgcns.files.ctgStoreLoad.err 2>&1
+
+-- Finished on Wed Apr 15 13:14:41 2026 (furiously fast) with 1598.099 GB free disk space
+----------------------------------------
+----------------------------------------
+-- Starting command on Wed Apr 15 13:14:41 2026 with 1598.099 GB free disk space
+
+    cd unitigging
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/tgTigDisplay \
+      -S ../E_faecium_PacBio_20260415_114224.seqStore \
+      -b \
+      -o ../E_faecium_PacBio_20260415_114224.contigs.unsorted.bam \
+      -L ./5-consensus/ctgcns.files \
+    > ./5-consensus/ctgcns.files.contigs.bam.err 2>&1
+
+-- Finished on Wed Apr 15 13:14:43 2026 (2 seconds) with 1598.082 GB free disk space
+----------------------------------------
+----------------------------------------
+-- Starting command on Wed Apr 15 13:14:43 2026 with 1598.082 GB free disk space
+
+    cd .
+    samtools sort \
+      --write-index \
+      --threads 2 \
+      -o ./E_faecium_PacBio_20260415_114224.contigs.bam ./E_faecium_PacBio_20260415_114224.contigs.unsorted.bam \
+    > ./ctgcns.bam.err 2>&1
+
+-- Finished on Wed Apr 15 13:14:44 2026 (one second) with 1598.067 GB free disk space
+----------------------------------------
+-- Purging consensus output after loading to ctgStore.
+-- Purged 2 .cns outputs.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:14:44 2026 with 1598.092 GB free disk space
+
+    cd unitigging
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/tgStoreDump \
+      -S ../E_faecium_PacBio_20260415_114224.seqStore \
+      -T ./E_faecium_PacBio_20260415_114224.ctgStore 2 \
+      -sizes -s 2800000 \
+    > ./E_faecium_PacBio_20260415_114224.ctgStore/seqDB.v002.sizes.txt
+
+-- Finished on Wed Apr 15 13:14:44 2026 (in the blink of an eye) with 1598.092 GB free disk space
+----------------------------------------
+-- Found, in version 2, after consensus generation:
+--   contigs:      9 sequences, total length 3100021 bp (including 0 repeats of total length 0 bp).
+--   bubbles:      1 sequences, total length 15013 bp.
+--   unassembled:  48 sequences, total length 234689 bp.
+--
+-- Contig sizes based on genome size 2.8mbp:
+--
+--            NG (bp)  LG (contigs)    sum (bp)
+--         ----------  ------------  ----------
+--     10     2762475             1     2762475
+--     20     2762475             1     2762475
+--     30     2762475             1     2762475
+--     40     2762475             1     2762475
+--     50     2762475             1     2762475
+--     60     2762475             1     2762475
+--     70     2762475             1     2762475
+--     80     2762475             1     2762475
+--     90     2762475             1     2762475
+--    100      199382             2     2961857
+--    110       15428             7     3081062
+--
+-- Finished stage 'consensusLoad', reset canuIteration.
+----------------------------------------
+-- Starting command on Wed Apr 15 13:14:44 2026 with 1598.092 GB free disk space
+
+    cd .
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/tgStoreDump \
+      -S ./E_faecium_PacBio_20260415_114224.seqStore \
+      -T ./unitigging/E_faecium_PacBio_20260415_114224.ctgStore 2 \
+      -o ./E_faecium_PacBio_20260415_114224.contigs \
+      -layout \
+    > ./E_faecium_PacBio_20260415_114224.contigs.layout.err 2>&1
+
+-- Finished on Wed Apr 15 13:14:44 2026 (in the blink of an eye) with 1598.092 GB free disk space
+----------------------------------------
+----------------------------------------
+-- Starting command on Wed Apr 15 13:14:44 2026 with 1598.092 GB free disk space
+
+    cd .
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/tgStoreDump \
+      -S ./E_faecium_PacBio_20260415_114224.seqStore \
+      -T ./unitigging/E_faecium_PacBio_20260415_114224.ctgStore 2 \
+      -consensus -fasta \
+      -unassembled \
+    > ./E_faecium_PacBio_20260415_114224.unassembled.fasta
+    2> ./E_faecium_PacBio_20260415_114224.unassembled.err
+
+-- Finished on Wed Apr 15 13:14:44 2026 (furiously fast) with 1598.092 GB free disk space
+----------------------------------------
+----------------------------------------
+-- Starting command on Wed Apr 15 13:14:44 2026 with 1598.092 GB free disk space
+
+    cd .
+    /sw/arch/eb/software/canu/2.3-GCCcore-13.3.0-Java-17/bin/tgStoreDump \
+      -S ./E_faecium_PacBio_20260415_114224.seqStore \
+      -T ./unitigging/E_faecium_PacBio_20260415_114224.ctgStore 2 \
+      -consensus -fasta \
+      -contigs \
+    > ./E_faecium_PacBio_20260415_114224.contigs.fasta
+    2> ./E_faecium_PacBio_20260415_114224.contigs.err
+
+-- Finished on Wed Apr 15 13:14:44 2026 (furiously fast) with 1598.089 GB free disk space
+----------------------------------------
+-- Finished stage 'generateOutputs', reset canuIteration.
+--
+-- Assembly 'E_faecium_PacBio_20260415_114224' finished in '/scratch/genome_assembly_4901507/E_faecium_PacBio_20260415_114224'.
+--
+-- Summary saved in 'E_faecium_PacBio_20260415_114224.report'.
+--
+-- Sequences saved:
+--   Contigs       -> 'E_faecium_PacBio_20260415_114224.contigs.fasta'
+--   Unassembled   -> 'E_faecium_PacBio_20260415_114224.unassembled.fasta'
+--
+-- Read layouts saved:
+--   Contigs       -> 'E_faecium_PacBio_20260415_114224.contigs.layout'.
+--
+-- Bye.
+sending incremental file list
+E_faecium_PacBio_20260415_114224/
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.bam
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.bam.csi
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.layout.readToTig
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.layout.tigInfo
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.correctedReads.fasta.gz
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.report
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore.err
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore.sh
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.trimmedReads.fasta.gz
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.unassembled.fasta
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/blobs.0001
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/blobs.0003
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/errorLog
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/info
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/info.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/libraries
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/libraries.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readNames.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-cor.dat
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-cor.gp
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-cor.png
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-cor.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-obt.dat
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-obt.gp
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-obt.png
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-obt.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-utg.dat
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-utg.gp
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-utg.png
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/readlengths-utg.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/reads
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/reads-corc
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/reads-coru
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/reads-rawc
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/reads-rawu
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/info
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/info.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/libraries
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/reads
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/reads-corc
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/reads-coru
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/reads-rawc
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.001/reads-rawu
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/info
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/info.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/libraries
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/reads
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/reads-corc
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/reads-coru
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/reads-rawc
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.002/reads-rawu
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/info
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/info.txt
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/libraries
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/reads
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/reads-corc
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/reads-coru
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/reads-rawc
+E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.seqStore/version.003/reads-rawu
+E_faecium_PacBio_20260415_114224/canu-logs/
+E_faecium_PacBio_20260415_114224/canu-logs/1776246147_p95.uppmax.uu.se_1581569_canu
+E_faecium_PacBio_20260415_114224/canu-scripts/
+E_faecium_PacBio_20260415_114224/correction/
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.loadCorrectedReads.log
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore.000001.out
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore.config
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore.config.txt
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore.err
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore.sh
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16.config.01.out
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16.config.02.out
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16.config.04.out
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16.dump
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16.histogram
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16.histogram.gp
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16.histogram.png
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/E_faecium_PacBio_20260415_114224.ms16.ignore.gz
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/meryl-configure.sh
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/meryl-count.000001.out
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/meryl-count.sh
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/meryl-count.success
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/meryl-make-ignore.pl
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/meryl-process.000001.out
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/meryl-process.sh
+E_faecium_PacBio_20260415_114224/correction/0-mercounts/meryl-process.success
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000001.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000002.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000003.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000004.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000005.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000006.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000007.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000008.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000009.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000010.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000011.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000012.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.000013.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.files
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/mhap.sh
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/ovljob.files
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/ovljob.more.files
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/partitioning.log
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.000001.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.000002.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.000003.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.000004.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.000005.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.000006.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.000007.out
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.files
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/precompute.sh
+E_faecium_PacBio_20260415_114224/correction/1-overlapper/queries.tar
+E_faecium_PacBio_20260415_114224/correction/2-correction/
+E_faecium_PacBio_20260415_114224/correction/2-correction/E_faecium_PacBio_20260415_114224.readsToCorrect
+E_faecium_PacBio_20260415_114224/correction/2-correction/E_faecium_PacBio_20260415_114224.readsToCorrect.err
+E_faecium_PacBio_20260415_114224/correction/2-correction/E_faecium_PacBio_20260415_114224.readsToCorrect.log
+E_faecium_PacBio_20260415_114224/correction/2-correction/E_faecium_PacBio_20260415_114224.readsToCorrect.stats
+E_faecium_PacBio_20260415_114224/correction/2-correction/corjob.files
+E_faecium_PacBio_20260415_114224/correction/2-correction/correctReads.sh
+E_faecium_PacBio_20260415_114224/correction/2-correction/correctReadsPartition.batches
+E_faecium_PacBio_20260415_114224/correction/2-correction/correctReadsPartition.sh
+E_faecium_PacBio_20260415_114224/correction/2-correction/results/
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.corStore/
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.corStore/seqDB.v001.dat
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.corStore/seqDB.v001.tig
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore/
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore/0001-001
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore/index
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore/info
+E_faecium_PacBio_20260415_114224/correction/E_faecium_PacBio_20260415_114224.ovlStore/statistics
+E_faecium_PacBio_20260415_114224/trimming/
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore.000001.out
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore.config
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore.config.txt
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore.err
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore.sh
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.config.01.out
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.dump
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.histogram
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.histogram.gp
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.histogram.png
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.ignore.gz
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/meryl-configure.sh
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/meryl-count.000001.out
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/meryl-count.sh
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/meryl-count.success
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/meryl-make-ignore.pl
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/meryl-process.000001.out
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/meryl-process.sh
+E_faecium_PacBio_20260415_114224/trimming/0-mercounts/meryl-process.success
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/E_faecium_PacBio_20260415_114224.partition.err
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/E_faecium_PacBio_20260415_114224.partition.ovlbat
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/E_faecium_PacBio_20260415_114224.partition.ovljob
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/E_faecium_PacBio_20260415_114224.partition.ovlopt
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/overlap.000001.out
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/overlap.000002.out
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/overlap.sh
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/ovljob.files
+E_faecium_PacBio_20260415_114224/trimming/1-overlapper/ovljob.more.files
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.clear
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputDeletedReads.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputDeletedReads.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputDeletedReads.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputNoTrimReads.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputNoTrimReads.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputNoTrimReads.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputReads.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputReads.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.inputReads.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.log
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputDeletedReads.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputDeletedReads.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputDeletedReads.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputNoOvlReads.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputNoOvlReads.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputNoOvlReads.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputTrimmedReads.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputTrimmedReads.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputTrimmedReads.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputUnchangedReads.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputUnchangedReads.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.outputUnchangedReads.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.stats
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.trim3.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.trim3.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.trim3.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.trim5.dat
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.trim5.gp
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.1.trimReads.trim5.png
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.2.splitReads.clear
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.2.splitReads.log
+E_faecium_PacBio_20260415_114224/trimming/3-overlapbasedtrimming/E_faecium_PacBio_20260415_114224.2.splitReads.stats
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore/
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore/0001-001
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore/index
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore/info
+E_faecium_PacBio_20260415_114224/trimming/E_faecium_PacBio_20260415_114224.ovlStore/statistics
+E_faecium_PacBio_20260415_114224/unitigging/
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore.000001.out
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore.config
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore.config.txt
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore.err
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore.per-read.log
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore.sh
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore.summary
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.config.01.out
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.dump
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.histogram
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.histogram.gp
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.histogram.png
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/E_faecium_PacBio_20260415_114224.ms22.ignore.gz
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/meryl-configure.sh
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/meryl-count.000001.out
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/meryl-count.sh
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/meryl-count.success
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/meryl-make-ignore.pl
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/meryl-process.000001.out
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/meryl-process.sh
+E_faecium_PacBio_20260415_114224/unitigging/0-mercounts/meryl-process.success
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/E_faecium_PacBio_20260415_114224.partition.err
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/E_faecium_PacBio_20260415_114224.partition.ovlbat
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/E_faecium_PacBio_20260415_114224.partition.ovljob
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/E_faecium_PacBio_20260415_114224.partition.ovlopt
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/overlap.000001.out
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/overlap.000002.out
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/overlap.sh
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/ovljob.files
+E_faecium_PacBio_20260415_114224/unitigging/1-overlapper/ovljob.more.files
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/00001.oea
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/oea.000001.out
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/oea.apply.err
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/oea.files
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/oea.sh
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/red.000001.out
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/red.000002.out
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/red.red
+E_faecium_PacBio_20260415_114224/unitigging/3-overlapErrorAdjustment/red.sh
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.003.buildGreedy.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.004.buildGreedyOpt.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.005.splitDiscontinuous.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.006.detectSpurs.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.006.detectSpurs.thr000.num000.log
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.007.placeContains.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.008.placeContainsOpt.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.009.splitDiscontinuous.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.010.mergeOrphans.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.010.mergeOrphans.thr000.num000.log
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.010.mergeOrphans.unassembled
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.012.breakRepeats.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.012.breakRepeats.thr000.num000.log
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.014.generateOutputs.overlaps
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.014.generateOutputs.sizes
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.best.edges
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.best.edges.gfa
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.best.report
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/E_faecium_PacBio_20260415_114224.circular
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/unitigger.000001.out
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/unitigger.err
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/unitigger.finished
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/unitigger.sh
+E_faecium_PacBio_20260415_114224/unitigging/4-unitigger/unitigger.success
+E_faecium_PacBio_20260415_114224/unitigging/5-consensus/
+E_faecium_PacBio_20260415_114224/unitigging/5-consensus/consensus.000001.out
+E_faecium_PacBio_20260415_114224/unitigging/5-consensus/consensus.000002.out
+E_faecium_PacBio_20260415_114224/unitigging/5-consensus/consensus.sh
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/partition.0001
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/partition.0002
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/partitioning
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/partitioning.log
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/seqDB.v001.dat
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/seqDB.v001.sizes.txt
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/seqDB.v001.tig
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/seqDB.v002.dat
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/seqDB.v002.sizes.txt
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ctgStore/seqDB.v002.tig
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore/
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore/0001-001
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore/evalues
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore/index
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore/info
+E_faecium_PacBio_20260415_114224/unitigging/E_faecium_PacBio_20260415_114224.ovlStore/statistics
+
+sent 754,235,986 bytes  received 5,365 bytes  502,827,567.33 bytes/sec
+total size is 754,030,748  speedup is 1.00
+sending incremental file list
+
+sent 9,968 bytes  received 43 bytes  20,022.00 bytes/sec
+total size is 754,030,748  speedup is 75,320.22
