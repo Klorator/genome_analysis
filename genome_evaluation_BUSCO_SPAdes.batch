@@ -1,0 +1,52 @@
+#!/bin/bash -l
+
+# SLURM setup
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J busco_spades
+#SBATCH --mail-type=ALL
+#SBATCH -p pelle
+#SBATCH -n 1
+#SBATCH -t 00:20:00
+
+set -euo pipefail
+
+# Modules
+module load BUSCO/5.8.2-gfbf-2024a
+
+REPO_DIR="$HOME/genome_analysis"
+ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
+OUTDIR="$REPO_DIR/analysis/02_genomeEvaluation"
+BUSCO_OUTDIR="$OUTDIR/busco_spades"
+ASSEMBLY_FILTER="*SPAdes*"
+
+mkdir -p "$BUSCO_OUTDIR"
+
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.contigs.fasta" -o -name "*.scaffolds.fasta" -o -name "contigs.fasta" -o -name "scaffolds.fasta" \) -path "*/${ASSEMBLY_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+
+if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
+  echo "No SPAdes assembly FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_FILTER}" >&2
+  exit 1
+fi
+
+RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
+OUTPUT_DIR="$BUSCO_OUTDIR/$RUN_PREFIX"
+
+echo "Selected assembly FASTA: ${ASSEMBLY_FASTA}"
+echo "Evaluation run prefix: ${RUN_PREFIX}"
+echo "Output directory: ${OUTPUT_DIR}"
+
+busco_cmd=(
+  busco
+  --in "$ASSEMBLY_FASTA"
+  --out "$RUN_PREFIX"
+  --out_path "$BUSCO_OUTDIR"
+  --mode genome
+  --cpu 1
+  --auto-lineage-prok
+)
+echo "Running: ${busco_cmd[*]}"
+"${busco_cmd[@]}"
+
+tar_cmd=(tar -czf "$BUSCO_OUTDIR/${RUN_PREFIX}_busco_spades_output.tar.gz" -C "$BUSCO_OUTDIR" "$RUN_PREFIX")
+echo "Running: ${tar_cmd[*]}"
+"${tar_cmd[@]}"
