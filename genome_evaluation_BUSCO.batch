@@ -13,11 +13,10 @@ set -euo pipefail
 # Modules
 module load BUSCO/5.8.2-gfbf-2024a
 
-# Script
-cd "$HOME/genome_analysis"
+REPO_DIR="$HOME/genome_analysis"
 
-ASSEMBLY_DIR="analysis/01_genomeAssembly"
-OUTDIR="analysis/02_genomeEvaluation"
+ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
+OUTDIR="$REPO_DIR/analysis/02_genomeEvaluation"
 BUSCO_OUTDIR="${OUTDIR}/busco"
 
 mkdir -p "$OUTDIR" "$BUSCO_OUTDIR"

@@ -14,15 +14,13 @@ set -euo pipefail
 module load canu/2.3-GCCcore-13.3.0-Java-17
 module load SAMtools/1.22.1-GCC-13.3.0
 
-cd "$HOME/genome_analysis"
+REPO_DIR="$HOME/genome_analysis"
 
-INPUT_DIR="data/PacBio"
-OUTDIR="analysis/01_genomeAssembly"
+INPUT_DIR="$REPO_DIR/data/PacBio"
+OUTDIR="$REPO_DIR/analysis/01_genomeAssembly"
 PREFIX="E_faecium_PacBio"
 RUN_TAG=$(date +%Y%m%d_%H%M%S)
 RUN_PREFIX="${PREFIX}_${RUN_TAG}"
-
-mkdir -p "$OUTDIR"
 
 # Use local node storage (SNIC_TMP) for heavy I/O work
 WORKDIR="${SNIC_TMP:-/tmp}/genome_assembly_${SLURM_JOB_ID:-$$}"

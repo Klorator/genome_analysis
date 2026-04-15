@@ -13,10 +13,9 @@ set -euo pipefail
 # Modules
 module load SPAdes/4.2.0-GCC-13.3.0
 
-# Script
-cd "$HOME/genome_analysis"
+REPO_DIR="$HOME/genome_analysis"
 
-OUTDIR="analysis/01_genomeAssembly"
+OUTDIR="$REPO_DIR/analysis/01_genomeAssembly"
 PREFIX="E_faecium_SPAdes"
 RUN_TAG=$(date +%Y%m%d_%H%M%S)
 RUN_PREFIX="${PREFIX}_${RUN_TAG}"
@@ -26,11 +25,19 @@ SPADES_MEM_GB=60
 
 mkdir -p "$OUTDIR"
 
-shopt -s nullglob
+NANOPORE_READS="$REPO_DIR/data/Nanopore/E745_all.fasta.gz"
+PREPROC_ROOT="$REPO_DIR/analysis/01_genomeAssembly/Illumina_prep"
+LATEST_PREPROC_DIR=$(ls -1d "$PREPROC_ROOT"/Illumina_prep_* 2>/dev/null | sort | tail -n1 || true)
 
-ILLUMINA_R1="data/Illumina/E745-1.L500_SZAXPI015146-56_1_clean.fq.gz"
-ILLUMINA_R2="data/Illumina/E745-1.L500_SZAXPI015146-56_2_clean.fq.gz"
-NANOPORE_READS="data/Nanopore/E745_all.fasta.gz"
+if [ -z "${LATEST_PREPROC_DIR:-}" ] || [ ! -d "$LATEST_PREPROC_DIR/trimmed" ]; then
+  echo "No trimmed Illumina reads found in ${PREPROC_ROOT}" >&2
+  exit 1
+fi
+
+ILLUMINA_R1_BASENAME="E745-1.L500_SZAXPI015146-56_1_clean.fq"
+ILLUMINA_R2_BASENAME="E745-1.L500_SZAXPI015146-56_2_clean.fq"
+ILLUMINA_R1="${LATEST_PREPROC_DIR}/trimmed/${ILLUMINA_R1_BASENAME}.paired.fastq.gz"
+ILLUMINA_R2="${LATEST_PREPROC_DIR}/trimmed/${ILLUMINA_R2_BASENAME}.paired.fastq.gz"
 
 for input_file in "$ILLUMINA_R1" "$ILLUMINA_R2" "$NANOPORE_READS"; do
   if [ ! -f "$input_file" ]; then
@@ -38,30 +45,26 @@ for input_file in "$ILLUMINA_R1" "$ILLUMINA_R2" "$NANOPORE_READS"; do
     exit 1
   fi
 done
+
 echo "Assembly run prefix: ${RUN_PREFIX}"
 echo "Output directory: ${RUN_OUTDIR}"
 echo "Threads: ${THREADS}"
 echo "SPAdes memory limit (GB): ${SPADES_MEM_GB}"
+echo "Using trimmed reads from: ${LATEST_PREPROC_DIR}"
 
 # Prepare local workdir on node storage
 WORKDIR="${SNIC_TMP:-/tmp}/spades_${SLURM_JOB_ID:-$$}"
 mkdir -p "$WORKDIR/input" "$WORKDIR/output"
 echo "WORKDIR=$WORKDIR"
 
-## Prefer trimmed Illumina reads produced by preprocessing
-PREPROC_ROOT="$HOME/genome_analysis/analysis/00_preprocessing"
-LATEST_PREPROC_DIR=$(ls -1d "$PREPROC_ROOT"/preprocess_fastp_* 2>/dev/null | sort | tail -n1 || true)
-if [ -n "$LATEST_PREPROC_DIR" ] && [ -d "$LATEST_PREPROC_DIR/trimmed" ]; then
-  echo "Using trimmed reads from: $LATEST_PREPROC_DIR"
-  rsync -avL "$LATEST_PREPROC_DIR/trimmed/" "$WORKDIR/input/"
-  R1_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R1" .gz).paired.fastq.gz"
-  R2_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R2" .gz).paired.fastq.gz"
-else
-  echo "No preprocessed trimmed reads found in $PREPROC_ROOT — falling back to raw inputs"
-  rsync -avL "$(dirname "$ILLUMINA_R1")/" "$WORKDIR/input/"
-  R1_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R1")"
-  R2_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R2")"
-fi
+rsync -avL \
+  "$ILLUMINA_R1" \
+  "$ILLUMINA_R2" \
+  "$NANOPORE_READS" \
+  "$WORKDIR/input/"
+
+R1_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R1")"
+R2_LOCAL="$WORKDIR/input/$(basename "$ILLUMINA_R2")"
 
 NANO_LOCAL="$WORKDIR/input/$(basename "$NANOPORE_READS")"
 
@@ -90,6 +93,9 @@ rsync -av "$SPADES_OUT_LOCAL/" "$RUN_OUTDIR/"
 # Create tarball in HOME/outdir
 tar -czf "${OUTDIR}/${RUN_PREFIX}_spades_output.tar.gz" -C "$OUTDIR" "$RUN_PREFIX"
 
-# Cleanup local workdir
-rm -rf "$WORKDIR"
+cleanup() {
+  chmod -R u+w "$WORKDIR" || true
+  rm -rf "$WORKDIR" || true
+}
+trap cleanup EXIT
 

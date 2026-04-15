@@ -13,11 +13,10 @@ set -euo pipefail
 # Modules
 module load prokka/1.14.5-gompi-2024a
 
-# Script
-cd "$HOME/genome_analysis"
+REPO_DIR="$HOME/genome_analysis"
 
-ASSEMBLY_DIR="analysis/01_genomeAssembly"
-OUTDIR="analysis/03_genomeAnnotation"
+ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
+OUTDIR="$REPO_DIR/analysis/03_genomeAnnotation"
 PROKKA_OUTDIR="${OUTDIR}/prokka"
 
 mkdir -p "$OUTDIR" "$PROKKA_OUTDIR"

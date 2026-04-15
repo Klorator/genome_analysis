@@ -10,11 +10,10 @@
 #SBATCH -n 2
 #SBATCH -t 00:00:00
 
-# Script
-
 ## Load modules
 
 ## Stuff
 
-cd $HOME
+REPO_DIR="$HOME/genome_analysis"
+cd "$REPO_DIR"
 ls -l

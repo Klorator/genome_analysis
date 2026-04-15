@@ -14,22 +14,20 @@ set -euo pipefail
 module load FastQC/0.12.1-Java-17
 module load Trimmomatic/0.39-Java-17
 
-# Work in repository
-cd "$HOME/genome_analysis"
-
 # Save preprocessing results under the genome assembly analysis tree
+REPO_DIR="$HOME/genome_analysis"
 SAMPLE_ID="Illumina"
-OUTDIR="analysis/01_genomeAssembly/${SAMPLE_ID}_preprocessing"
-PREFIX="preprocess_${SAMPLE_ID}"
+OUTDIR="$REPO_DIR/analysis/01_genomeAssembly/${SAMPLE_ID}_prep"
+PREFIX="${SAMPLE_ID}_prep"
 RUN_TAG=$(date +%Y%m%d_%H%M%S)
 RUN_PREFIX="${PREFIX}_${RUN_TAG}"
 THREADS=1
 
 mkdir -p "$OUTDIR"
 
-# Input files (adjust names if needed)
-ILLUMINA_R1="data/Illumina/E745-1.L500_SZAXPI015146-56_1_clean.fq.gz"
-ILLUMINA_R2="data/Illumina/E745-1.L500_SZAXPI015146-56_2_clean.fq.gz"
+# Input files
+ILLUMINA_R1="$REPO_DIR/data/Illumina/E745-1.L500_SZAXPI015146-56_1_clean.fq.gz"
+ILLUMINA_R2="$REPO_DIR/data/Illumina/E745-1.L500_SZAXPI015146-56_2_clean.fq.gz"
 
 for input_file in "$ILLUMINA_R1" "$ILLUMINA_R2"; do
   if [ ! -f "$input_file" ]; then
@@ -39,10 +37,10 @@ for input_file in "$ILLUMINA_R1" "$ILLUMINA_R2"; do
 done
 
 # Use local node storage
-WORKDIR="${SNIC_TMP:-/tmp}/preprocess_${SLURM_JOB_ID:-$$}"
-PRE_QC_DIR="$WORKDIR/output/${SAMPLE_ID}_pre_qc"
-POST_QC_DIR="$WORKDIR/output/${SAMPLE_ID}_post_qc"
-TRIMMED_DIR="$WORKDIR/trimmed_${SAMPLE_ID}"
+WORKDIR="${SNIC_TMP:-/tmp}/${SAMPLE_ID}_prep_${SLURM_JOB_ID:-$$}"
+PRE_QC_DIR="$WORKDIR/output/pre_qc"
+POST_QC_DIR="$WORKDIR/output/post_qc"
+TRIMMED_DIR="$WORKDIR/trimmed"
 mkdir -p "$WORKDIR/input" "$PRE_QC_DIR" "$POST_QC_DIR" "$TRIMMED_DIR"
 echo "WORKDIR=$WORKDIR"
 
