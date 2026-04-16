@@ -1,0 +1,40 @@
+# BUSCO version is: 5.8.2 
+# The lineage dataset is: enterococcaceae_odb12 (Creation date: 2025-05-14, number of genomes: 19, number of BUSCOs: 714)
+# Summarized benchmarking in BUSCO notation for file /home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta
+# BUSCO was run in mode: prok_genome_prod
+# Gene predictor used: prodigal
+
+	***** Results: *****
+
+	C:98.5%[S:98.0%,D:0.4%],F:0.8%,M:0.7%,n:714	   
+	703	Complete BUSCOs (C)			   
+	700	Complete and single-copy BUSCOs (S)	   
+	3	Complete and duplicated BUSCOs (D)	   
+	6	Fragmented BUSCOs (F)			   
+	5	Missing BUSCOs (M)			   
+	714	Total BUSCO groups searched		   
+
+Assembly Statistics:
+	10	Number of scaffolds
+	10	Number of contigs
+	3115034	Total length
+	0.000%	Percent gaps
+	2 MB	Scaffold N50
+	2 MB	Contigs N50
+
+
+Dependencies and versions:
+	hmmsearch: 3.4
+	bbtools: None
+	prodigal: 2.6.3
+	python: sys.version_info(major=3, minor=12, micro=3, releaselevel='final', serial=0)
+	busco: 5.8.2
+	sepp: 4.5.5
+
+Placement file versions:
+	list_of_reference_markers.bacteria_odb12.2024-11-15.txt
+	tree.bacteria_odb12.2024-11-15.nwk
+	tree_metadata.bacteria_odb12.2024-11-15.txt
+	supermatrix.aln.bacteria_odb12.2024-11-15.faa
+	mapping_taxids-busco_dataset_name.bacteria_odb12.2024-11-15.txt
+	mapping_taxid-lineage.bacteria_odb12.2024-11-15.txt
