@@ -5,8 +5,8 @@
 #SBATCH -J prokka_spades
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
-#SBATCH -n 4
-#SBATCH -t 02:00:00
+#SBATCH -n 1
+#SBATCH -t 00:20:00
 
 set -euo pipefail
 
@@ -40,7 +40,7 @@ prokka_cmd=(
   "$ASSEMBLY_FASTA"
   --outdir "$OUTPUT_DIR"
   --prefix "${RUN_PREFIX}"
-  --cpus 4
+  --cpus 1
   --kingdom Bacteria
   --force
 )
