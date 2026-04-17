@@ -1,0 +1,94 @@
+#!/bin/bash -l
+
+# SLURM setup
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J synteny_spades
+#SBATCH --mail-type=ALL
+#SBATCH -p pelle
+#SBATCH -n 1
+#SBATCH -t 00:20:00
+
+set -euo pipefail
+
+# Modules
+module load BLAST+/2.17.0-gompi-2024a
+module load MUMmer/4.0.1-GCCcore-13-3-0
+
+REPO_DIR="$HOME/genome_analysis"
+ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
+BLAST_DIR="$REPO_DIR/analysis/04_genomeSynteny/blast_species_spades"
+OUTDIR="$REPO_DIR/analysis/04_genomeSynteny"
+MUMMER_OUTDIR="$OUTDIR/mummerplot_spades"
+
+mkdir -p "$OUTDIR" "$MUMMER_OUTDIR"
+
+SPECIES_SUMMARY=$(find "$BLAST_DIR" -maxdepth 3 -type f -name "*_species_summary.tsv" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+
+if [ -z "${SPECIES_SUMMARY:-}" ] || [ ! -f "$SPECIES_SUMMARY" ]; then
+  echo "No SPAdes species summary file found in ${BLAST_DIR}" >&2
+  exit 1
+fi
+
+RUN_OUTDIR=$(dirname "$SPECIES_SUMMARY")
+BLAST_HITS=$(find "$RUN_OUTDIR" -maxdepth 1 -type f -name "*_blast_hits.tsv" | head -n 1)
+
+if [ -z "${BLAST_HITS:-}" ] || [ ! -s "$BLAST_HITS" ]; then
+  echo "Missing or empty BLAST hits file in ${RUN_OUTDIR}" >&2
+  exit 1
+fi
+
+RUN_PREFIX=$(basename "$RUN_OUTDIR")
+
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.contigs.fasta" -o -name "*.scaffolds.fasta" -o -name "contigs.fasta" -o -name "scaffolds.fasta" \) -path "*/${RUN_PREFIX}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+
+if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
+  echo "No assembly FASTA found for SPAdes run prefix ${RUN_PREFIX}" >&2
+  exit 1
+fi
+
+BEST_HIT=$(awk -F'\t' 'NR==1{max=-1} {if (($6+0) > max) {max=$6+0; acc=$2; species=$8}} END {if (acc != "") print acc "\t" species}' "$BLAST_HITS")
+
+if [ -z "${BEST_HIT:-}" ]; then
+  echo "No valid BLAST hit lines in ${BLAST_HITS}" >&2
+  exit 1
+fi
+
+BEST_ACCESSION=$(echo "$BEST_HIT" | cut -f1)
+BEST_SPECIES=$(echo "$BEST_HIT" | cut -f2-)
+
+RUN_MUMMER_OUTDIR="$MUMMER_OUTDIR/${RUN_PREFIX}"
+mkdir -p "$RUN_MUMMER_OUTDIR"
+
+REFERENCE_FASTA="$RUN_MUMMER_OUTDIR/${RUN_PREFIX}_closest_reference.fasta"
+NUCMER_PREFIX="$RUN_MUMMER_OUTDIR/${RUN_PREFIX}_vs_closest"
+FILTERED_DELTA="$RUN_MUMMER_OUTDIR/${RUN_PREFIX}_vs_closest.1delta"
+PLOT_PREFIX="$RUN_MUMMER_OUTDIR/${RUN_PREFIX}_mummerplot"
+
+echo "Selected SPAdes assembly: ${ASSEMBLY_FASTA}"
+echo "Selected closest hit accession: ${BEST_ACCESSION}"
+echo "Selected closest species: ${BEST_SPECIES}"
+
+blastdbcmd -db nt -entry "$BEST_ACCESSION" -out "$REFERENCE_FASTA"
+
+if [ ! -s "$REFERENCE_FASTA" ]; then
+  echo "Failed to fetch reference sequence for ${BEST_ACCESSION}" >&2
+  exit 1
+fi
+
+nucmer --prefix "$NUCMER_PREFIX" "$REFERENCE_FASTA" "$ASSEMBLY_FASTA"
+delta-filter -1 "${NUCMER_PREFIX}.delta" > "$FILTERED_DELTA"
+mummerplot --png --layout --filter --prefix "$PLOT_PREFIX" "$FILTERED_DELTA"
+
+{
+  echo "run_prefix\t${RUN_PREFIX}"
+  echo "assembly_fasta\t${ASSEMBLY_FASTA}"
+  echo "closest_accession\t${BEST_ACCESSION}"
+  echo "closest_species\t${BEST_SPECIES}"
+  echo "reference_fasta\t${REFERENCE_FASTA}"
+  echo "filtered_delta\t${FILTERED_DELTA}"
+  echo "plot_png\t${PLOT_PREFIX}.png"
+} > "$RUN_MUMMER_OUTDIR/${RUN_PREFIX}_synteny_summary.tsv"
+
+tar -czf "${MUMMER_OUTDIR}/${RUN_PREFIX}_mummerplot_spades_output.tar.gz" -C "$MUMMER_OUTDIR" "$RUN_PREFIX"
+
+echo "SPAdes synteny analysis with MUMmerplot completed."

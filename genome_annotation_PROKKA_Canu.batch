@@ -1,0 +1,52 @@
+#!/bin/bash -l
+
+# SLURM setup
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J prokka_canu
+#SBATCH --mail-type=ALL
+#SBATCH -p pelle
+#SBATCH -n 4
+#SBATCH -t 02:00:00
+
+set -euo pipefail
+
+# Modules
+module load prokka/1.14.5-gompi-2024a
+
+REPO_DIR="$HOME/genome_analysis"
+ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
+OUTDIR="$REPO_DIR/analysis/03_genomeAnnotation"
+PROKKA_OUTDIR="$OUTDIR/prokka_canu"
+ASSEMBLY_FILTER="*PacBio*"
+
+mkdir -p "$OUTDIR" "$PROKKA_OUTDIR"
+
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.contigs.fasta" -o -name "*.scaffolds.fasta" -o -name "contigs.fasta" -o -name "scaffolds.fasta" \) -path "*/${ASSEMBLY_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+
+if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
+  echo "No Canu/PacBio assembly FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_FILTER}" >&2
+  exit 1
+fi
+
+RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
+OUTPUT_DIR="${PROKKA_OUTDIR}/${RUN_PREFIX}"
+
+echo "Selected assembly FASTA: ${ASSEMBLY_FASTA}"
+echo "Annotation run prefix: ${RUN_PREFIX}"
+echo "Output directory: ${OUTPUT_DIR}"
+
+prokka_cmd=(
+  prokka
+  "$ASSEMBLY_FASTA"
+  --outdir "$OUTPUT_DIR"
+  --prefix "${RUN_PREFIX}"
+  --cpus 4
+  --kingdom Bacteria
+  --force
+)
+echo "Running: ${prokka_cmd[*]}"
+"${prokka_cmd[@]}"
+
+tar_cmd=(tar -czf "${PROKKA_OUTDIR}/${RUN_PREFIX}_prokka_canu_output.tar.gz" -C "$PROKKA_OUTDIR" "$RUN_PREFIX")
+echo "Running: ${tar_cmd[*]}"
+"${tar_cmd[@]}"

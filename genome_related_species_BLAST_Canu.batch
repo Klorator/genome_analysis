@@ -16,7 +16,7 @@ module load BLAST+
 REPO_DIR="$HOME/genome_analysis"
 
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
-OUTDIR="$REPO_DIR/analysis/03_genomeSynteny"
+OUTDIR="$REPO_DIR/analysis/04_genomeSynteny"
 BLAST_OUTDIR="${OUTDIR}/blast_species_canu"
 THREADS=1
 BLAST_DB="nt"

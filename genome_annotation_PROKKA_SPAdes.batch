@@ -2,7 +2,7 @@
 
 # SLURM setup
 #SBATCH -A uppmax2026-1-61
-#SBATCH -J prokka_annot
+#SBATCH -J prokka_spades
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
 #SBATCH -n 4
@@ -14,17 +14,17 @@ set -euo pipefail
 module load prokka/1.14.5-gompi-2024a
 
 REPO_DIR="$HOME/genome_analysis"
-
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/03_genomeAnnotation"
-PROKKA_OUTDIR="${OUTDIR}/prokka"
+PROKKA_OUTDIR="$OUTDIR/prokka_spades"
+ASSEMBLY_FILTER="*SPAdes*"
 
 mkdir -p "$OUTDIR" "$PROKKA_OUTDIR"
 
-ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "*.contigs.fasta" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.contigs.fasta" -o -name "*.scaffolds.fasta" -o -name "contigs.fasta" -o -name "scaffolds.fasta" \) -path "*/${ASSEMBLY_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
-  echo "No Canu contig FASTA found in ${ASSEMBLY_DIR}" >&2
+  echo "No SPAdes assembly FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_FILTER}" >&2
   exit 1
 fi
 
@@ -40,7 +40,6 @@ prokka_cmd=(
   "$ASSEMBLY_FASTA"
   --outdir "$OUTPUT_DIR"
   --prefix "${RUN_PREFIX}"
-  --locustag "EFAE"
   --cpus 4
   --kingdom Bacteria
   --force
@@ -48,6 +47,6 @@ prokka_cmd=(
 echo "Running: ${prokka_cmd[*]}"
 "${prokka_cmd[@]}"
 
-tar_cmd=(tar -czf "${PROKKA_OUTDIR}/${RUN_PREFIX}_prokka_output.tar.gz" -C "$PROKKA_OUTDIR" "$RUN_PREFIX")
+tar_cmd=(tar -czf "${PROKKA_OUTDIR}/${RUN_PREFIX}_prokka_spades_output.tar.gz" -C "$PROKKA_OUTDIR" "$RUN_PREFIX")
 echo "Running: ${tar_cmd[*]}"
 "${tar_cmd[@]}"
