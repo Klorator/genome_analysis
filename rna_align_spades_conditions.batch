@@ -1,0 +1,44 @@
+#!/bin/bash -l
+
+# SLURM setup
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J align_rna_spades_conditions
+#SBATCH --mail-type=ALL
+#SBATCH -p pelle
+#SBATCH -n 2
+#SBATCH -t 01:00:00
+
+set -euo pipefail
+
+module load BWA/0.7.17-gompi-2022a
+module load SAMtools/1.19.2-gompi-2022a
+
+REPO_DIR="$HOME/genome_analysis"
+ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
+OUTDIR="$REPO_DIR/analysis/05_rnaAlign/spades"
+THREADS=2
+
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "*SPAdes*/contigs.fasta" | head -n 1)
+
+if [ -z "$ASSEMBLY_FASTA" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
+  echo "SPAdes assembly FASTA not found." >&2
+  exit 1
+fi
+
+mkdir -p "$OUTDIR"
+
+bwa index "$ASSEMBLY_FASTA"
+
+
+for CONDITION in Serum BH; do
+  TRIM_DIR="$REPO_DIR/analysis/01_rnaQC/${CONDITION}_prep" 
+  TRIMMED_R1=$(find "$TRIM_DIR" -type f -name "*.R1.paired.fastq.gz" | head -n 1)
+  TRIMMED_R2=$(find "$TRIM_DIR" -type f -name "*.R2.paired.fastq.gz" | head -n 1)
+  if [ -z "$TRIMMED_R1" ] || [ -z "$TRIMMED_R2" ]; then
+    echo "Trimmed paired FASTQ files not found for $CONDITION in $TRIM_DIR" >&2
+    continue
+  fi
+  OUT_BAM="$OUTDIR/rna_${CONDITION,,}_vs_spades.bam"
+  bwa mem -t "$THREADS" "$ASSEMBLY_FASTA" "$TRIMMED_R1" "$TRIMMED_R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
+  samtools index "$OUT_BAM"
+done
