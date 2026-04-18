@@ -14,12 +14,6 @@ set -euo pipefail
 module load FastQC/0.12.1-Java-17
 module load Trimmomatic/0.39-Java-17
 
-echo "Running FastQC (pre-trim)"
-echo "Running Trimmomatic (paired-end trimming)"
-echo "Gzipping trimmed paired outputs"
-echo "Running FastQC (post-trim)"
-echo "RNA FastQC and trimming complete. Results in ${OUTDIR}/${RUN_PREFIX}"
-
 REPO_DIR="$HOME/genome_analysis"
 THREADS=1
 
