@@ -5,8 +5,8 @@
 #SBATCH -J blast_spades
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
-#SBATCH -n 1
-#SBATCH -t 04:00:00
+#SBATCH -n 2
+#SBATCH -t 06:00:00
 
 set -euo pipefail
 
@@ -18,7 +18,7 @@ REPO_DIR="$HOME/genome_analysis"
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/04_genomeSynteny"
 BLAST_OUTDIR="${OUTDIR}/blast_species_spades"
-THREADS=1
+THREADS=2
 BLAST_DB="nt"
 MAX_TARGET_SEQS=50
 ASSEMBLY_NAME_FILTER="*SPAdes*"
