@@ -17,6 +17,22 @@ module load Trimmomatic/0.39-Java-17
 REPO_DIR="$HOME/genome_analysis"
 THREADS=1
 
+ADAPTERS=""
+for candidate in \
+  "${EBROOTTRIMMOMATIC:-}/adapters/TruSeq3-PE.fa" \
+  "${TRIMMOMATIC_ROOT:-}/adapters/TruSeq3-PE.fa" \
+  "${TRIMMOMATIC_HOME:-}/adapters/TruSeq3-PE.fa"; do
+  if [ -n "$candidate" ] && [ -f "$candidate" ]; then
+    ADAPTERS="$candidate"
+    break
+  fi
+done
+
+if [ -z "$ADAPTERS" ]; then
+  echo "Could not find TruSeq3-PE.fa adapter file from Trimmomatic module environment." >&2
+  exit 1
+fi
+
 for CONDITION in Serum BH; do
   RAW_DIR="$REPO_DIR/data/RNA-Seq_${CONDITION}/raw"
   OUTDIR="$REPO_DIR/analysis/01_rnaQC/${CONDITION}_prep"
@@ -63,10 +79,10 @@ for CONDITION in Serum BH; do
   TRIM_R2_U_UN="$TRIMMED_DIR/${CONDITION}_R2.unpaired.fastq"
 
   trimmomatic PE -threads "$THREADS" -phred33 \
-    <(cat "${R1_LOCAL[@]}") <(cat "${R2_LOCAL[@]}") \
+    <(zcat "${R1_LOCAL[@]}") <(zcat "${R2_LOCAL[@]}") \
     "$TRIM_R1_P_UN" "$TRIM_R1_U_UN" \
     "$TRIM_R2_P_UN" "$TRIM_R2_U_UN" \
-    ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+    ILLUMINACLIP:"$ADAPTERS":2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 
   echo "Gzipping trimmed paired outputs for $CONDITION"
   gzip -c "$TRIM_R1_P_UN" > "$TRIM_R1_P_UN.gz" && rm -f "$TRIM_R1_P_UN"

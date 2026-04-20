@@ -20,8 +20,11 @@ OUTDIR="$REPO_DIR/analysis/04_genomeSynteny"
 BLAST_OUTDIR="${OUTDIR}/blast_species_spades"
 THREADS=2
 BLAST_DB="nt"
-MAX_TARGET_SEQS=50
+MAX_TARGET_SEQS=10
 ASSEMBLY_NAME_FILTER="*SPAdes*"
+TARGET_TAXID=1352
+TOP_CONTIGS=2
+REDUCED_QUERY_FASTA=""
 
 mkdir -p "$OUTDIR" "$BLAST_OUTDIR"
 
@@ -36,6 +39,7 @@ RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
 RUN_OUTDIR="${BLAST_OUTDIR}/${RUN_PREFIX}"
 RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits.tsv"
 SPECIES_SUMMARY_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_species_summary.tsv"
+REDUCED_QUERY_FASTA="${RUN_OUTDIR}/${RUN_PREFIX}_top${TOP_CONTIGS}_contigs.fasta"
 
 mkdir -p "$RUN_OUTDIR"
 
@@ -44,15 +48,70 @@ echo "BLAST run prefix: ${RUN_PREFIX}"
 echo "Output directory: ${RUN_OUTDIR}"
 echo "BLAST database: ${BLAST_DB}"
 echo "Threads: ${THREADS}"
+echo "Target taxid: ${TARGET_TAXID}"
+echo "Top contigs used for BLAST: ${TOP_CONTIGS}"
+
+awk -v top_n="$TOP_CONTIGS" '
+  /^>/ {
+    if (header != "") {
+      lengths[++n]=seq_len
+      headers[n]=header
+      seqs[n]=seq
+    }
+    header=$0
+    seq=""
+    seq_len=0
+    next
+  }
+  {
+    gsub(/[ \t\r\n]/, "", $0)
+    seq=seq $0
+    seq_len+=length($0)
+  }
+  END {
+    if (header != "") {
+      lengths[++n]=seq_len
+      headers[n]=header
+      seqs[n]=seq
+    }
+
+    for (i = 1; i <= n; i++) idx[i]=i
+    for (i = 1; i <= n; i++) {
+      for (j = i + 1; j <= n; j++) {
+        if (lengths[idx[j]] > lengths[idx[i]]) {
+          tmp=idx[i]
+          idx[i]=idx[j]
+          idx[j]=tmp
+        }
+      }
+    }
+
+    limit = (top_n < n) ? top_n : n
+    for (i = 1; i <= limit; i++) {
+      k=idx[i]
+      print headers[k]
+      print seqs[k]
+    }
+  }
+' "$ASSEMBLY_FASTA" > "$REDUCED_QUERY_FASTA"
+
+if [ ! -s "$REDUCED_QUERY_FASTA" ]; then
+  echo "Failed to build reduced query FASTA: ${REDUCED_QUERY_FASTA}" >&2
+  exit 1
+fi
 
 blast_cmd=(
   blastn
-  -query "$ASSEMBLY_FASTA"
+  -task megablast
+  -query "$REDUCED_QUERY_FASTA"
   -db "$BLAST_DB"
+  -taxids "$TARGET_TAXID"
   -num_threads "$THREADS"
   -max_target_seqs "$MAX_TARGET_SEQS"
   -max_hsps 1
-  -evalue 1e-20
+  -perc_identity 95
+  -qcov_hsp_perc 70
+  -evalue 1e-50
   -outfmt "6 qseqid sseqid pident length evalue bitscore staxids sscinames stitle"
   -out "$RESULTS_TSV"
 )
