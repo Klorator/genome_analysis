@@ -1,5 +1,0 @@
-Running FastQC (pre-trim)
-Running Trimmomatic (paired-end trimming)
-Gzipping trimmed paired outputs
-Running FastQC (post-trim)
-/var/spool/slurmd/job4951367/slurm_script: line 21: OUTDIR: unbound variable

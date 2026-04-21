@@ -1,7 +1,0 @@
-Selected assembly FASTA: /home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta
-BLAST run prefix: E_faecium_PacBio_20260415_114224
-Output directory: /home/raha1670/genome_analysis/analysis/04_genomeSynteny/blast_species_canu/E_faecium_PacBio_20260415_114224
-BLAST database: nt
-Threads: 1
-Running: blastn -query /home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta -db nt -num_threads 1 -max_target_seqs 50 -max_hsps 1 -evalue 1e-20 -outfmt 6 qseqid sseqid pident length evalue bitscore staxids sscinames stitle -out /home/raha1670/genome_analysis/analysis/04_genomeSynteny/blast_species_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_blast_hits.tsv
-[2026-04-17T18:43:45.020] error: *** JOB 4933818 ON p114 CANCELLED AT 2026-04-17T18:43:45 DUE TO TIME LIMIT ***
