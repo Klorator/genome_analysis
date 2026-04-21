@@ -1,0 +1,12 @@
+Selected assembly FASTA: /home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta
+BLAST run prefix: E_faecium_PacBio_20260415_114224
+Output directory: /home/raha1670/genome_analysis/analysis/04_genomeSynteny/blast_species_canu/E_faecium_PacBio_20260415_114224
+BLAST database: nt
+Threads: 2
+Target taxid: 1352
+Top contigs used for BLAST: 2
+Running: blastn -task megablast -query /home/raha1670/genome_analysis/analysis/04_genomeSynteny/blast_species_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_top2_contigs.fasta -db nt -taxids 1352 -num_threads 2 -max_target_seqs 10 -max_hsps 1 -perc_identity 95 -qcov_hsp_perc 70 -evalue 1e-50 -outfmt 6 qseqid sseqid pident length evalue bitscore staxids sscinames stitle -out /home/raha1670/genome_analysis/analysis/04_genomeSynteny/blast_species_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_blast_hits.tsv
+Top species hits (first 10):
+Enterococcus faecium	2	3.226e+05
+species	hit_count	best_bitscore
+Running: tar -czf /home/raha1670/genome_analysis/analysis/04_genomeSynteny/blast_species_canu/E_faecium_PacBio_20260415_114224_blast_species_output.tar.gz -C /home/raha1670/genome_analysis/analysis/04_genomeSynteny/blast_species_canu E_faecium_PacBio_20260415_114224

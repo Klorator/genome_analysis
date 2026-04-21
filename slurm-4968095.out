@@ -1,0 +1,290 @@
+WORKDIR=/scratch/Serum_prep_4968095
+sending incremental file list
+./
+ERR1797969_1.fastq.gz
+ERR1797969_2.fastq.gz
+ERR1797970_1.fastq.gz
+ERR1797970_2.fastq.gz
+ERR1797971_1.fastq.gz
+ERR1797971_2.fastq.gz
+
+sent 11,522,819,291 bytes  received 133 bytes  291,716,947.44 bytes/sec
+total size is 11,520,006,328  speedup is 1.00
+Running FastQC (pre-trim) for Serum
+application/gzip
+application/gzip
+Started analysis of ERR1797969_1.fastq.gz
+application/gzip
+application/gzip
+application/gzip
+application/gzip
+Approx 5% complete for ERR1797969_1.fastq.gz
+Approx 10% complete for ERR1797969_1.fastq.gz
+Approx 15% complete for ERR1797969_1.fastq.gz
+Approx 20% complete for ERR1797969_1.fastq.gz
+Approx 25% complete for ERR1797969_1.fastq.gz
+Approx 30% complete for ERR1797969_1.fastq.gz
+Approx 35% complete for ERR1797969_1.fastq.gz
+Approx 40% complete for ERR1797969_1.fastq.gz
+Approx 45% complete for ERR1797969_1.fastq.gz
+Approx 50% complete for ERR1797969_1.fastq.gz
+Approx 55% complete for ERR1797969_1.fastq.gz
+Approx 60% complete for ERR1797969_1.fastq.gz
+Approx 65% complete for ERR1797969_1.fastq.gz
+Approx 70% complete for ERR1797969_1.fastq.gz
+Approx 75% complete for ERR1797969_1.fastq.gz
+Approx 80% complete for ERR1797969_1.fastq.gz
+Approx 85% complete for ERR1797969_1.fastq.gz
+Approx 90% complete for ERR1797969_1.fastq.gz
+Approx 95% complete for ERR1797969_1.fastq.gz
+Analysis complete for ERR1797969_1.fastq.gz
+Started analysis of ERR1797970_1.fastq.gz
+Approx 5% complete for ERR1797970_1.fastq.gz
+Approx 10% complete for ERR1797970_1.fastq.gz
+Approx 15% complete for ERR1797970_1.fastq.gz
+Approx 20% complete for ERR1797970_1.fastq.gz
+Approx 25% complete for ERR1797970_1.fastq.gz
+Approx 30% complete for ERR1797970_1.fastq.gz
+Approx 35% complete for ERR1797970_1.fastq.gz
+Approx 40% complete for ERR1797970_1.fastq.gz
+Approx 45% complete for ERR1797970_1.fastq.gz
+Approx 50% complete for ERR1797970_1.fastq.gz
+Approx 55% complete for ERR1797970_1.fastq.gz
+Approx 60% complete for ERR1797970_1.fastq.gz
+Approx 65% complete for ERR1797970_1.fastq.gz
+Approx 70% complete for ERR1797970_1.fastq.gz
+Approx 75% complete for ERR1797970_1.fastq.gz
+Approx 80% complete for ERR1797970_1.fastq.gz
+Approx 85% complete for ERR1797970_1.fastq.gz
+Approx 90% complete for ERR1797970_1.fastq.gz
+Approx 95% complete for ERR1797970_1.fastq.gz
+Analysis complete for ERR1797970_1.fastq.gz
+Started analysis of ERR1797971_1.fastq.gz
+Approx 5% complete for ERR1797971_1.fastq.gz
+Approx 10% complete for ERR1797971_1.fastq.gz
+Approx 15% complete for ERR1797971_1.fastq.gz
+Approx 20% complete for ERR1797971_1.fastq.gz
+Approx 25% complete for ERR1797971_1.fastq.gz
+Approx 30% complete for ERR1797971_1.fastq.gz
+Approx 35% complete for ERR1797971_1.fastq.gz
+Approx 40% complete for ERR1797971_1.fastq.gz
+Approx 45% complete for ERR1797971_1.fastq.gz
+Approx 50% complete for ERR1797971_1.fastq.gz
+Approx 55% complete for ERR1797971_1.fastq.gz
+Approx 60% complete for ERR1797971_1.fastq.gz
+Approx 65% complete for ERR1797971_1.fastq.gz
+Approx 70% complete for ERR1797971_1.fastq.gz
+Approx 75% complete for ERR1797971_1.fastq.gz
+Approx 80% complete for ERR1797971_1.fastq.gz
+Approx 85% complete for ERR1797971_1.fastq.gz
+Approx 90% complete for ERR1797971_1.fastq.gz
+Approx 95% complete for ERR1797971_1.fastq.gz
+Analysis complete for ERR1797971_1.fastq.gz
+Started analysis of ERR1797969_2.fastq.gz
+Approx 5% complete for ERR1797969_2.fastq.gz
+Approx 10% complete for ERR1797969_2.fastq.gz
+Approx 15% complete for ERR1797969_2.fastq.gz
+Approx 20% complete for ERR1797969_2.fastq.gz
+Approx 25% complete for ERR1797969_2.fastq.gz
+Approx 30% complete for ERR1797969_2.fastq.gz
+Approx 35% complete for ERR1797969_2.fastq.gz
+Approx 40% complete for ERR1797969_2.fastq.gz
+Approx 45% complete for ERR1797969_2.fastq.gz
+Approx 50% complete for ERR1797969_2.fastq.gz
+Approx 55% complete for ERR1797969_2.fastq.gz
+Approx 60% complete for ERR1797969_2.fastq.gz
+Approx 65% complete for ERR1797969_2.fastq.gz
+Approx 70% complete for ERR1797969_2.fastq.gz
+Approx 75% complete for ERR1797969_2.fastq.gz
+Approx 80% complete for ERR1797969_2.fastq.gz
+Approx 85% complete for ERR1797969_2.fastq.gz
+Approx 90% complete for ERR1797969_2.fastq.gz
+Approx 95% complete for ERR1797969_2.fastq.gz
+Analysis complete for ERR1797969_2.fastq.gz
+Started analysis of ERR1797970_2.fastq.gz
+Approx 5% complete for ERR1797970_2.fastq.gz
+Approx 10% complete for ERR1797970_2.fastq.gz
+Approx 15% complete for ERR1797970_2.fastq.gz
+Approx 20% complete for ERR1797970_2.fastq.gz
+Approx 25% complete for ERR1797970_2.fastq.gz
+Approx 30% complete for ERR1797970_2.fastq.gz
+Approx 35% complete for ERR1797970_2.fastq.gz
+Approx 40% complete for ERR1797970_2.fastq.gz
+Approx 45% complete for ERR1797970_2.fastq.gz
+Approx 50% complete for ERR1797970_2.fastq.gz
+Approx 55% complete for ERR1797970_2.fastq.gz
+Approx 60% complete for ERR1797970_2.fastq.gz
+Approx 65% complete for ERR1797970_2.fastq.gz
+Approx 70% complete for ERR1797970_2.fastq.gz
+Approx 75% complete for ERR1797970_2.fastq.gz
+Approx 80% complete for ERR1797970_2.fastq.gz
+Approx 85% complete for ERR1797970_2.fastq.gz
+Approx 90% complete for ERR1797970_2.fastq.gz
+Approx 95% complete for ERR1797970_2.fastq.gz
+Analysis complete for ERR1797970_2.fastq.gz
+Started analysis of ERR1797971_2.fastq.gz
+Approx 5% complete for ERR1797971_2.fastq.gz
+Approx 10% complete for ERR1797971_2.fastq.gz
+Approx 15% complete for ERR1797971_2.fastq.gz
+Approx 20% complete for ERR1797971_2.fastq.gz
+Approx 25% complete for ERR1797971_2.fastq.gz
+Approx 30% complete for ERR1797971_2.fastq.gz
+Approx 35% complete for ERR1797971_2.fastq.gz
+Approx 40% complete for ERR1797971_2.fastq.gz
+Approx 45% complete for ERR1797971_2.fastq.gz
+Approx 50% complete for ERR1797971_2.fastq.gz
+Approx 55% complete for ERR1797971_2.fastq.gz
+Approx 60% complete for ERR1797971_2.fastq.gz
+Approx 65% complete for ERR1797971_2.fastq.gz
+Approx 70% complete for ERR1797971_2.fastq.gz
+Approx 75% complete for ERR1797971_2.fastq.gz
+Approx 80% complete for ERR1797971_2.fastq.gz
+Approx 85% complete for ERR1797971_2.fastq.gz
+Approx 90% complete for ERR1797971_2.fastq.gz
+Approx 95% complete for ERR1797971_2.fastq.gz
+Analysis complete for ERR1797971_2.fastq.gz
+Running Trimmomatic (paired-end trimming) for Serum
+TrimmomaticPE: Started with arguments:
+ -threads 1 -phred33 /dev/fd/63 /dev/fd/62 /scratch/Serum_prep_4968095/trimmed/Serum_R1.paired.fastq /scratch/Serum_prep_4968095/trimmed/Serum_R1.unpaired.fastq /scratch/Serum_prep_4968095/trimmed/Serum_R2.paired.fastq /scratch/Serum_prep_4968095/trimmed/Serum_R2.unpaired.fastq ILLUMINACLIP:/sw/arch/eb/software/Trimmomatic/0.39-Java-17/adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+Using PrefixPair: 'TACACTCTTTCCCTACACGACGCTCTTCCGATCT' and 'GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT'
+ILLUMINACLIP: Using 1 prefix pairs, 0 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Input Read Pairs: 80181363 Both Surviving: 42236055 (52.68%) Forward Only Surviving: 33975840 (42.37%) Reverse Only Surviving: 142073 (0.18%) Dropped: 3827395 (4.77%)
+TrimmomaticPE: Completed successfully
+Gzipping trimmed paired outputs for Serum
+Running FastQC (post-trim) for Serum
+application/gzip
+application/gzip
+Started analysis of Serum_R1.paired.fastq.gz
+Approx 5% complete for Serum_R1.paired.fastq.gz
+Approx 10% complete for Serum_R1.paired.fastq.gz
+Approx 15% complete for Serum_R1.paired.fastq.gz
+Approx 20% complete for Serum_R1.paired.fastq.gz
+Approx 25% complete for Serum_R1.paired.fastq.gz
+Approx 30% complete for Serum_R1.paired.fastq.gz
+Approx 35% complete for Serum_R1.paired.fastq.gz
+Approx 40% complete for Serum_R1.paired.fastq.gz
+Approx 45% complete for Serum_R1.paired.fastq.gz
+Approx 50% complete for Serum_R1.paired.fastq.gz
+Approx 55% complete for Serum_R1.paired.fastq.gz
+Approx 60% complete for Serum_R1.paired.fastq.gz
+Approx 65% complete for Serum_R1.paired.fastq.gz
+Approx 70% complete for Serum_R1.paired.fastq.gz
+Approx 75% complete for Serum_R1.paired.fastq.gz
+Approx 80% complete for Serum_R1.paired.fastq.gz
+Approx 85% complete for Serum_R1.paired.fastq.gz
+Approx 90% complete for Serum_R1.paired.fastq.gz
+Approx 95% complete for Serum_R1.paired.fastq.gz
+Analysis complete for Serum_R1.paired.fastq.gz
+Started analysis of Serum_R2.paired.fastq.gz
+Approx 5% complete for Serum_R2.paired.fastq.gz
+Approx 10% complete for Serum_R2.paired.fastq.gz
+Approx 15% complete for Serum_R2.paired.fastq.gz
+Approx 20% complete for Serum_R2.paired.fastq.gz
+Approx 25% complete for Serum_R2.paired.fastq.gz
+Approx 30% complete for Serum_R2.paired.fastq.gz
+Approx 35% complete for Serum_R2.paired.fastq.gz
+Approx 40% complete for Serum_R2.paired.fastq.gz
+Approx 45% complete for Serum_R2.paired.fastq.gz
+Approx 50% complete for Serum_R2.paired.fastq.gz
+Approx 55% complete for Serum_R2.paired.fastq.gz
+Approx 60% complete for Serum_R2.paired.fastq.gz
+Approx 65% complete for Serum_R2.paired.fastq.gz
+Approx 70% complete for Serum_R2.paired.fastq.gz
+Approx 75% complete for Serum_R2.paired.fastq.gz
+Approx 80% complete for Serum_R2.paired.fastq.gz
+Approx 85% complete for Serum_R2.paired.fastq.gz
+Approx 90% complete for Serum_R2.paired.fastq.gz
+Approx 95% complete for Serum_R2.paired.fastq.gz
+Analysis complete for Serum_R2.paired.fastq.gz
+sending incremental file list
+./
+post_qc/
+post_qc/Serum_R1.paired_fastqc.html
+post_qc/Serum_R1.paired_fastqc.zip
+post_qc/Serum_R2.paired_fastqc.html
+post_qc/Serum_R2.paired_fastqc.zip
+pre_qc/
+pre_qc/ERR1797969_1_fastqc.html
+pre_qc/ERR1797969_1_fastqc.zip
+pre_qc/ERR1797969_2_fastqc.html
+pre_qc/ERR1797969_2_fastqc.zip
+pre_qc/ERR1797970_1_fastqc.html
+pre_qc/ERR1797970_1_fastqc.zip
+pre_qc/ERR1797970_2_fastqc.html
+pre_qc/ERR1797970_2_fastqc.zip
+pre_qc/ERR1797971_1_fastqc.html
+pre_qc/ERR1797971_1_fastqc.zip
+pre_qc/ERR1797971_2_fastqc.html
+pre_qc/ERR1797971_2_fastqc.zip
+
+sent 9,435,428 bytes  received 339 bytes  18,871,534.00 bytes/sec
+total size is 9,431,869  speedup is 1.00
+sending incremental file list
+created directory /home/raha1670/genome_analysis/analysis/01_rnaQC/Serum_prep/Serum_prep_20260420_095754/trimmed
+./
+Serum_R1.paired.fastq.gz
+Serum_R1.unpaired.fastq
+Serum_R2.paired.fastq.gz
+Serum_R2.unpaired.fastq
+
+sent 12,992,325,265 bytes  received 212 bytes  328,919,632.33 bytes/sec
+total size is 12,989,153,722  speedup is 1.00
+Serum RNA FastQC and trimming complete. Results in /home/raha1670/genome_analysis/analysis/01_rnaQC/Serum_prep/Serum_prep_20260420_095754
+WORKDIR=/scratch/BH_prep_4968095
+sending incremental file list
+./
+ERR1797972_1.fastq.gz
+ERR1797972_2.fastq.gz
+ERR1797973_1.fastq.gz
+ERR1797973_2.fastq.gz
+ERR1797974_1.fastq.gz
+ERR1797974_2.fastq.gz
+
+sent 11,537,304,138 bytes  received 133 bytes  79,842,936.13 bytes/sec
+total size is 11,534,487,618  speedup is 1.00
+Running FastQC (pre-trim) for BH
+application/gzip
+application/gzip
+Started analysis of ERR1797972_1.fastq.gz
+application/gzip
+application/gzip
+application/gzip
+application/gzip
+Approx 5% complete for ERR1797972_1.fastq.gz
+Approx 10% complete for ERR1797972_1.fastq.gz
+Approx 15% complete for ERR1797972_1.fastq.gz
+Approx 20% complete for ERR1797972_1.fastq.gz
+Approx 25% complete for ERR1797972_1.fastq.gz
+Approx 30% complete for ERR1797972_1.fastq.gz
+Approx 35% complete for ERR1797972_1.fastq.gz
+Approx 40% complete for ERR1797972_1.fastq.gz
+Approx 45% complete for ERR1797972_1.fastq.gz
+Approx 50% complete for ERR1797972_1.fastq.gz
+Approx 55% complete for ERR1797972_1.fastq.gz
+Approx 60% complete for ERR1797972_1.fastq.gz
+Approx 65% complete for ERR1797972_1.fastq.gz
+Approx 70% complete for ERR1797972_1.fastq.gz
+Approx 75% complete for ERR1797972_1.fastq.gz
+Approx 80% complete for ERR1797972_1.fastq.gz
+Approx 85% complete for ERR1797972_1.fastq.gz
+Approx 90% complete for ERR1797972_1.fastq.gz
+Approx 95% complete for ERR1797972_1.fastq.gz
+Analysis complete for ERR1797972_1.fastq.gz
+Started analysis of ERR1797973_1.fastq.gz
+Approx 5% complete for ERR1797973_1.fastq.gz
+[2026-04-20T10:58:04.015] error: *** JOB 4968095 ON p115 CANCELLED AT 2026-04-20T10:58:04 DUE TO TIME LIMIT ***
+sending incremental file list
+./
+post_qc/
+pre_qc/
+pre_qc/ERR1797972_1_fastqc.html
+pre_qc/ERR1797972_1_fastqc.zip
+
+sent 1,092,111 bytes  received 69 bytes  2,184,360.00 bytes/sec
+total size is 1,091,569  speedup is 1.00
+sending incremental file list
+created directory /home/raha1670/genome_analysis/analysis/01_rnaQC/BH_prep/BH_prep_20260420_105328/trimmed
+./
+
+sent 72 bytes  received 130 bytes  404.00 bytes/sec
+total size is 0  speedup is 0.00
