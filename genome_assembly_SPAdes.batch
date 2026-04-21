@@ -14,6 +14,7 @@ set -euo pipefail
 module load SPAdes/4.2.0-GCC-13.3.0
 
 REPO_DIR="$HOME/genome_analysis"
+RESULT_DIR="$REPO_DIR/result"
 
 OUTDIR="$REPO_DIR/analysis/01_genomeAssembly"
 PREFIX="E_faecium_SPAdes"
@@ -22,6 +23,28 @@ RUN_PREFIX="${PREFIX}_${RUN_TAG}"
 RUN_OUTDIR="${OUTDIR}/${RUN_PREFIX}"
 THREADS=1
 SPADES_MEM_GB=60
+
+sync_human_readable_outputs() {
+  local source_dir="$1"
+  local target_subdir="$2"
+  local target_dir="$RESULT_DIR/$target_subdir"
+
+  if [ ! -d "$source_dir" ]; then
+    return
+  fi
+
+  mkdir -p "$target_dir"
+  while IFS= read -r -d '' file; do
+    rel_path="${file#${source_dir}/}"
+    dest_path="$target_dir/$rel_path"
+    mkdir -p "$(dirname "$dest_path")"
+    cp -f "$file" "$dest_path"
+  done < <(
+    find "$source_dir" -type f -size -20M \
+      \( -iname "*.html" -o -iname "*.pdf" -o -iname "*.txt" -o -iname "*.tsv" -o -iname "*.csv" -o -iname "*.log" -o -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.md" -o -iname "*.png" -o -iname "*.svg" \) \
+      -print0
+  )
+}
 
 mkdir -p "$OUTDIR"
 
@@ -92,6 +115,7 @@ rsync -av "$SPADES_OUT_LOCAL/" "$RUN_OUTDIR/"
 
 # Create tarball in HOME/outdir
 tar -czf "${OUTDIR}/${RUN_PREFIX}_spades_output.tar.gz" -C "$OUTDIR" "$RUN_PREFIX"
+sync_human_readable_outputs "$RUN_OUTDIR" "01_genomeAssembly/${RUN_PREFIX}"
 
 cleanup() {
   chmod -R u+w "$WORKDIR" || true

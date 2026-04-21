@@ -15,12 +15,35 @@ module load canu/2.3-GCCcore-13.3.0-Java-17
 module load SAMtools/1.22.1-GCC-13.3.0
 
 REPO_DIR="$HOME/genome_analysis"
+RESULT_DIR="$REPO_DIR/result"
 
 INPUT_DIR="$REPO_DIR/data/PacBio"
 OUTDIR="$REPO_DIR/analysis/01_genomeAssembly"
 PREFIX="E_faecium_PacBio"
 RUN_TAG=$(date +%Y%m%d_%H%M%S)
 RUN_PREFIX="${PREFIX}_${RUN_TAG}"
+
+sync_human_readable_outputs() {
+  local source_dir="$1"
+  local target_subdir="$2"
+  local target_dir="$RESULT_DIR/$target_subdir"
+
+  if [ ! -d "$source_dir" ]; then
+    return
+  fi
+
+  mkdir -p "$target_dir"
+  while IFS= read -r -d '' file; do
+    rel_path="${file#${source_dir}/}"
+    dest_path="$target_dir/$rel_path"
+    mkdir -p "$(dirname "$dest_path")"
+    cp -f "$file" "$dest_path"
+  done < <(
+    find "$source_dir" -type f -size -20M \
+      \( -iname "*.html" -o -iname "*.pdf" -o -iname "*.txt" -o -iname "*.tsv" -o -iname "*.csv" -o -iname "*.log" -o -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.md" -o -iname "*.png" -o -iname "*.svg" \) \
+      -print0
+  )
+}
 
 # Use local node storage (SNIC_TMP) for heavy I/O work
 WORKDIR="${SNIC_TMP:-/tmp}/genome_assembly_${SLURM_JOB_ID:-$$}"
@@ -72,5 +95,6 @@ echo "Running: ${canu_cmd[*]}"
 # Copy results back to HOME and create a tarball there
 rsync -av "${WORKDIR}/${RUN_PREFIX}" "${OUTDIR}/"
 tar -czf "${OUTDIR}/${RUN_PREFIX}_canu_output.tar.gz" -C "$OUTDIR" "$RUN_PREFIX"
+sync_human_readable_outputs "${OUTDIR}/${RUN_PREFIX}" "01_genomeAssembly/${RUN_PREFIX}"
 
 # Cleanup is handled by trap

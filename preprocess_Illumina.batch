@@ -16,12 +16,35 @@ module load Trimmomatic/0.39-Java-17
 
 # Save preprocessing results under the genome assembly analysis tree
 REPO_DIR="$HOME/genome_analysis"
+RESULT_DIR="$REPO_DIR/result"
 SAMPLE_ID="Illumina"
 OUTDIR="$REPO_DIR/analysis/01_genomeAssembly/${SAMPLE_ID}_prep"
 PREFIX="${SAMPLE_ID}_prep"
 RUN_TAG=$(date +%Y%m%d_%H%M%S)
 RUN_PREFIX="${PREFIX}_${RUN_TAG}"
 THREADS=1
+
+sync_human_readable_outputs() {
+  local source_dir="$1"
+  local target_subdir="$2"
+  local target_dir="$RESULT_DIR/$target_subdir"
+
+  if [ ! -d "$source_dir" ]; then
+    return
+  fi
+
+  mkdir -p "$target_dir"
+  while IFS= read -r -d '' file; do
+    rel_path="${file#${source_dir}/}"
+    dest_path="$target_dir/$rel_path"
+    mkdir -p "$(dirname "$dest_path")"
+    cp -f "$file" "$dest_path"
+  done < <(
+    find "$source_dir" -type f -size -20M \
+      \( -iname "*.html" -o -iname "*.pdf" -o -iname "*.txt" -o -iname "*.tsv" -o -iname "*.csv" -o -iname "*.log" -o -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.md" -o -iname "*.png" -o -iname "*.svg" \) \
+      -print0
+  )
+}
 
 mkdir -p "$OUTDIR"
 
@@ -86,5 +109,6 @@ fastqc -t "$THREADS" -o "$POST_QC_DIR" "$TRIMMED_DIR"/*.gz
 mkdir -p "${OUTDIR}/${RUN_PREFIX}"
 rsync -av "$WORKDIR/output/" "${OUTDIR}/${RUN_PREFIX}/" || true
 rsync -av "$TRIMMED_DIR/" "${OUTDIR}/${RUN_PREFIX}/trimmed/" || true
+sync_human_readable_outputs "${OUTDIR}/${RUN_PREFIX}" "01_genomeAssembly/${SAMPLE_ID}_prep/${RUN_PREFIX}"
 
 echo "Preprocessing complete. Results in ${OUTDIR}/${RUN_PREFIX}"

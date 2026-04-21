@@ -15,6 +15,7 @@ set -euo pipefail
 module load BLAST+/2.17.0-gompi-2024a
 
 REPO_DIR="$HOME/genome_analysis"
+RESULT_DIR="$REPO_DIR/result"
 
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/04_genomeSynteny"
@@ -27,6 +28,28 @@ QUERY_SPECIES_TAXID=1352
 RELATED_SCOPE_TAXID="81852"
 TOP_CONTIGS=2
 REDUCED_QUERY_FASTA=""
+
+sync_human_readable_outputs() {
+  local source_dir="$1"
+  local target_subdir="$2"
+  local target_dir="$RESULT_DIR/$target_subdir"
+
+  if [ ! -d "$source_dir" ]; then
+    return
+  fi
+
+  mkdir -p "$target_dir"
+  while IFS= read -r -d '' file; do
+    rel_path="${file#${source_dir}/}"
+    dest_path="$target_dir/$rel_path"
+    mkdir -p "$(dirname "$dest_path")"
+    cp -f "$file" "$dest_path"
+  done < <(
+    find "$source_dir" -type f -size -20M \
+      \( -iname "*.html" -o -iname "*.pdf" -o -iname "*.txt" -o -iname "*.tsv" -o -iname "*.csv" -o -iname "*.log" -o -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.md" -o -iname "*.png" -o -iname "*.svg" \) \
+      -print0
+  )
+}
 
 mkdir -p "$OUTDIR" "$BLAST_OUTDIR"
 
@@ -179,3 +202,4 @@ head -n 11 "$SPECIES_SUMMARY_TSV"
 tar_cmd=(tar -czf "${BLAST_OUTDIR}/${RUN_PREFIX}_blast_species_output.tar.gz" -C "$BLAST_OUTDIR" "$RUN_PREFIX")
 echo "Running: ${tar_cmd[*]}"
 "${tar_cmd[@]}"
+sync_human_readable_outputs "$RUN_OUTDIR" "04_genomeSynteny/blast_species_canu/${RUN_PREFIX}"

@@ -14,9 +14,32 @@ module load BWA/0.7.17-gompi-2022a
 module load SAMtools/1.19.2-gompi-2022a
 
 REPO_DIR="$HOME/genome_analysis"
+RESULT_DIR="$REPO_DIR/result"
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/05_rnaAlign/spades"
 THREADS=2
+
+sync_human_readable_outputs() {
+  local source_dir="$1"
+  local target_subdir="$2"
+  local target_dir="$RESULT_DIR/$target_subdir"
+
+  if [ ! -d "$source_dir" ]; then
+    return
+  fi
+
+  mkdir -p "$target_dir"
+  while IFS= read -r -d '' file; do
+    rel_path="${file#${source_dir}/}"
+    dest_path="$target_dir/$rel_path"
+    mkdir -p "$(dirname "$dest_path")"
+    cp -f "$file" "$dest_path"
+  done < <(
+    find "$source_dir" -type f -size -20M \
+      \( -iname "*.html" -o -iname "*.pdf" -o -iname "*.txt" -o -iname "*.tsv" -o -iname "*.csv" -o -iname "*.log" -o -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.md" -o -iname "*.png" -o -iname "*.svg" \) \
+      -print0
+  )
+}
 
 ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "*SPAdes*/contigs.fasta" | head -n 1)
 
@@ -31,7 +54,7 @@ bwa index "$ASSEMBLY_FASTA"
 
 
 for CONDITION in Serum BH; do
-  TRIM_DIR="$REPO_DIR/analysis/01_rnaQC/${CONDITION}_prep" 
+  TRIM_DIR="$REPO_DIR/analysis/05_rnaPreProcessing/${CONDITION}_prep"
   TRIMMED_R1=$(find "$TRIM_DIR" -type f -name "*.R1.paired.fastq.gz" | head -n 1)
   TRIMMED_R2=$(find "$TRIM_DIR" -type f -name "*.R2.paired.fastq.gz" | head -n 1)
   if [ -z "$TRIMMED_R1" ] || [ -z "$TRIMMED_R2" ]; then
@@ -42,3 +65,5 @@ for CONDITION in Serum BH; do
   bwa mem -t "$THREADS" "$ASSEMBLY_FASTA" "$TRIMMED_R1" "$TRIMMED_R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
   samtools index "$OUT_BAM"
 done
+
+sync_human_readable_outputs "$OUTDIR" "05_rnaAlign/spades"

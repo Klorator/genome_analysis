@@ -14,10 +14,33 @@ set -euo pipefail
 module load prokka/1.14.5-gompi-2024a
 
 REPO_DIR="$HOME/genome_analysis"
+RESULT_DIR="$REPO_DIR/result"
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/03_genomeAnnotation"
 PROKKA_OUTDIR="$OUTDIR/prokka_spades"
 ASSEMBLY_FILTER="*SPAdes*"
+
+sync_human_readable_outputs() {
+  local source_dir="$1"
+  local target_subdir="$2"
+  local target_dir="$RESULT_DIR/$target_subdir"
+
+  if [ ! -d "$source_dir" ]; then
+    return
+  fi
+
+  mkdir -p "$target_dir"
+  while IFS= read -r -d '' file; do
+    rel_path="${file#${source_dir}/}"
+    dest_path="$target_dir/$rel_path"
+    mkdir -p "$(dirname "$dest_path")"
+    cp -f "$file" "$dest_path"
+  done < <(
+    find "$source_dir" -type f -size -20M \
+      \( -iname "*.html" -o -iname "*.pdf" -o -iname "*.txt" -o -iname "*.tsv" -o -iname "*.csv" -o -iname "*.log" -o -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.md" -o -iname "*.png" -o -iname "*.svg" \) \
+      -print0
+  )
+}
 
 mkdir -p "$OUTDIR" "$PROKKA_OUTDIR"
 
@@ -50,3 +73,4 @@ echo "Running: ${prokka_cmd[*]}"
 tar_cmd=(tar -czf "${PROKKA_OUTDIR}/${RUN_PREFIX}_prokka_spades_output.tar.gz" -C "$PROKKA_OUTDIR" "$RUN_PREFIX")
 echo "Running: ${tar_cmd[*]}"
 "${tar_cmd[@]}"
+sync_human_readable_outputs "$OUTPUT_DIR" "03_genomeAnnotation/prokka_spades/${RUN_PREFIX}"
