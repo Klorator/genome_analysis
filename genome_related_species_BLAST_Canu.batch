@@ -40,6 +40,7 @@ fi
 RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
 RUN_OUTDIR="${BLAST_OUTDIR}/${RUN_PREFIX}"
 RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits.tsv"
+FILTERED_RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits_filtered.tsv"
 SPECIES_SUMMARY_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_species_summary.tsv"
 REDUCED_QUERY_FASTA="${RUN_OUTDIR}/${RUN_PREFIX}_top${TOP_CONTIGS}_contigs.fasta"
 
@@ -111,9 +112,6 @@ taxid_args=()
 if [ -n "${RELATED_SCOPE_TAXID}" ]; then
   taxid_args+=( -taxids "$RELATED_SCOPE_TAXID" )
 fi
-if [ -n "${QUERY_SPECIES_TAXID}" ]; then
-  taxid_args+=( -negative_taxids "$QUERY_SPECIES_TAXID" )
-fi
 
 blast_cmd=(
   blastn
@@ -138,6 +136,30 @@ if [ ! -s "$RESULTS_TSV" ]; then
   exit 1
 fi
 
+if [ -n "${QUERY_SPECIES_TAXID}" ]; then
+  awk -F'\t' -v exclude_taxid="$QUERY_SPECIES_TAXID" '
+    {
+      keep=1
+      n=split($7, taxids, /;/)
+      for (i=1; i<=n; i++) {
+        gsub(/^ +| +$/, "", taxids[i])
+        if (taxids[i] == exclude_taxid) {
+          keep=0
+          break
+        }
+      }
+      if (keep) print $0
+    }
+  ' "$RESULTS_TSV" > "$FILTERED_RESULTS_TSV"
+else
+  cp "$RESULTS_TSV" "$FILTERED_RESULTS_TSV"
+fi
+
+if [ ! -s "$FILTERED_RESULTS_TSV" ]; then
+  echo "No non-self hits after excluding taxid ${QUERY_SPECIES_TAXID}: ${FILTERED_RESULTS_TSV}" >&2
+  exit 1
+fi
+
 awk -F'\t' '
   {
     species=$8
@@ -149,7 +171,7 @@ awk -F'\t' '
     print "species\thit_count\tbest_bitscore"
     for (s in count) print s "\t" count[s] "\t" best_bitscore[s]
   }
-' "$RESULTS_TSV" | sort -t$'\t' -k2,2nr -k3,3nr > "$SPECIES_SUMMARY_TSV"
+' "$FILTERED_RESULTS_TSV" | sort -t$'\t' -k2,2nr -k3,3nr > "$SPECIES_SUMMARY_TSV"
 
 echo "Top species hits (first 10):"
 head -n 11 "$SPECIES_SUMMARY_TSV"
