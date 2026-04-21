@@ -35,7 +35,7 @@ fi
 
 for CONDITION in Serum BH; do
   RAW_DIR="$REPO_DIR/data/RNA-Seq_${CONDITION}/raw"
-  OUTDIR="$REPO_DIR/analysis/01_rnaQC/${CONDITION}_prep"
+  OUTDIR="$REPO_DIR/analysis/05_rnaPreProcessing/${CONDITION}_prep"
   PREFIX="${CONDITION}_prep"
   RUN_TAG=$(date +%Y%m%d_%H%M%S)
   RUN_PREFIX="${PREFIX}_${RUN_TAG}"
