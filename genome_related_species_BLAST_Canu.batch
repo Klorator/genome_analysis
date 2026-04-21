@@ -23,7 +23,8 @@ THREADS=2
 BLAST_DB="nt"
 MAX_TARGET_SEQS=10
 ASSEMBLY_NAME_FILTER="*PacBio*"
-TARGET_TAXID=1352
+QUERY_SPECIES_TAXID=1352
+RELATED_SCOPE_TAXID="81852"
 TOP_CONTIGS=2
 REDUCED_QUERY_FASTA=""
 
@@ -49,7 +50,12 @@ echo "BLAST run prefix: ${RUN_PREFIX}"
 echo "Output directory: ${RUN_OUTDIR}"
 echo "BLAST database: ${BLAST_DB}"
 echo "Threads: ${THREADS}"
-echo "Target taxid: ${TARGET_TAXID}"
+echo "Excluded query species taxid: ${QUERY_SPECIES_TAXID}"
+if [ -n "${RELATED_SCOPE_TAXID}" ]; then
+  echo "Related search scope taxid: ${RELATED_SCOPE_TAXID}"
+else
+  echo "Related search scope taxid: all taxa"
+fi
 echo "Top contigs used for BLAST: ${TOP_CONTIGS}"
 
 awk -v top_n="$TOP_CONTIGS" '
@@ -101,12 +107,20 @@ if [ ! -s "$REDUCED_QUERY_FASTA" ]; then
   exit 1
 fi
 
+taxid_args=()
+if [ -n "${RELATED_SCOPE_TAXID}" ]; then
+  taxid_args+=( -taxids "$RELATED_SCOPE_TAXID" )
+fi
+if [ -n "${QUERY_SPECIES_TAXID}" ]; then
+  taxid_args+=( -negative_taxids "$QUERY_SPECIES_TAXID" )
+fi
+
 blast_cmd=(
   blastn
   -task megablast
   -query "$REDUCED_QUERY_FASTA"
   -db "$BLAST_DB"
-  -taxids "$TARGET_TAXID"
+  "${taxid_args[@]}"
   -num_threads "$THREADS"
   -max_target_seqs "$MAX_TARGET_SEQS"
   -max_hsps 1
