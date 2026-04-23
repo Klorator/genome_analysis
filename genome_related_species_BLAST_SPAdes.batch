@@ -59,16 +59,16 @@ sync_human_readable_outputs() {
 mkdir -p "$OUTDIR" "$BLAST_OUTDIR"
 mkdir -p "$BLAST_DB_DIR"
 
-ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.contigs.fasta" -o -name "contigs.fasta" \) -path "*/${ASSEMBLY_NAME_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.scaffolds.fasta" -o -name "scaffolds.fasta" \) -path "*/${ASSEMBLY_NAME_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
-  echo "No SPAdes assembly FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_NAME_FILTER}" >&2
+  echo "No SPAdes scaffold FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_NAME_FILTER}" >&2
   exit 1
 fi
 
 mapfile -d '' ALL_REFERENCE_FASTA_FILES < <(
   find "$REFERENCE_ASSEMBLY_DIR" -maxdepth 4 -type f \
-    \( -name "*.contigs.fasta" -o -name "contigs.fasta" \) \
+    \( -name "*.scaffolds.fasta" -o -name "scaffolds.fasta" \) \
     -print0 | sort -z
 )
 
@@ -162,7 +162,7 @@ RUN_OUTDIR="${BLAST_OUTDIR}/${RUN_PREFIX}"
 RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits.tsv"
 FILTERED_RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits_filtered.tsv"
 SPECIES_SUMMARY_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_species_summary.tsv"
-REDUCED_QUERY_FASTA="${RUN_OUTDIR}/${RUN_PREFIX}_top${TOP_CONTIGS}_contigs.fasta"
+REDUCED_QUERY_FASTA="${RUN_OUTDIR}/${RUN_PREFIX}_top${TOP_CONTIGS}_scaffolds.fasta"
 
 mkdir -p "$RUN_OUTDIR"
 
