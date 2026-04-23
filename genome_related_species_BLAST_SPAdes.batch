@@ -31,7 +31,7 @@ BLAST_QCOV_HSP_PERC=85
 BLAST_EVALUE=1e-80
 ASSEMBLY_NAME_FILTER="*SPAdes*"
 QUERY_SPECIES_TAXID=1352
-TOP_CONTIGS=2
+TOP_CONTIGS=1
 REDUCED_QUERY_FASTA=""
 
 sync_human_readable_outputs() {
@@ -59,7 +59,7 @@ sync_human_readable_outputs() {
 mkdir -p "$OUTDIR" "$BLAST_OUTDIR"
 mkdir -p "$BLAST_DB_DIR"
 
-ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.contigs.fasta" -o -name "*.scaffolds.fasta" -o -name "contigs.fasta" -o -name "scaffolds.fasta" \) -path "*/${ASSEMBLY_NAME_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.contigs.fasta" -o -name "contigs.fasta" \) -path "*/${ASSEMBLY_NAME_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
   echo "No SPAdes assembly FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_NAME_FILTER}" >&2
@@ -68,7 +68,7 @@ fi
 
 mapfile -d '' ALL_REFERENCE_FASTA_FILES < <(
   find "$REFERENCE_ASSEMBLY_DIR" -maxdepth 4 -type f \
-    \( -name "*.contigs.fasta" -o -name "*.scaffolds.fasta" -o -name "contigs.fasta" -o -name "scaffolds.fasta" \) \
+    \( -name "*.contigs.fasta" -o -name "contigs.fasta" \) \
     -print0 | sort -z
 )
 
@@ -102,7 +102,49 @@ else
   echo "Preparing merged reference FASTA from ${#REFERENCE_FASTA_FILES[@]} files"
   : > "$REFERENCE_MERGED_FASTA"
   for fasta in "${REFERENCE_FASTA_FILES[@]}"; do
-    cat "$fasta" >> "$REFERENCE_MERGED_FASTA"
+    source_tag=$(printf '%s' "$fasta" | cksum | awk '{print $1}')
+    awk -v source_tag="$source_tag" '
+      /^>/ {
+        if (header != "") {
+          lengths[++n]=seq_len
+          headers[n]=header
+          seqs[n]=seq
+        }
+        header=$0
+        seq=""
+        seq_len=0
+        next
+      }
+      {
+        gsub(/[ \t\r\n]/, "", $0)
+        seq=seq $0
+        seq_len+=length($0)
+      }
+      END {
+        if (header != "") {
+          lengths[++n]=seq_len
+          headers[n]=header
+          seqs[n]=seq
+        }
+        if (n < 1) exit
+
+        best=1
+        for (i=2; i<=n; i++) {
+          if (lengths[i] > lengths[best]) best=i
+        }
+
+        original=substr(headers[best], 2)
+        first_token=original
+        rest=""
+        if (match(original, /[ \t]/)) {
+          first_token=substr(original, 1, RSTART-1)
+          rest=substr(original, RSTART)
+        }
+
+        printf(">%s|%s%s\n", source_tag, first_token, rest)
+        print seqs[best]
+      }
+    ' "$fasta" >> "$REFERENCE_MERGED_FASTA"
   done
   if [ ! -s "$REFERENCE_MERGED_FASTA" ]; then
     echo "Failed to build merged reference FASTA: ${REFERENCE_MERGED_FASTA}" >&2
