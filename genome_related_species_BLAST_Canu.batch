@@ -14,222 +14,83 @@ set -euo pipefail
 # Modules
 module load BLAST+/2.17.0-gompi-2024a
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/helpers/blast_related_species_helpers.sh"
+
 REPO_DIR="$HOME/genome_analysis"
 RESULT_DIR="$REPO_DIR/result"
 
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/04_genomeSynteny"
 BLAST_OUTDIR="${OUTDIR}/blast_species_canu"
-REFERENCE_ASSEMBLY_DIR="$ASSEMBLY_DIR"
-BLAST_DB_DIR="${OUTDIR}/blast_db"
-BLAST_DB_PREFIX="${BLAST_DB_DIR}/reference_assemblies_canu_db"
-REFERENCE_MERGED_FASTA="${BLAST_DB_DIR}/reference_assemblies_canu_merged.fasta"
-REFERENCE_MANIFEST="${BLAST_DB_DIR}/reference_assemblies_canu.manifest"
+ASSEMBLY_NAME_FILTER="*PacBio*"
+ASSEMBLY_MODE="Canu"
+BLAST_DB="nt"
+SEARCH_SCOPE_TAXID="81852"
+SELF_TAXID=1352
 THREADS=2
 MAX_TARGET_SEQS=500
 BLAST_PERC_IDENTITY=97
 BLAST_QCOV_HSP_PERC=85
 BLAST_EVALUE=1e-80
-ASSEMBLY_NAME_FILTER="*PacBio*"
-QUERY_SPECIES_TAXID=1352
 TOP_CONTIGS=1
-REDUCED_QUERY_FASTA=""
+TOP_CONTIGS=2
 
-sync_human_readable_outputs() {
-  local source_dir="$1"
-  local target_subdir="$2"
-  local target_dir="$RESULT_DIR/$target_subdir"
+preflight_checks "$BLAST_DB" "$SEARCH_SCOPE_TAXID" "$SELF_TAXID" "$THREADS" "$TOP_CONTIGS" "$MAX_TARGET_SEQS" "$BLAST_PERC_IDENTITY" "$BLAST_QCOV_HSP_PERC" "$BLAST_EVALUE"
 
-  if [ ! -d "$source_dir" ]; then
-    return
-  fi
+LATEST_ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.scaffolds.fasta" -o -name "scaffolds.fasta" -o -name "*.contigs.fasta" -o -name "contigs.fasta" \) -path "*/${ASSEMBLY_NAME_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
-  mkdir -p "$target_dir"
-  while IFS= read -r -d '' file; do
-    rel_path="${file#${source_dir}/}"
-    dest_path="$target_dir/$rel_path"
-    mkdir -p "$(dirname "$dest_path")"
-    cp -f "$file" "$dest_path"
-  done < <(
-    find "$source_dir" -type f -size -20M \
-      \( -iname "*.html" -o -iname "*.pdf" -o -iname "*.txt" -o -iname "*.tsv" -o -iname "*.csv" -o -iname "*.log" -o -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.md" -o -iname "*.png" -o -iname "*.svg" \) \
-      -print0
-  )
-}
-
-mkdir -p "$OUTDIR" "$BLAST_OUTDIR"
-mkdir -p "$BLAST_DB_DIR"
-
-ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.scaffolds.fasta" -o -name "scaffolds.fasta" \) -path "*/${ASSEMBLY_NAME_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
-
-if [ -z "${ASSEMBLY_FASTA:-}" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
-  echo "No Canu scaffold FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_NAME_FILTER}" >&2
-  exit 1
+if [ -z "${LATEST_ASSEMBLY_FASTA:-}" ] || [ ! -f "$LATEST_ASSEMBLY_FASTA" ]; then
+  die "No Canu scaffold/contig FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_NAME_FILTER}"
 fi
 
-mapfile -d '' ALL_REFERENCE_FASTA_FILES < <(
-  find "$REFERENCE_ASSEMBLY_DIR" -maxdepth 4 -type f \
-    \( -name "*.scaffolds.fasta" -o -name "scaffolds.fasta" \) \
+ASSEMBLY_RUN_DIR=$(dirname "$LATEST_ASSEMBLY_FASTA")
+RUN_PREFIX=$(basename "$ASSEMBLY_RUN_DIR")
+RUN_OUTDIR="${BLAST_OUTDIR}/${RUN_PREFIX}"
+RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits.tsv"
+SPECIES_SUMMARY_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_species_summary.tsv"
+REDUCED_QUERY_FASTA="${RUN_OUTDIR}/${RUN_PREFIX}_top${TOP_CONTIGS}_sequences.fasta"
+
+mkdir -p "$OUTDIR" "$BLAST_OUTDIR" "$RUN_OUTDIR"
+
+mapfile -d '' QUERY_FASTA_FILES < <(
+  find "$ASSEMBLY_RUN_DIR" -maxdepth 1 -type f \
+    \( -name "*.scaffolds.fasta" -o -name "scaffolds.fasta" -o -name "*.contigs.fasta" -o -name "contigs.fasta" \) \
     -print0 | sort -z
 )
 
-REFERENCE_FASTA_FILES=()
-for fasta in "${ALL_REFERENCE_FASTA_FILES[@]}"; do
-  if [ "$fasta" != "$ASSEMBLY_FASTA" ]; then
-    REFERENCE_FASTA_FILES+=("$fasta")
-  fi
+[ "${#QUERY_FASTA_FILES[@]}" -gt 0 ] || die "No scaffold/contig FASTA files found in ${ASSEMBLY_RUN_DIR}"
+
+QUERY_SOURCE_LIST=""
+for fasta in "${QUERY_FASTA_FILES[@]}"; do
+  QUERY_SOURCE_LIST="${QUERY_SOURCE_LIST:+${QUERY_SOURCE_LIST}; }${fasta}"
 done
 
-if [ "${#REFERENCE_FASTA_FILES[@]}" -eq 0 ]; then
-  echo "No reference assembly FASTA files found in ${REFERENCE_ASSEMBLY_DIR} after excluding query assembly" >&2
-  exit 1
-fi
+build_top_n_query_fasta "$REDUCED_QUERY_FASTA" "$TOP_CONTIGS" "${QUERY_FASTA_FILES[@]}"
 
-echo "Reference FASTA files included in BLAST database (${#REFERENCE_FASTA_FILES[@]}):"
-for fasta in "${REFERENCE_FASTA_FILES[@]}"; do
-  echo "  - ${fasta}"
-done
-
-TMP_MANIFEST="${BLAST_DB_DIR}/reference_assemblies_canu.manifest.tmp"
-for fasta in "${REFERENCE_FASTA_FILES[@]}"; do
-  stat -c '%n\t%s\t%Y' "$fasta"
-done > "$TMP_MANIFEST"
-
-if blastdbcmd -db "$BLAST_DB_PREFIX" -info >/dev/null 2>&1 && [ -f "$REFERENCE_MANIFEST" ] && cmp -s "$TMP_MANIFEST" "$REFERENCE_MANIFEST"; then
-  echo "Reusing existing BLAST database: ${BLAST_DB_PREFIX}"
-  rm -f "$TMP_MANIFEST"
-else
-  echo "Building BLAST database: ${BLAST_DB_PREFIX}"
-  echo "Preparing merged reference FASTA from ${#REFERENCE_FASTA_FILES[@]} files"
-  : > "$REFERENCE_MERGED_FASTA"
-  for fasta in "${REFERENCE_FASTA_FILES[@]}"; do
-    source_tag=$(printf '%s' "$fasta" | cksum | awk '{print $1}')
-    awk -v source_tag="$source_tag" '
-      /^>/ {
-        if (header != "") {
-          lengths[++n]=seq_len
-          headers[n]=header
-          seqs[n]=seq
-        }
-        header=$0
-        seq=""
-        seq_len=0
-        next
-      }
-      {
-        gsub(/[ \t\r\n]/, "", $0)
-        seq=seq $0
-        seq_len+=length($0)
-      }
-      END {
-        if (header != "") {
-          lengths[++n]=seq_len
-          headers[n]=header
-          seqs[n]=seq
-        }
-        if (n < 1) exit
-
-        best=1
-        for (i=2; i<=n; i++) {
-          if (lengths[i] > lengths[best]) best=i
-        }
-
-        original=substr(headers[best], 2)
-        first_token=original
-        rest=""
-        if (match(original, /[ \t]/)) {
-          first_token=substr(original, 1, RSTART-1)
-          rest=substr(original, RSTART)
-        }
-
-        printf(">%s|%s%s\n", source_tag, first_token, rest)
-        print seqs[best]
-      }
-    ' "$fasta" >> "$REFERENCE_MERGED_FASTA"
-  done
-  if [ ! -s "$REFERENCE_MERGED_FASTA" ]; then
-    echo "Failed to build merged reference FASTA: ${REFERENCE_MERGED_FASTA}" >&2
-    rm -f "$TMP_MANIFEST"
-    exit 1
-  fi
-  makeblastdb -in "$REFERENCE_MERGED_FASTA" -dbtype nucl -out "$BLAST_DB_PREFIX" -parse_seqids
-  mv -f "$TMP_MANIFEST" "$REFERENCE_MANIFEST"
-fi
-
-BLAST_DB="$BLAST_DB_PREFIX"
-
-RUN_PREFIX=$(basename "$(dirname "$ASSEMBLY_FASTA")")
-RUN_OUTDIR="${BLAST_OUTDIR}/${RUN_PREFIX}"
-RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits.tsv"
-FILTERED_RESULTS_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_blast_hits_filtered.tsv"
-SPECIES_SUMMARY_TSV="${RUN_OUTDIR}/${RUN_PREFIX}_species_summary.tsv"
-REDUCED_QUERY_FASTA="${RUN_OUTDIR}/${RUN_PREFIX}_top${TOP_CONTIGS}_scaffolds.fasta"
-
-mkdir -p "$RUN_OUTDIR"
-
-echo "Selected assembly FASTA: ${ASSEMBLY_FASTA}"
-echo "BLAST run prefix: ${RUN_PREFIX}"
-echo "Output directory: ${RUN_OUTDIR}"
-echo "BLAST database: ${BLAST_DB}"
-echo "Threads: ${THREADS}"
-echo "Excluded query species taxid: ${QUERY_SPECIES_TAXID}"
-echo "Top contigs used for BLAST: ${TOP_CONTIGS}"
-echo "BLAST thresholds: perc_identity=${BLAST_PERC_IDENTITY}, qcov_hsp_perc=${BLAST_QCOV_HSP_PERC}, evalue=${BLAST_EVALUE}"
-
-awk -v top_n="$TOP_CONTIGS" '
-  /^>/ {
-    if (header != "") {
-      lengths[++n]=seq_len
-      headers[n]=header
-      seqs[n]=seq
-    }
-    header=$0
-    seq=""
-    seq_len=0
-    next
-  }
-  {
-    gsub(/[ \t\r\n]/, "", $0)
-    seq=seq $0
-    seq_len+=length($0)
-  }
-  END {
-    if (header != "") {
-      lengths[++n]=seq_len
-      headers[n]=header
-      seqs[n]=seq
-    }
-
-    for (i = 1; i <= n; i++) idx[i]=i
-    for (i = 1; i <= n; i++) {
-      for (j = i + 1; j <= n; j++) {
-        if (lengths[idx[j]] > lengths[idx[i]]) {
-          tmp=idx[i]
-          idx[i]=idx[j]
-          idx[j]=tmp
-        }
-      }
-    }
-
-    limit = (top_n < n) ? top_n : n
-    for (i = 1; i <= limit; i++) {
-      k=idx[i]
-      print headers[k]
-      print seqs[k]
-    }
-  }
-' "$ASSEMBLY_FASTA" > "$REDUCED_QUERY_FASTA"
-
-if [ ! -s "$REDUCED_QUERY_FASTA" ]; then
-  echo "Failed to build reduced query FASTA: ${REDUCED_QUERY_FASTA}" >&2
-  exit 1
-fi
+log_run_parameters \
+  "$(basename "$0")" \
+  "$ASSEMBLY_MODE" \
+  "$ASSEMBLY_RUN_DIR" \
+  "$REDUCED_QUERY_FASTA" \
+  "$QUERY_SOURCE_LIST" \
+  "$BLAST_DB" \
+  "$SEARCH_SCOPE_TAXID" \
+  "$SELF_TAXID" \
+  "$TOP_CONTIGS" \
+  "$THREADS" \
+  "$MAX_TARGET_SEQS" \
+  "$BLAST_PERC_IDENTITY" \
+  "$BLAST_QCOV_HSP_PERC" \
+  "$BLAST_EVALUE"
 
 blast_cmd=(
   blastn
   -task megablast
   -query "$REDUCED_QUERY_FASTA"
   -db "$BLAST_DB"
+  -taxids "$SEARCH_SCOPE_TAXID"
+  -negative_taxids "$SELF_TAXID"
   -num_threads "$THREADS"
   -max_target_seqs "$MAX_TARGET_SEQS"
   -max_hsps 1
@@ -239,57 +100,15 @@ blast_cmd=(
   -outfmt "6 qseqid sseqid pident length evalue bitscore staxids sscinames stitle"
   -out "$RESULTS_TSV"
 )
+
 echo "Running: ${blast_cmd[*]}"
 "${blast_cmd[@]}"
 
 if [ ! -s "$RESULTS_TSV" ]; then
-  echo "BLAST produced no hits: ${RESULTS_TSV}" >&2
-  exit 1
+  die "BLAST produced no hits: ${RESULTS_TSV}"
 fi
 
-if [ -n "${QUERY_SPECIES_TAXID}" ]; then
-  if awk -F'\t' 'NF>=7 && $7 ~ /[0-9]/ { found=1; exit } END { exit(found ? 0 : 1) }' "$RESULTS_TSV"; then
-    awk -F'\t' -v exclude_taxid="$QUERY_SPECIES_TAXID" '
-      {
-        keep=1
-        n=split($7, taxids, /;/)
-        for (i=1; i<=n; i++) {
-          gsub(/^ +| +$/, "", taxids[i])
-          if (taxids[i] == exclude_taxid) {
-            keep=0
-            break
-          }
-        }
-        if (keep) print $0
-      }
-    ' "$RESULTS_TSV" > "$FILTERED_RESULTS_TSV"
-  else
-    echo "No numeric staxids in BLAST output; skipping taxid-based filtering for local reference DB"
-    cp "$RESULTS_TSV" "$FILTERED_RESULTS_TSV"
-  fi
-else
-  cp "$RESULTS_TSV" "$FILTERED_RESULTS_TSV"
-fi
-
-if [ ! -s "$FILTERED_RESULTS_TSV" ]; then
-  echo "No non-self hits after excluding taxid ${QUERY_SPECIES_TAXID}: ${FILTERED_RESULTS_TSV}" >&2
-  exit 1
-fi
-
-awk -F'\t' '
-  {
-    species=$8
-    if (species == "" || species == "N/A") species=$9
-    if (species == "" || species == "N/A") species=$2
-    if (species == "" || species == "N/A") species="Unknown"
-    count[species]++
-    if (!(species in best_bitscore) || $6 > best_bitscore[species]) best_bitscore[species]=$6
-  }
-  END {
-    print "species\thit_count\tbest_bitscore"
-    for (s in count) print s "\t" count[s] "\t" best_bitscore[s]
-  }
-' "$FILTERED_RESULTS_TSV" | sort -t$'\t' -k2,2nr -k3,3nr > "$SPECIES_SUMMARY_TSV"
+summarize_blast_hits "$RESULTS_TSV" "$SPECIES_SUMMARY_TSV"
 
 echo "Top species hits (first 10):"
 head -n 11 "$SPECIES_SUMMARY_TSV"
