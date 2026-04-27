@@ -10,8 +10,8 @@
 
 set -euo pipefail
 
-module load BWA/0.7.17-gompi-2022a
-module load SAMtools/1.19.2-gompi-2022a
+module load BWA/0.7.19-GCCcore-13.3.0
+module load SAMtools/1.22.1-GCC-13.3.0
 
 REPO_DIR="$HOME/genome_analysis"
 RESULT_DIR="$REPO_DIR/result"
