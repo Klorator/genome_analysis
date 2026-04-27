@@ -19,6 +19,35 @@ ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/05_rnaAlign/spades"
 THREADS=2
 
+log_run_parameters() {
+  cat <<EOF
+=== RNA alignment run ===
+Assembly mode : SPAdes
+Assembly FASTA: $ASSEMBLY_FASTA
+Output dir    : $OUTDIR
+Threads       : $THREADS
+EOF
+}
+
+select_first_pair() {
+  local search_dir="$1"
+  local r1 r2
+
+  while IFS= read -r -d '' r1; do
+    r2="${r1/.R1./.R2.}"
+    r2="${r2/_R1/_R2}"
+    if [ -f "$r2" ]; then
+      printf '%s\n%s\n' "$r1" "$r2"
+      return 0
+    fi
+  done < <(
+    find "$search_dir" -type f \( -name "*.R1.paired.fastq.gz" -o -name "*.R1.fastq.gz" -o -name "*_R1*.fastq.gz" \) \
+      -print0 | sort -z
+  )
+
+  return 1
+}
+
 sync_human_readable_outputs() {
   local source_dir="$1"
   local target_subdir="$2"
@@ -41,7 +70,7 @@ sync_human_readable_outputs() {
   )
 }
 
-ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "contigs.fasta" -path "*/*_SPAdes_*/*" | head -n 1)
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f -name "contigs.fasta" -path "*/E_faecium_SPAdes_20260415_121016/*" | head -n 1)
 
 if [ -z "$ASSEMBLY_FASTA" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
   echo "SPAdes assembly FASTA not found." >&2
@@ -50,18 +79,22 @@ fi
 
 mkdir -p "$OUTDIR"
 
+log_run_parameters
+
+rm -f "$ASSEMBLY_FASTA".amb "$ASSEMBLY_FASTA".ann "$ASSEMBLY_FASTA".bwt "$ASSEMBLY_FASTA".pac "$ASSEMBLY_FASTA".sa
 bwa index "$ASSEMBLY_FASTA"
 
 
 for CONDITION in Serum BH; do
   TRIM_DIR="$REPO_DIR/analysis/05_rnaPreProcessing/${CONDITION}_prep"
-  TRIMMED_R1=$(find "$TRIM_DIR" -type f -name "*.R1.paired.fastq.gz" | head -n 1)
-  TRIMMED_R2=$(find "$TRIM_DIR" -type f -name "*.R2.paired.fastq.gz" | head -n 1)
-  if [ -z "$TRIMMED_R1" ] || [ -z "$TRIMMED_R2" ]; then
+  if ! mapfile -t TRIM_FASTQS < <(select_first_pair "$TRIM_DIR"); then
     echo "Trimmed paired FASTQ files not found for $CONDITION in $TRIM_DIR" >&2
     continue
   fi
+  TRIMMED_R1="${TRIM_FASTQS[0]}"
+  TRIMMED_R2="${TRIM_FASTQS[1]}"
   OUT_BAM="$OUTDIR/rna_${CONDITION,,}_vs_spades.bam"
+  rm -f "$OUT_BAM" "$OUT_BAM.bai"
   bwa mem -t "$THREADS" "$ASSEMBLY_FASTA" "$TRIMMED_R1" "$TRIMMED_R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
   samtools index "$OUT_BAM"
 done
