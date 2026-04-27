@@ -41,7 +41,7 @@ sync_human_readable_outputs() {
   )
 }
 
-ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "*SPAdes*/contigs.fasta" | head -n 1)
+ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f -name "contigs.fasta" -path "*/*_SPAdes_*/*" | head -n 1)
 
 if [ -z "$ASSEMBLY_FASTA" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
   echo "SPAdes assembly FASTA not found." >&2
