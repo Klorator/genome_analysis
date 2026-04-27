@@ -14,8 +14,18 @@ set -euo pipefail
 # Modules
 module load BLAST+/2.17.0-gompi-2024a
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/helpers/blast_related_species_helpers.sh"
+HELPER_LOADED=0
+for HELPER_PATH in \
+  "${SLURM_SUBMIT_DIR:-$PWD}/helpers/blast_related_species_helpers.sh" \
+  "$PWD/helpers/blast_related_species_helpers.sh"; do
+  if [ -f "$HELPER_PATH" ]; then
+    source "$HELPER_PATH"
+    HELPER_LOADED=1
+    break
+  fi
+done
+
+[ "$HELPER_LOADED" -eq 1 ] || { echo "Error: unable to locate helpers/blast_related_species_helpers.sh" >&2; exit 1; }
 
 REPO_DIR="$HOME/genome_analysis"
 RESULT_DIR="$REPO_DIR/result"
