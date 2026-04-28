@@ -1,0 +1,11 @@
+[bwa_index] Pack FASTA... 0.01 sec
+[bwa_index] Construct BWT for the packed sequence...
+[bwa_index] 0.48 seconds elapse.
+[bwa_index] Update BWT... 0.01 sec
+[bwa_index] Pack forward-only FASTA... 0.01 sec
+[bwa_index] Construct SA from BWT and Occ... 0.19 sec
+[main] Version: 0.7.19-r1273
+[main] CMD: bwa index /home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_SPAdes_20260415_121016/contigs.fasta
+[main] Real time: 0.817 sec; CPU: 0.714 sec
+Trimmed paired FASTQ files not found for Serum in /home/raha1670/genome_analysis/analysis/05_rnaPreProcessing/Serum_prep
+Trimmed paired FASTQ files not found for BH in /home/raha1670/genome_analysis/analysis/05_rnaPreProcessing/BH_prep
