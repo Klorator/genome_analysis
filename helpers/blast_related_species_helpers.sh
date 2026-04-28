@@ -45,14 +45,12 @@ validate_positive_number() {
 
 preflight_checks() {
   local blast_db="$1"
-  local scope_taxid="$2"
-  local self_taxid="$3"
-  local threads="$4"
-  local top_n="$5"
-  local max_target_seqs="$6"
-  local min_identity="$7"
-  local min_qcov="$8"
-  local evalue="$9"
+  local threads="$2"
+  local top_n="$3"
+  local max_target_seqs="$4"
+  local min_identity="$5"
+  local min_qcov="$6"
+  local evalue="$7"
 
   require_commands blastn blastdbcmd awk find sort tar cksum dirname basename
 
@@ -79,12 +77,6 @@ preflight_checks() {
   validate_positive_number BLAST_PERC_IDENTITY "$min_identity"
   validate_positive_number BLAST_QCOV_HSP_PERC "$min_qcov"
   validate_positive_number BLAST_EVALUE "$evalue"
-  validate_positive_int SELF_TAXID "$self_taxid"
-
-  if [[ -n "$scope_taxid" ]]; then
-    validate_positive_int SEARCH_SCOPE_TAXID "$scope_taxid"
-  fi
-}
 
 sync_human_readable_outputs() {
   local source_dir="$1"
@@ -198,14 +190,12 @@ log_run_parameters() {
   local query_fasta="$4"
   local query_sources="$5"
   local blast_db="$6"
-  local search_scope_taxid="$7"
-  local self_taxid="$8"
-  local top_n="$9"
-  local threads="${10}"
-  local max_target_seqs="${11}"
-  local min_identity="${12}"
-  local min_qcov="${13}"
-  local evalue="${14}"
+  local top_n="$7"
+  local threads="${8}"
+  local max_target_seqs="${9}"
+  local min_identity="${10}"
+  local min_qcov="${11}"
+  local evalue="${12}"
 
   cat <<EOF
 === BLAST related-species run ===
@@ -215,8 +205,6 @@ Assembly run dir : $assembly_run_dir
 Query FASTA      : $query_fasta
 Query sources    : $query_sources
 BLAST database   : $blast_db
-Search scope     : ${search_scope_taxid:-none}
-Exclude taxid    : $self_taxid
 Top sequences    : $top_n
 Threads          : $threads
 Max targets      : $max_target_seqs
