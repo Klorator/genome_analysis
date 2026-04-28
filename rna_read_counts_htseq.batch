@@ -27,6 +27,14 @@ mkdir -p "$SPADES_COUNT_DIR"
 mapfile -t SPADES_BAMS < <(find "$SPADES_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
 if [ ${#SPADES_BAMS[@]} -eq 0 ]; then
   echo "No SPAdes BAM files found in $SPADES_BAM_DIR"
+  # Some GFFs (Prokka) include a FASTA section after a '##FASTA' header
+  # which breaks HTSeq's GFF parser. Create a FASTA-stripped copy.
+  if [ -n "${SPADES_GFF:-}" ] && [ -f "$SPADES_GFF" ]; then
+    SPADES_GFF_CLEAN="${SPADES_GFF%.gff}_noFASTA.gff"
+    awk '/^##FASTA/ {exit} {print}' "$SPADES_GFF" > "$SPADES_GFF_CLEAN"
+  else
+    SPADES_GFF_CLEAN=""
+  fi
 fi
 
 for BAM in "${SPADES_BAMS[@]}"; do
@@ -43,7 +51,7 @@ for BAM in "${SPADES_BAMS[@]}"; do
     --mode=union \
     --counts_output="$COUNT_FILE" \
     "$BAM" \
-    "$SPADES_GFF"
+    "${SPADES_GFF_CLEAN:-$SPADES_GFF}"
 done
 
 # Process Canu
@@ -71,7 +79,7 @@ for BAM in "${CANU_BAMS[@]}"; do
     --mode=union \
     --counts_output="$COUNT_FILE" \
     "$BAM" \
-    "$CANU_GFF"
+    "${CANU_GFF_CLEAN:-$CANU_GFF}"
 done
 
 echo "Read counting complete in: $COUNT_OUTDIR"
