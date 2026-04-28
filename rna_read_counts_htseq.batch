@@ -43,12 +43,10 @@ for BAM in "${SPADES_BAMS[@]}"; do
 
   echo "Counting SPAdes: $BAM"
   htseq-count \
-    --format=bam \
     --order=name \
     --stranded=no \
     --type=CDS \
     --idattr=ID \
-    --mode=union \
     --counts_output="$COUNT_FILE" \
     "$BAM" \
     "${SPADES_GFF_CLEAN:-$SPADES_GFF}"
@@ -71,12 +69,10 @@ for BAM in "${CANU_BAMS[@]}"; do
 
   echo "Counting Canu: $BAM"
   htseq-count \
-    --format=bam \
     --order=name \
     --stranded=no \
     --type=CDS \
     --idattr=ID \
-    --mode=union \
     --counts_output="$COUNT_FILE" \
     "$BAM" \
     "${CANU_GFF_CLEAN:-$CANU_GFF}"
