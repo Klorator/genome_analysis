@@ -1,0 +1,75 @@
+#!/bin/bash -l
+
+#SBATCH -A uppmax2026-1-61
+#SBATCH -J htseq_count
+#SBATCH --mail-type=ALL
+#SBATCH -p pelle
+#SBATCH -n 1
+#SBATCH -t 10:00:00
+
+set -euo pipefail
+
+module load HTSeq/2.1.2-gfbf-2024a
+
+REPO_DIR="$HOME/genome_analysis"
+ANALYSIS_DIR="$REPO_DIR/analysis"
+OUTDIR="$ANALYSIS_DIR/06_rnaAlign"
+COUNT_OUTDIR="$ANALYSIS_DIR/07_readCounts"
+
+mkdir -p "$COUNT_OUTDIR"
+
+# Process SPAdes
+SPADES_BAM_DIR="$OUTDIR/spades"
+if [ -d "$SPADES_BAM_DIR" ]; then
+  SPADES_GFF=$(find "$REPO_DIR/analysis/03_genomeAnnotation/prokka_spades" -name "*.gff" | head -1)
+  SPADES_COUNT_DIR="$COUNT_OUTDIR/spades"
+  mkdir -p "$SPADES_COUNT_DIR"
+  
+  for BAM in "$SPADES_BAM_DIR"/*.sorted.bam; do
+    [ -f "$BAM" ] || continue
+    SAMPLE_NAME=$(basename "$BAM" .sorted.bam)
+    COUNT_FILE="$SPADES_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
+    
+    echo "Counting SPAdes: $BAM"
+    htseq-count \
+      --format=bam \
+      --order=name \
+      --stranded=no \
+      --a=10 \
+      --type=CDS \
+      --idattr=ID \
+      --mode=union \
+      --counts_output="$COUNT_FILE" \
+      "$BAM" \
+      "$SPADES_GFF"
+  done
+fi
+
+# Process Canu
+CANU_BAM_DIR="$OUTDIR/canu"
+if [ -d "$CANU_BAM_DIR" ]; then
+  CANU_GFF=$(find "$REPO_DIR/analysis/03_genomeAnnotation/prokka_canu" -name "*.gff" | head -1)
+  CANU_COUNT_DIR="$COUNT_OUTDIR/canu"
+  mkdir -p "$CANU_COUNT_DIR"
+  
+  for BAM in "$CANU_BAM_DIR"/*.sorted.bam; do
+    [ -f "$BAM" ] || continue
+    SAMPLE_NAME=$(basename "$BAM" .sorted.bam)
+    COUNT_FILE="$CANU_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
+    
+    echo "Counting Canu: $BAM"
+    htseq-count \
+      --format=bam \
+      --order=name \
+      --stranded=no \
+      --a=10 \
+      --type=CDS \
+      --idattr=ID \
+      --mode=union \
+      --counts_output="$COUNT_FILE" \
+      "$BAM" \
+      "$CANU_GFF"
+  done
+fi
+
+echo "Read counting complete in: $COUNT_OUTDIR"

@@ -47,10 +47,10 @@ TOP_CONTIGS=2
 
 preflight_checks "$BLAST_DB" "$SEARCH_SCOPE_TAXID" "$SELF_TAXID" "$THREADS" "$TOP_CONTIGS" "$MAX_TARGET_SEQS" "$BLAST_PERC_IDENTITY" "$BLAST_QCOV_HSP_PERC" "$BLAST_EVALUE"
 
-LATEST_ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 4 -type f \( -name "*.scaffolds.fasta" -o -name "scaffolds.fasta" -o -name "*.contigs.fasta" -o -name "contigs.fasta" \) -path "*/${ASSEMBLY_NAME_FILTER}/*" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+LATEST_ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f -name "*.contigs.fasta" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${LATEST_ASSEMBLY_FASTA:-}" ] || [ ! -f "$LATEST_ASSEMBLY_FASTA" ]; then
-  die "No Canu scaffold/contig FASTA found in ${ASSEMBLY_DIR} matching ${ASSEMBLY_NAME_FILTER}"
+  die "No Canu contigs.fasta found in ${ASSEMBLY_DIR}. Expected pattern: E_faecium_PacBio_*.contigs.fasta"
 fi
 
 ASSEMBLY_RUN_DIR=$(dirname "$LATEST_ASSEMBLY_FASTA")
@@ -121,8 +121,3 @@ summarize_blast_hits "$RESULTS_TSV" "$SPECIES_SUMMARY_TSV"
 
 echo "Top species hits (first 10):"
 head -n 11 "$SPECIES_SUMMARY_TSV"
-
-tar_cmd=(tar -czf "${BLAST_OUTDIR}/${RUN_PREFIX}_blast_species_output.tar.gz" -C "$BLAST_OUTDIR" "$RUN_PREFIX")
-echo "Running: ${tar_cmd[*]}"
-"${tar_cmd[@]}"
-sync_human_readable_outputs "$RUN_OUTDIR" "04_genomeSynteny/blast_species_canu/${RUN_PREFIX}"

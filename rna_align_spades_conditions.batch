@@ -16,7 +16,7 @@ module load SAMtools/1.22.1-GCC-13.3.0
 REPO_DIR="$HOME/genome_analysis"
 RESULT_DIR="$REPO_DIR/result"
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
-OUTDIR="$REPO_DIR/analysis/05_rnaAlign/spades"
+OUTDIR="$REPO_DIR/analysis/06_rnaAlign/spades"
 THREADS=2
 
 log_run_parameters() {
@@ -99,4 +99,4 @@ for CONDITION in Serum BH; do
   samtools index "$OUT_BAM"
 done
 
-sync_human_readable_outputs "$OUTDIR" "05_rnaAlign/spades"
+sync_human_readable_outputs "$OUTDIR" "06_rnaAlign/spades"
