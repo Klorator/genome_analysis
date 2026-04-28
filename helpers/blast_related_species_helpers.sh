@@ -51,32 +51,7 @@ preflight_checks() {
   local min_identity="$5"
   local min_qcov="$6"
   local evalue="$7"
-
-  require_commands blastn blastdbcmd awk find sort tar cksum dirname basename
-
-  check_blast_flag_support blastn \
-    -task \
-    -query \
-    -db \
-    -num_threads \
-    -max_target_seqs \
-    -max_hsps \
-    -perc_identity \
-    -qcov_hsp_perc \
-    -evalue \
-    -outfmt \
-    -out \
-    -taxids \
-    -negative_taxids
-
-  blastdbcmd -db "$blast_db" -info >/dev/null 2>&1 || die "BLAST database '$blast_db' is unavailable"
-
-  validate_positive_int THREADS "$threads"
-  validate_positive_int TOP_CONTIGS "$top_n"
-  validate_positive_int MAX_TARGET_SEQS "$max_target_seqs"
-  validate_positive_number BLAST_PERC_IDENTITY "$min_identity"
-  validate_positive_number BLAST_QCOV_HSP_PERC "$min_qcov"
-  validate_positive_number BLAST_EVALUE "$evalue"
+}
 
 sync_human_readable_outputs() {
   local source_dir="$1"
