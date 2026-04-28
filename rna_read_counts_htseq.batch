@@ -24,17 +24,16 @@ SPADES_GFF=$(find "$REPO_DIR/analysis/03_genomeAnnotation/prokka_spades" -name "
 SPADES_COUNT_DIR="$COUNT_OUTDIR/spades"
 mkdir -p "$SPADES_COUNT_DIR"
 
+if [ -n "${SPADES_GFF:-}" ] && [ -f "$SPADES_GFF" ]; then
+  SPADES_GFF_CLEAN="$SPADES_COUNT_DIR/$(basename "${SPADES_GFF%.gff}")_noFASTA.gff"
+  awk '/^##FASTA/ {exit} {print}' "$SPADES_GFF" > "$SPADES_GFF_CLEAN"
+else
+  SPADES_GFF_CLEAN=""
+fi
+
 mapfile -t SPADES_BAMS < <(find "$SPADES_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
 if [ ${#SPADES_BAMS[@]} -eq 0 ]; then
   echo "No SPAdes BAM files found in $SPADES_BAM_DIR"
-  # Some GFFs (Prokka) include a FASTA section after a '##FASTA' header
-  # which breaks HTSeq's GFF parser. Create a FASTA-stripped copy.
-  if [ -n "${SPADES_GFF:-}" ] && [ -f "$SPADES_GFF" ]; then
-    SPADES_GFF_CLEAN="${SPADES_GFF%.gff}_noFASTA.gff"
-    awk '/^##FASTA/ {exit} {print}' "$SPADES_GFF" > "$SPADES_GFF_CLEAN"
-  else
-    SPADES_GFF_CLEAN=""
-  fi
 fi
 
 for BAM in "${SPADES_BAMS[@]}"; do
@@ -43,10 +42,13 @@ for BAM in "${SPADES_BAMS[@]}"; do
 
   echo "Counting SPAdes: $BAM"
   htseq-count \
+    --format=bam \
     --order=name \
     --stranded=no \
+    --a=10 \
     --type=CDS \
     --idattr=ID \
+    --mode=union \
     --counts_output="$COUNT_FILE" \
     "$BAM" \
     "${SPADES_GFF_CLEAN:-$SPADES_GFF}"
@@ -57,6 +59,13 @@ CANU_BAM_DIR="$OUTDIR/canu"
 CANU_GFF=$(find "$REPO_DIR/analysis/03_genomeAnnotation/prokka_canu" -name "*.gff" | head -1)
 CANU_COUNT_DIR="$COUNT_OUTDIR/canu"
 mkdir -p "$CANU_COUNT_DIR"
+
+if [ -n "${CANU_GFF:-}" ] && [ -f "$CANU_GFF" ]; then
+  CANU_GFF_CLEAN="$CANU_COUNT_DIR/$(basename "${CANU_GFF%.gff}")_noFASTA.gff"
+  awk '/^##FASTA/ {exit} {print}' "$CANU_GFF" > "$CANU_GFF_CLEAN"
+else
+  CANU_GFF_CLEAN=""
+fi
 
 mapfile -t CANU_BAMS < <(find "$CANU_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
 if [ ${#CANU_BAMS[@]} -eq 0 ]; then
@@ -69,10 +78,13 @@ for BAM in "${CANU_BAMS[@]}"; do
 
   echo "Counting Canu: $BAM"
   htseq-count \
+    --format=bam \
     --order=name \
     --stranded=no \
+    --a=10 \
     --type=CDS \
     --idattr=ID \
+    --mode=union \
     --counts_output="$COUNT_FILE" \
     "$BAM" \
     "${CANU_GFF_CLEAN:-$CANU_GFF}"
