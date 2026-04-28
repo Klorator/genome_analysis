@@ -20,64 +20,58 @@ mkdir -p "$COUNT_OUTDIR"
 
 # Process SPAdes
 SPADES_BAM_DIR="$OUTDIR/spades"
-if [ -d "$SPADES_BAM_DIR" ]; then
-  SPADES_GFF=$(find "$REPO_DIR/analysis/03_genomeAnnotation/prokka_spades" -name "*.gff" | head -1)
-  SPADES_COUNT_DIR="$COUNT_OUTDIR/spades"
-  mkdir -p "$SPADES_COUNT_DIR"
+SPADES_GFF=$(find "$REPO_DIR/analysis/03_genomeAnnotation/prokka_spades" -name "*.gff" | head -1)
+SPADES_COUNT_DIR="$COUNT_OUTDIR/spades"
+mkdir -p "$SPADES_COUNT_DIR"
 
-  mapfile -t SPADES_BAMS < <(find "$SPADES_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
-  if [ ${#SPADES_BAMS[@]} -eq 0 ]; then
-    echo "No SPAdes BAM files found in $SPADES_BAM_DIR"
-  fi
-
-  for BAM in "${SPADES_BAMS[@]}"; do
-    SAMPLE_NAME=$(basename "$BAM" .bam)
-    COUNT_FILE="$SPADES_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
-
-    echo "Counting SPAdes: $BAM"
-    htseq-count \
-      --format=bam \
-      --order=name \
-      --stranded=no \
-      --a=10 \
-      --type=CDS \
-      --idattr=ID \
-      --mode=union \
-      --counts_output="$COUNT_FILE" \
-      "$BAM" \
-      "$SPADES_GFF"
-  done
+mapfile -t SPADES_BAMS < <(find "$SPADES_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
+if [ ${#SPADES_BAMS[@]} -eq 0 ]; then
+  echo "No SPAdes BAM files found in $SPADES_BAM_DIR"
 fi
+
+for BAM in "${SPADES_BAMS[@]}"; do
+  SAMPLE_NAME=$(basename "$BAM" .bam)
+  COUNT_FILE="$SPADES_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
+
+  echo "Counting SPAdes: $BAM"
+  htseq-count \
+    --format=bam \
+    --order=name \
+    --stranded=no \
+    --type=CDS \
+    --idattr=ID \
+    --mode=union \
+    --counts_output="$COUNT_FILE" \
+    "$BAM" \
+    "$SPADES_GFF"
+done
 
 # Process Canu
 CANU_BAM_DIR="$OUTDIR/canu"
-if [ -d "$CANU_BAM_DIR" ]; then
-  CANU_GFF=$(find "$REPO_DIR/analysis/03_genomeAnnotation/prokka_canu" -name "*.gff" | head -1)
-  CANU_COUNT_DIR="$COUNT_OUTDIR/canu"
-  mkdir -p "$CANU_COUNT_DIR"
+CANU_GFF=$(find "$REPO_DIR/analysis/03_genomeAnnotation/prokka_canu" -name "*.gff" | head -1)
+CANU_COUNT_DIR="$COUNT_OUTDIR/canu"
+mkdir -p "$CANU_COUNT_DIR"
 
-  mapfile -t CANU_BAMS < <(find "$CANU_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
-  if [ ${#CANU_BAMS[@]} -eq 0 ]; then
-    echo "No Canu BAM files found in $CANU_BAM_DIR"
-  fi
-
-  for BAM in "${CANU_BAMS[@]}"; do
-    SAMPLE_NAME=$(basename "$BAM" .bam)
-    COUNT_FILE="$CANU_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
-
-    echo "Counting Canu: $BAM"
-    htseq-count \
-      --format=bam \
-      --order=name \
-      --stranded=no \
-      --a=10 \
-      --type=CDS \
-      --idattr=ID \
-      --mode=union \
-      --counts_output="$COUNT_FILE" \
-      "$BAM" \
-      "$CANU_GFF"
-  done
+mapfile -t CANU_BAMS < <(find "$CANU_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
+if [ ${#CANU_BAMS[@]} -eq 0 ]; then
+  echo "No Canu BAM files found in $CANU_BAM_DIR"
 fi
+
+for BAM in "${CANU_BAMS[@]}"; do
+  SAMPLE_NAME=$(basename "$BAM" .bam)
+  COUNT_FILE="$CANU_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
+
+  echo "Counting Canu: $BAM"
+  htseq-count \
+    --format=bam \
+    --order=name \
+    --stranded=no \
+    --type=CDS \
+    --idattr=ID \
+    --mode=union \
+    --counts_output="$COUNT_FILE" \
+    "$BAM" \
+    "$CANU_GFF"
+done
 
 echo "Read counting complete in: $COUNT_OUTDIR"
