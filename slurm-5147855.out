@@ -1,4 +1,0 @@
-Counting SPAdes: /home/raha1670/genome_analysis/analysis/06_rnaAlign/spades/rna_bh_vs_spades.bam
-Error processing GFF file (line 3935 of file /home/raha1670/genome_analysis/analysis/03_genomeAnnotation/prokka_spades/E_faecium_SPAdes_20260415_121016/E_faecium_SPAdes_20260415_121016.gff):
-  not enough values to unpack (expected 9, got 1)
-  [Exception type: ValueError, raised in features.py:138]
