@@ -10,6 +10,7 @@
 set -euo pipefail
 
 module load HTSeq/2.1.2-gfbf-2024a
+module load SAMtools/1.22.1-GCC-13.3.0
 
 REPO_DIR="$HOME/genome_analysis"
 ANALYSIS_DIR="$REPO_DIR/analysis"
