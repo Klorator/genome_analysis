@@ -43,8 +43,6 @@ BLAST_QCOV_HSP_PERC=60
 BLAST_EVALUE=1e-20
 TOP_CONTIGS=2
 
-preflight_checks "$BLAST_DB" "$THREADS" "$TOP_CONTIGS" "$MAX_TARGET_SEQS" "$BLAST_PERC_IDENTITY" "$BLAST_QCOV_HSP_PERC" "$BLAST_EVALUE"
-
 LATEST_ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f -name "*.contigs.fasta" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${LATEST_ASSEMBLY_FASTA:-}" ] || [ ! -f "$LATEST_ASSEMBLY_FASTA" ]; then
