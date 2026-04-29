@@ -5,7 +5,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
 #SBATCH -n 1
-#SBATCH -t 01:00:00
+#SBATCH -t 05:00:00
 
 set -euo pipefail
 
@@ -40,6 +40,8 @@ for BAM in "${SPADES_BAMS[@]}"; do
   SAMPLE_NAME=$(basename "$BAM" .bam)
   COUNT_FILE="$SPADES_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
 
+  samtools sort "$BAM" -o "$BAM.sorted"
+
   echo "Counting SPAdes: $BAM"
   htseq-count \
     --order=name \
@@ -47,7 +49,7 @@ for BAM in "${SPADES_BAMS[@]}"; do
     --type=CDS \
     --idattr=ID \
     --counts_output="$COUNT_FILE" \
-    "$BAM" \
+    "$BAM.sorted" \
     "${SPADES_GFF_CLEAN:-$SPADES_GFF}"
 done
 
@@ -73,6 +75,8 @@ for BAM in "${CANU_BAMS[@]}"; do
   SAMPLE_NAME=$(basename "$BAM" .bam)
   COUNT_FILE="$CANU_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
 
+  samtools sort "$BAM" -o "$BAM.sorted"
+
   echo "Counting Canu: $BAM"
   htseq-count \
     --order=name \
@@ -80,7 +84,7 @@ for BAM in "${CANU_BAMS[@]}"; do
     --type=CDS \
     --idattr=ID \
     --counts_output="$COUNT_FILE" \
-    "$BAM" \
+    "$BAM.sorted" \
     "${CANU_GFF_CLEAN:-$CANU_GFF}"
 done
 
