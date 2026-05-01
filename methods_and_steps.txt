@@ -1,0 +1,465 @@
+Genome analysis workflow: methods and steps summary
+==================================================
+
+Overview
+--------
+This workflow is implemented as a set of SLURM batch scripts for a dual-assembly genome analysis project plus RNA-Seq analysis. The pipeline follows two parallel assembly branches:
+
+1. SPAdes branch: hybrid assembly from trimmed Illumina reads plus Nanopore reads
+2. Canu branch: long-read assembly from PacBio reads
+
+The downstream analyses are then run separately for each assembly branch:
+- assembly evaluation with QUAST and BUSCO
+- annotation with Prokka
+- related species search with BLAST
+- synteny visualization with MUMmerplot
+- RNA-Seq read alignment to each assembly
+- read counting with HTSeq
+
+All scripts use SLURM job scheduling, strict shell settings, temporary node-local workspaces where needed, and a common pattern for copying small human-readable outputs into the result/ tree.
+
+General workflow structure
+--------------------------
+01. Genome preprocessing
+02. Genome assembly
+03. Genome evaluation
+04. Genome annotation
+05. Comparative genomics and synteny
+06. RNA-Seq preprocessing and alignment
+07. RNA-Seq read counting
+
+Shared implementation pattern
+-----------------------------
+Most scripts follow these conventions:
+- run under bash with set -euo pipefail
+- use SLURM directives for account, partition, CPU count, and runtime
+- load required software modules explicitly
+- write main outputs into analysis/ subdirectories
+- copy smaller report files into result/ for easy access
+- create tar.gz archives of major outputs for transport and archiving
+
+Script-by-script summary
+------------------------
+
+1. preprocess_Illumina.batch
+   Purpose:
+   - quality control and trimming of paired-end Illumina DNA reads
+
+   Input:
+   - raw Illumina reads:
+     - data/Illumina/E745-1.L500_SZAXPI015146-56_1_clean.fq.gz
+     - data/Illumina/E745-1.L500_SZAXPI015146-56_2_clean.fq.gz
+
+   Methods and tools:
+   - FastQC 0.12.1
+   - Trimmomatic 0.39
+   - adapter trimming with TruSeq3-PE.fa
+   - quality trimming with LEADING:3, TRAILING:3, SLIDINGWINDOW:4:15, MINLEN:36
+
+   Output:
+   - pre-trim FastQC reports
+   - post-trim FastQC reports
+   - paired and unpaired trimmed FASTQ files
+   - result copy under result/01_genomeAssembly/Illumina_prep/
+
+   Notes:
+   - uses local scratch storage for I/O-heavy work
+   - copies only trimmed paired reads forward for assembly
+
+2. rna_fastqc_trim.batch
+   Purpose:
+   - quality control and trimming of RNA-Seq reads for two conditions: Serum and BH
+
+   Input:
+   - raw RNA-Seq FASTQ files under data/RNA-Seq_Serum/raw and data/RNA-Seq_BH/raw
+
+   Methods and tools:
+   - FastQC 0.12.1
+   - Trimmomatic 0.39
+   - adapter file resolved from the Trimmomatic module environment
+   - same trimming parameters as the DNA preprocessing script
+
+   Output:
+   - pre-trim FastQC reports
+   - post-trim FastQC reports
+   - trimmed paired and unpaired reads
+   - result copy under result/05_rnaPreProcessing/
+
+   Notes:
+   - processes Serum and BH in a loop
+   - uses node-local scratch and cleanup on exit
+
+3. genome_assembly_SPAdes.batch
+   Purpose:
+   - hybrid genome assembly using Illumina paired reads and Nanopore reads
+
+   Input:
+   - latest trimmed Illumina paired reads from analysis/01_genomeAssembly/Illumina_prep/
+   - Nanopore reads: data/Nanopore/E745_all.fasta.gz
+
+   Methods and tools:
+   - SPAdes 4.2.0
+   - k-mer setting: 21
+   - thread count: 1
+   - memory limit: 60 GB
+   - hybrid mode with --pe1-1, --pe1-2, and --nanopore
+
+   Output:
+   - SPAdes assembly directory under analysis/01_genomeAssembly/E_faecium_SPAdes_<timestamp>/
+   - tar.gz archive of the assembly run
+   - copied reports under result/01_genomeAssembly/
+
+   Notes:
+   - selects the newest preprocessing directory automatically
+   - copies input reads to node-local storage before assembly
+
+4. genome_assembly_PacBio.batch
+   Purpose:
+   - long-read assembly using PacBio data
+
+   Input:
+   - all FASTQ.gz files in data/PacBio/
+
+   Methods and tools:
+   - Canu 2.3
+   - SAMtools 1.22.1 loaded alongside Canu
+   - genomeSize=2.8m
+   - useGrid=false
+   - maxThreads=2
+   - corThreads=2, oeaThreads=2, cnsThreads=2
+
+   Output:
+   - Canu assembly directory under analysis/01_genomeAssembly/E_faecium_PacBio_<timestamp>/
+   - tar.gz archive of the assembly run
+   - copied reports under result/01_genomeAssembly/
+
+   Notes:
+   - copies all PacBio inputs to local scratch first
+   - exits if no input FASTQ files are present
+
+5. genome_evaluation_QUAST_SPAdes.batch
+   Purpose:
+   - evaluate the SPAdes assembly quality
+
+   Input:
+   - latest SPAdes contigs/scaffolds FASTA found in analysis/01_genomeAssembly/
+
+   Methods and tools:
+   - QUAST 5.3.0
+   - gene finding enabled
+   - k-mer statistics enabled
+   - threads: 1
+
+   Output:
+   - QUAST report directory under analysis/02_genomeEvaluation/quast_spades/<run_prefix>/
+   - tar.gz archive of the QUAST run
+   - copied human-readable outputs under result/02_genomeEvaluation/quast_spades/
+
+   Notes:
+   - only considers assemblies whose path contains SPAdes
+
+6. genome_evaluation_QUAST_Canu.batch
+   Purpose:
+   - evaluate the Canu assembly quality
+
+   Input:
+   - latest Canu contigs/scaffolds FASTA found in analysis/01_genomeAssembly/
+
+   Methods and tools:
+   - QUAST 5.3.0
+   - gene finding enabled
+   - k-mer statistics enabled
+   - threads: 1
+
+   Output:
+   - QUAST report directory under analysis/02_genomeEvaluation/quast_canu/<run_prefix>/
+   - tar.gz archive of the QUAST run
+   - copied human-readable outputs under result/02_genomeEvaluation/quast_canu/
+
+   Notes:
+   - only considers assemblies whose path contains PacBio
+
+7. genome_evaluation_BUSCO_SPAdes.batch
+   Purpose:
+   - benchmark SPAdes assembly completeness with BUSCO
+
+   Input:
+   - latest SPAdes contigs/scaffolds FASTA
+
+   Methods and tools:
+   - BUSCO 5.8.2
+   - mode: genome
+   - auto-lineage-prok
+   - cpu: 1
+
+   Output:
+   - BUSCO results under analysis/02_genomeEvaluation/busco_spades/<run_prefix>/
+   - tar.gz archive of the BUSCO run
+   - copied outputs under result/02_genomeEvaluation/busco_spades/
+
+8. genome_evaluation_BUSCO_Canu.batch
+   Purpose:
+   - benchmark Canu assembly completeness with BUSCO
+
+   Input:
+   - latest Canu contigs/scaffolds FASTA
+
+   Methods and tools:
+   - BUSCO 5.8.2
+   - mode: genome
+   - auto-lineage-prok
+   - cpu: 1
+
+   Output:
+   - BUSCO results under analysis/02_genomeEvaluation/busco_canu/<run_prefix>/
+   - tar.gz archive of the BUSCO run
+   - copied outputs under result/02_genomeEvaluation/busco_canu/
+
+9. genome_annotation_PROKKA_SPAdes.batch
+   Purpose:
+   - annotate the SPAdes assembly as a prokaryotic genome
+
+   Input:
+   - latest SPAdes contigs/scaffolds FASTA
+
+   Methods and tools:
+   - Prokka 1.14.5
+   - kingdom: Bacteria
+   - cpus: 1
+   - force overwrite enabled
+
+   Output:
+   - Prokka annotation directory under analysis/03_genomeAnnotation/prokka_spades/<run_prefix>/
+   - tar.gz archive of the annotation run
+   - copied outputs under result/03_genomeAnnotation/prokka_spades/
+
+   Notes:
+   - annotation outputs provide GFF and other files used by RNA read counting
+
+10. genome_annotation_PROKKA_Canu.batch
+    Purpose:
+    - annotate the Canu assembly as a prokaryotic genome
+
+    Input:
+    - latest Canu contigs/scaffolds FASTA
+
+    Methods and tools:
+    - Prokka 1.14.5
+    - kingdom: Bacteria
+    - cpus: 1
+    - force overwrite enabled
+
+    Output:
+    - Prokka annotation directory under analysis/03_genomeAnnotation/prokka_canu/<run_prefix>/
+    - tar.gz archive of the annotation run
+    - copied outputs under result/03_genomeAnnotation/prokka_canu/
+
+11. genome_related_species_BLAST_SPAdes.batch
+    Purpose:
+    - identify related species for the SPAdes assembly using BLAST
+
+    Input:
+    - newest SPAdes assembly contigs/scaffolds FASTA files
+    - helper script: helpers/blast_related_species_helpers.sh
+
+    Methods and tools:
+    - BLAST+ 2.17.0
+    - blastn with task megablast
+    - database: nt
+    - negative taxid filter: 1352
+    - max target sequences: 200
+    - percent identity threshold: 70
+    - query coverage per HSP threshold: 50
+    - E-value threshold: 1e-10
+    - top contigs extracted: 2
+    - helper functions used for preflight checks, query reduction, run logging, and hit summarization
+
+    Output:
+    - BLAST hits TSV
+    - species summary TSV
+    - reduced query FASTA with top contigs
+    - output under analysis/04_genomeSynteny/blast_species_spades/<run_prefix>/
+
+    Notes:
+    - intended to identify the closest related species for downstream synteny analysis
+
+12. genome_related_species_BLAST_Canu.batch
+    Purpose:
+    - identify related species for the Canu assembly using BLAST
+
+    Input:
+    - newest Canu assembly contigs/scaffolds FASTA files
+    - helper script: helpers/blast_related_species_helpers.sh
+
+    Methods and tools:
+    - same BLAST+ 2.17.0 settings and helper usage as the SPAdes version
+
+    Output:
+    - BLAST hits TSV
+    - species summary TSV
+    - reduced query FASTA with top contigs
+    - output under analysis/04_genomeSynteny/blast_species_canu/<run_prefix>/
+
+13. genome_synteny_MUMmerplot_SPAdes.batch
+    Purpose:
+    - compare the SPAdes assembly against its closest BLAST hit using synteny plotting
+
+    Input:
+    - SPAdes species summary TSV
+    - SPAdes BLAST hits TSV
+    - SPAdes assembly FASTA corresponding to the same run prefix
+    - reference sequence fetched from nt with blastdbcmd
+
+    Methods and tools:
+    - BLAST+ 2.17.0 for blastdbcmd
+    - MUMmer 4.0.1
+    - nucmer for alignment
+    - delta-filter -1 for filtering to best 1-to-1 matches
+    - mummerplot with PNG output, layout, and filtering
+
+    Output:
+    - reference FASTA for the selected best hit
+    - nucmer delta files
+    - filtered delta file
+    - PNG synteny plot
+    - summary TSV with run metadata
+    - output under analysis/04_genomeSynteny/mummerplot_spades/<run_prefix>/
+
+    Notes:
+    - selects the BLAST hit with the highest bitscore
+    - uses the accession from the best BLAST hit as the reference sequence
+
+14. genome_synteny_MUMmerplot_Canu.batch
+    Purpose:
+    - compare the Canu assembly against its closest BLAST hit using synteny plotting
+
+    Input:
+    - Canu species summary TSV
+    - Canu BLAST hits TSV
+    - Canu assembly FASTA corresponding to the same run prefix
+    - reference sequence fetched from nt with blastdbcmd
+
+    Methods and tools:
+    - BLAST+ 2.17.0 for blastdbcmd
+    - MUMmer 4.0.1
+    - nucmer
+    - delta-filter -1
+    - mummerplot with PNG output
+
+    Output:
+    - reference FASTA
+    - delta files
+    - filtered delta file
+    - PNG synteny plot
+    - summary TSV
+    - output under analysis/04_genomeSynteny/mummerplot_canu/<run_prefix>/
+
+15. rna_align_spades_conditions.batch
+    Purpose:
+    - align trimmed RNA-Seq reads from Serum and BH to the SPAdes assembly
+
+    Input:
+    - SPAdes assembly contigs.fasta from a specific run directory
+    - trimmed RNA-Seq paired reads from analysis/05_rnaPreProcessing/Serum_prep and BH_prep
+
+    Methods and tools:
+    - BWA 0.7.19
+    - SAMtools 1.22.1
+    - bwa index on the assembly
+    - bwa mem for alignment
+    - samtools sort and samtools index
+    - threads: 2
+
+    Output:
+    - BAM files:
+      - rna_serum_vs_spades.bam
+      - rna_bh_vs_spades.bam
+    - BAM index files
+    - output under analysis/06_rnaAlign/spades/
+
+    Notes:
+    - the script currently targets a fixed SPAdes run directory name
+    - it searches for the first valid paired read set within each condition directory
+
+16. rna_align_canu_conditions.batch
+    Purpose:
+    - align trimmed RNA-Seq reads from Serum and BH to the Canu assembly
+
+    Input:
+    - Canu assembly contigs.fasta from a specific run directory
+    - trimmed RNA-Seq paired reads from analysis/05_rnaPreProcessing/Serum_prep and BH_prep
+
+    Methods and tools:
+    - BWA 0.7.19
+    - SAMtools 1.22.1
+    - bwa index
+    - bwa mem
+    - samtools sort and index
+    - threads: 2
+
+    Output:
+    - BAM files:
+      - rna_serum_vs_canu.bam
+      - rna_bh_vs_canu.bam
+    - BAM index files
+    - output under analysis/06_rnaAlign/canu/
+
+    Notes:
+    - the script currently targets a fixed Canu run directory name
+
+17. rna_read_counts_htseq.batch
+    Purpose:
+    - count reads per gene/CDS for both alignment branches
+
+    Input:
+    - BAM files from analysis/06_rnaAlign/spades and analysis/06_rnaAlign/canu
+    - Prokka GFF annotations from analysis/03_genomeAnnotation/prokka_spades and prokka_canu
+
+    Methods and tools:
+    - HTSeq 2.1.2
+    - htseq-count with:
+      - --order=name
+      - --stranded=no
+      - --type=CDS
+      - --idattr=ID
+    - removes embedded FASTA sequence from GFF before counting
+
+    Output:
+    - count tables in TSV format for each BAM file
+    - output under analysis/07_readCounts/spades and analysis/07_readCounts/canu
+
+    Notes:
+    - handles SPAdes and Canu branches separately in one script
+    - missing BAMs or GFFs are reported, but the script continues where possible
+
+Dependency summary
+------------------
+Preprocessing
+- preprocess_Illumina.batch produces trimmed Illumina reads for SPAdes assembly
+- rna_fastqc_trim.batch produces trimmed RNA-Seq reads for alignment
+
+Assembly
+- genome_assembly_SPAdes.batch depends on preprocess_Illumina.batch
+- genome_assembly_PacBio.batch depends on raw PacBio inputs only
+
+Evaluation and annotation
+- QUAST, BUSCO, and Prokka scripts depend on the corresponding assembly output
+
+Comparative genomics
+- BLAST scripts depend on the Prokka/assembly outputs to identify the best related species
+- MUMmerplot scripts depend on the BLAST summary and the matching assembly output
+
+RNA-Seq analysis
+- RNA alignment scripts depend on rna_fastqc_trim.batch and the corresponding assembly
+- HTSeq counting depends on the RNA BAMs and the Prokka GFF annotation for each branch
+
+Important implementation notes
+------------------------------
+- Several scripts select the newest available run directory automatically; others still target fixed run directory names.
+- The SPAdes branch uses a hybrid assembly strategy with Illumina + Nanopore data.
+- The Canu branch uses PacBio long reads.
+- The BLAST and MUMmerplot steps are designed to find and visualize the closest related species.
+- Human-readable outputs smaller than 20 MB are copied into result/ to simplify inspection.
+- Major output directories are also archived as tar.gz files.
+
+End of summary
