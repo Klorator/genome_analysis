@@ -2,10 +2,9 @@
 
 # SLURM setup
 #SBATCH -A uppmax2026-1-61
-#SBATCH -J blast_canu
+#SBATCH -J blast_spades
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
-
 #SBATCH -n 2
 #SBATCH -t 20:00:00
 
@@ -14,8 +13,12 @@ set -euo pipefail
 # Modules
 module load BLAST+/2.17.0-gompi-2024a
 
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_DIR_FROM_SCRIPT=$(cd "$SCRIPT_DIR/../.." && pwd)
+
 HELPER_LOADED=0
 for HELPER_PATH in \
+  "$REPO_DIR_FROM_SCRIPT/helpers/blast_related_species_helpers.sh" \
   "${SLURM_SUBMIT_DIR:-$PWD}/helpers/blast_related_species_helpers.sh" \
   "$PWD/helpers/blast_related_species_helpers.sh"; do
   if [ -f "$HELPER_PATH" ]; then
@@ -27,14 +30,15 @@ done
 
 [ "$HELPER_LOADED" -eq 1 ] || { echo "Error: unable to locate helpers/blast_related_species_helpers.sh" >&2; exit 1; }
 
+
 REPO_DIR="$HOME/genome_analysis"
 RESULT_DIR="$REPO_DIR/result"
 
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/04_genomeSynteny"
-BLAST_OUTDIR="${OUTDIR}/blast_species_canu"
-ASSEMBLY_NAME_FILTER="*PacBio*"
-ASSEMBLY_MODE="Canu"
+BLAST_OUTDIR="${OUTDIR}/blast_species_spades"
+ASSEMBLY_NAME_FILTER="*SPAdes*"
+ASSEMBLY_MODE="SPAdes"
 BLAST_DB="nt"
 THREADS=2
 MAX_TARGET_SEQS=100
@@ -43,10 +47,10 @@ BLAST_QCOV_HSP_PERC=60
 BLAST_EVALUE=1e-20
 TOP_CONTIGS=2
 
-LATEST_ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f -name "*.contigs.fasta" -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
+LATEST_ASSEMBLY_FASTA=$(find "$ASSEMBLY_DIR" -maxdepth 3 -type f \( -name "scaffolds.fasta" -o -name "contigs.fasta" \) -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)
 
 if [ -z "${LATEST_ASSEMBLY_FASTA:-}" ] || [ ! -f "$LATEST_ASSEMBLY_FASTA" ]; then
-  die "No Canu contigs.fasta found in ${ASSEMBLY_DIR}. Expected pattern: E_faecium_PacBio_*.contigs.fasta"
+  die "No SPAdes assembly FASTA found in ${ASSEMBLY_DIR}. Expected: contigs.fasta or scaffolds.fasta"
 fi
 
 ASSEMBLY_RUN_DIR=$(dirname "$LATEST_ASSEMBLY_FASTA")
