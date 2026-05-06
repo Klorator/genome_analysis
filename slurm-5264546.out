@@ -1,0 +1,111 @@
+
+Currently Loaded Modules:
+  1) GCCcore/13.3.0
+  2) zlib/1.3.1-GCCcore-13.3.0
+  3) binutils/2.42-GCCcore-13.3.0
+  4) GCC/13.3.0
+  5) numactl/2.0.18-GCCcore-13.3.0
+  6) XZ/5.4.5-GCCcore-13.3.0
+  7) libxml2/2.12.7-GCCcore-13.3.0
+  8) libpciaccess/0.18.1-GCCcore-13.3.0
+  9) hwloc/2.10.0-GCCcore-13.3.0
+ 10) OpenSSL/3
+ 11) libevent/2.1.12-GCCcore-13.3.0
+ 12) UCX/1.16.0-GCCcore-13.3.0
+ 13) libfabric/1.21.0-GCCcore-13.3.0
+ 14) PMIx/5.0.2-GCCcore-13.3.0
+ 15) PRRTE/3.0.5-GCCcore-13.3.0
+ 16) UCC/1.3.0-GCCcore-13.3.0
+ 17) OpenMPI/5.0.3-GCC-13.3.0
+ 18) gompi/2024a
+ 19) bzip2/1.0.8-GCCcore-13.3.0
+ 20) gzip/1.13-GCCcore-13.3.0
+ 21) lz4/1.9.4-GCCcore-13.3.0
+ 22) zstd/1.5.6-GCCcore-13.3.0
+ 23) PCRE/8.45-GCCcore-13.3.0
+ 24) ICU/75.1-GCCcore-13.3.0
+ 25) Boost/1.85.0-GCC-13.3.0
+ 26) GMP/6.3.0-GCCcore-13.3.0
+ 27) libpng/1.6.43-GCCcore-13.3.0
+ 28) NASM/2.16.03-GCCcore-13.3.0
+ 29) libjpeg-turbo/3.0.1-GCCcore-13.3.0
+ 30) LMDB/0.9.31-GCCcore-13.3.0
+ 31) ncurses/6.5-GCCcore-13.3.0
+ 32) libreadline/8.2-GCCcore-13.3.0
+ 33) Tcl/8.6.14-GCCcore-13.3.0
+ 34) SQLite/3.45.3-GCCcore-13.3.0
+ 35) BLAST_databases/latest
+ 36) BLAST+/2.17.0-gompi-2024a
+ 37) Brotli/1.1.0-GCCcore-13.3.0
+ 38) freetype/2.13.2-GCCcore-13.3.0
+ 39) pixman/0.43.4-GCCcore-13.3.0
+ 40) expat/2.6.2-GCCcore-13.3.0
+ 41) libffi/3.4.5-GCCcore-13.3.0
+ 42) libiconv/1.17-GCCcore-13.3.0
+ 43) gettext/0.22.5-GCCcore-13.3.0
+ 44) PCRE2/10.43-GCCcore-13.3.0
+ 45) util-linux/2.40-GCCcore-13.3.0
+ 46) GLib/2.80.4-GCCcore-13.3.0
+ 47) fontconfig/2.15.0-GCCcore-13.3.0
+ 48) xorg-macros/1.20.1-GCCcore-13.3.0
+ 49) X11/20240607-GCCcore-13.3.0
+ 50) cairo/1.18.0-GCCcore-13.3.0
+ 51) jbigkit/2.1-GCCcore-13.3.0
+ 52) libdeflate/1.20-GCCcore-13.3.0
+ 53) LibTIFF/4.6.0-GCCcore-13.3.0
+ 54) libyuv/20250227-GCCcore-13.3.0
+ 55) libavif/1.2.0-GCCcore-13.3.0
+ 56) libde265/1.0.15-GCCcore-13.3.0
+ 57) x265/3.6-GCCcore-13.3.0
+ 58) Gdk-Pixbuf/2.42.11-GCCcore-13.3.0
+ 59) libheif/1.19.5-GCCcore-13.3.0
+ 60) libgd/2.3.3-GCCcore-13.3.0
+ 61) HarfBuzz/9.0.0-GCCcore-13.3.0
+ 62) FriBidi/1.0.15-GCCcore-13.3.0
+ 63) Pango/1.54.0-GCCcore-13.3.0
+ 64) libcerf/2.4-GCCcore-13.3.0
+ 65) double-conversion/3.3.0-GCCcore-13.3.0
+ 66) giflib/5.2.1-GCCcore-13.3.0
+ 67) libwebp/1.4.0-GCCcore-13.3.0
+ 68) JasPer/4.2.4-GCCcore-13.3.0
+ 69) graphite2/1.3.14-GCCcore-13.3.0
+ 70) assimp/5.4.3-GCCcore-13.3.0
+ 71) x264/20240513-GCCcore-13.3.0
+ 72) LAME/3.100-GCCcore-13.3.0
+ 73) SDL2/2.30.6-GCCcore-13.3.0
+ 74) FFmpeg/7.0.2-GCCcore-13.3.0
+ 75) Python/3.12.3-GCCcore-13.3.0
+ 76) cffi/1.16.0-GCCcore-13.3.0
+ 77) cryptography/42.0.8-GCCcore-13.3.0
+ 78) virtualenv/20.26.2-GCCcore-13.3.0
+ 79) Python-bundle-PyPI/2024.06-GCCcore-13.3.0
+ 80) DBus/1.15.8-GCCcore-13.3.0
+ 81) libdrm/2.4.122-GCCcore-13.3.0
+ 82) libglvnd/1.7.0-GCCcore-13.3.0
+ 83) libunwind/1.8.1-GCCcore-13.3.0
+ 84) Z3/4.13.0-GCCcore-13.3.0
+ 85) LLVM/18.1.8-GCCcore-13.3.0
+ 86) Wayland/1.23.0-GCCcore-13.3.0
+ 87) Mesa/24.1.3-GCCcore-13.3.0
+ 88) libGLU/9.0.3-GCCcore-13.3.0
+ 89) NSPR/4.35-GCCcore-13.3.0
+ 90) NSS/3.104-GCCcore-13.3.0
+ 91) snappy/1.2.1-GCCcore-13.3.0
+ 92) nodejs/20.13.1-GCCcore-13.3.0
+ 93) Qt6/6.7.2-GCCcore-13.3.0
+ 94) Lua/5.4.7-GCCcore-13.3.0
+ 95) gnuplot/6.0.1-GCCcore-13.3.0
+ 96) MUMmer/4.0.1-GCCcore-13.3.0
+
+ 
+
+Selected Canu assembly: /home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta
+Selected closest hit accession: gi|1250053801|gb|CP018129.1|
+Selected closest species: Enterococcus faecium
+WARNING: deprecated switch x11, postscript, png, use -t,--terminalgnuplot 6.0 patchlevel 1
+Writing filtered delta file /home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_mummerplot.filter
+Reading delta file /home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_mummerplot.filter
+Writing plot files /home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_mummerplot.fplot, /home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_mummerplot.rplot
+Writing gnuplot script /home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_mummerplot.gp
+Rendering plot /home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_mummerplot.png
+Canu synteny analysis with MUMmerplot completed.

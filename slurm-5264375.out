@@ -1,0 +1,6 @@
+=== RNA alignment run ===
+Assembly mode : Canu
+Assembly FASTA: /home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta
+Output dir    : /home/raha1670/genome_analysis/analysis/06_rnaAlign/canu
+Threads       : 2
+/var/spool/slurmd/job5264375/slurm_script: line 84: bwa: command not found
