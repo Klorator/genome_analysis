@@ -17,6 +17,19 @@ ANALYSIS_DIR="$REPO_DIR/analysis"
 OUTDIR="$ANALYSIS_DIR/06_rnaAlign"
 COUNT_OUTDIR="$ANALYSIS_DIR/07_readCounts"
 
+# Hardcoded RNA-Seq replicate definitions
+declare -a BH_REPLICATES=(
+  "ERR1797972"
+  "ERR1797973"
+  "ERR1797974"
+)
+
+declare -a SERUM_REPLICATES=(
+  "ERR1797969"
+  "ERR1797970"
+  "ERR1797971"
+)
+
 mkdir -p "$COUNT_OUTDIR"
 
 # Process SPAdes
@@ -32,25 +45,51 @@ else
   SPADES_GFF_CLEAN=""
 fi
 
-mapfile -t SPADES_BAMS < <(find "$SPADES_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
-if [ ${#SPADES_BAMS[@]} -eq 0 ]; then
-  echo "No SPAdes BAM files found in $SPADES_BAM_DIR"
-fi
-
-for BAM in "${SPADES_BAMS[@]}"; do
-  SAMPLE_NAME=$(basename "$BAM" .bam)
+echo ""
+echo "=== Processing SPAdes BH replicates ==="
+for REPLICATE in "${BH_REPLICATES[@]}"; do
+  BAM="$SPADES_BAM_DIR/rna_bh_${REPLICATE}_vs_spades.bam"
+  
+  if [ ! -f "$BAM" ]; then
+    echo "ERROR: Missing file: $BAM" >&2
+    continue
+  fi
+  
+  SAMPLE_NAME="rna_bh_${REPLICATE}_vs_spades"
   COUNT_FILE="$SPADES_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
-
-  samtools sort "$BAM" -o "$BAM.sorted"
-
-  echo "Counting SPAdes: $BAM"
+  
+  echo "Counting: $SAMPLE_NAME"
   htseq-count \
     --order=name \
     --stranded=no \
     --type=CDS \
     --idattr=ID \
     --counts_output="$COUNT_FILE" \
-    "$BAM.sorted" \
+    "$BAM" \
+    "${SPADES_GFF_CLEAN:-$SPADES_GFF}"
+done
+
+echo ""
+echo "=== Processing SPAdes Serum replicates ==="
+for REPLICATE in "${SERUM_REPLICATES[@]}"; do
+  BAM="$SPADES_BAM_DIR/rna_serum_${REPLICATE}_vs_spades.bam"
+  
+  if [ ! -f "$BAM" ]; then
+    echo "ERROR: Missing file: $BAM" >&2
+    continue
+  fi
+  
+  SAMPLE_NAME="rna_serum_${REPLICATE}_vs_spades"
+  COUNT_FILE="$SPADES_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
+  
+  echo "Counting: $SAMPLE_NAME"
+  htseq-count \
+    --order=name \
+    --stranded=no \
+    --type=CDS \
+    --idattr=ID \
+    --counts_output="$COUNT_FILE" \
+    "$BAM" \
     "${SPADES_GFF_CLEAN:-$SPADES_GFF}"
 done
 
@@ -67,25 +106,51 @@ else
   CANU_GFF_CLEAN=""
 fi
 
-mapfile -t CANU_BAMS < <(find "$CANU_BAM_DIR" -maxdepth 1 -type f -name "*.bam" ! -name "*.bai" | sort)
-if [ ${#CANU_BAMS[@]} -eq 0 ]; then
-  echo "No Canu BAM files found in $CANU_BAM_DIR"
-fi
-
-for BAM in "${CANU_BAMS[@]}"; do
-  SAMPLE_NAME=$(basename "$BAM" .bam)
+echo ""
+echo "=== Processing Canu BH replicates ==="
+for REPLICATE in "${BH_REPLICATES[@]}"; do
+  BAM="$CANU_BAM_DIR/rna_bh_${REPLICATE}_vs_canu.bam"
+  
+  if [ ! -f "$BAM" ]; then
+    echo "ERROR: Missing file: $BAM" >&2
+    continue
+  fi
+  
+  SAMPLE_NAME="rna_bh_${REPLICATE}_vs_canu"
   COUNT_FILE="$CANU_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
-
-  samtools sort "$BAM" -o "$BAM.sorted"
-
-  echo "Counting Canu: $BAM"
+  
+  echo "Counting: $SAMPLE_NAME"
   htseq-count \
     --order=name \
     --stranded=no \
     --type=CDS \
     --idattr=ID \
     --counts_output="$COUNT_FILE" \
-    "$BAM.sorted" \
+    "$BAM" \
+    "${CANU_GFF_CLEAN:-$CANU_GFF}"
+done
+
+echo ""
+echo "=== Processing Canu Serum replicates ==="
+for REPLICATE in "${SERUM_REPLICATES[@]}"; do
+  BAM="$CANU_BAM_DIR/rna_serum_${REPLICATE}_vs_canu.bam"
+  
+  if [ ! -f "$BAM" ]; then
+    echo "ERROR: Missing file: $BAM" >&2
+    continue
+  fi
+  
+  SAMPLE_NAME="rna_serum_${REPLICATE}_vs_canu"
+  COUNT_FILE="$CANU_COUNT_DIR/${SAMPLE_NAME}_counts.tsv"
+  
+  echo "Counting: $SAMPLE_NAME"
+  htseq-count \
+    --order=name \
+    --stranded=no \
+    --type=CDS \
+    --idattr=ID \
+    --counts_output="$COUNT_FILE" \
+    "$BAM" \
     "${CANU_GFF_CLEAN:-$CANU_GFF}"
 done
 

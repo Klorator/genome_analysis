@@ -19,6 +19,22 @@ ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/06_rnaAlign/spades"
 THREADS=2
 
+# Hardcoded RNA-Seq replicate definitions
+declare -a BH_REPLICATES=(
+  "ERR1797972"
+  "ERR1797973"
+  "ERR1797974"
+)
+
+declare -a SERUM_REPLICATES=(
+  "ERR1797969"
+  "ERR1797970"
+  "ERR1797971"
+)
+
+BH_RAW_DIR="$REPO_DIR/data/RNA-Seq_BH/raw"
+SERUM_RAW_DIR="$REPO_DIR/data/RNA-Seq_Serum/raw"
+
 log_run_parameters() {
   cat <<EOF
 === RNA alignment run ===
@@ -29,24 +45,7 @@ Threads       : $THREADS
 EOF
 }
 
-select_first_pair() {
-  local search_dir="$1"
-  local r1 r2
 
-  while IFS= read -r -d '' r1; do
-    r2="${r1/.R1./.R2.}"
-    r2="${r2/_R1/_R2}"
-    if [ -f "$r2" ]; then
-      printf '%s\n%s\n' "$r1" "$r2"
-      return 0
-    fi
-  done < <(
-    find "$search_dir" -type f \( -name "*.R1.paired.fastq.gz" -o -name "*.R1.fastq.gz" -o -name "*_R1*.fastq.gz" \) \
-      -print0 | sort -z
-  )
-
-  return 1
-}
 
 sync_human_readable_outputs() {
   local source_dir="$1"
@@ -85,18 +84,51 @@ rm -f "$ASSEMBLY_FASTA".amb "$ASSEMBLY_FASTA".ann "$ASSEMBLY_FASTA".bwt "$ASSEMB
 bwa index "$ASSEMBLY_FASTA"
 
 
-for CONDITION in Serum BH; do
-  TRIM_DIR="$REPO_DIR/analysis/05_rnaPreProcessing/${CONDITION}_prep"
-  if ! mapfile -t TRIM_FASTQS < <(select_first_pair "$TRIM_DIR"); then
-    echo "Trimmed paired FASTQ files not found for $CONDITION in $TRIM_DIR" >&2
+echo ""
+echo "=== Processing BH replicates ==="
+for REPLICATE in "${BH_REPLICATES[@]}"; do
+  R1="$BH_RAW_DIR/${REPLICATE}_1.fastq.gz"
+  R2="$BH_RAW_DIR/${REPLICATE}_2.fastq.gz"
+  
+  if [ ! -f "$R1" ] || [ ! -f "$R2" ]; then
+    echo "ERROR: Missing files for BH replicate $REPLICATE" >&2
     continue
   fi
-  TRIMMED_R1="${TRIM_FASTQS[0]}"
-  TRIMMED_R2="${TRIM_FASTQS[1]}"
-  OUT_BAM="$OUTDIR/rna_${CONDITION,,}_vs_spades.bam"
+  
+  echo "Aligning: $REPLICATE (BH condition)"
+  echo "  R1: $R1"
+  echo "  R2: $R2"
+  
+  OUT_BAM="$OUTDIR/rna_bh_${REPLICATE}_vs_spades.bam"
   rm -f "$OUT_BAM" "$OUT_BAM.bai"
-  bwa mem -t "$THREADS" "$ASSEMBLY_FASTA" "$TRIMMED_R1" "$TRIMMED_R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
+  bwa mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
   samtools index "$OUT_BAM"
+  echo "  Output: $OUT_BAM"
+done
+
+echo ""
+echo "=== Processing Serum replicates ==="
+for REPLICATE in "${SERUM_REPLICATES[@]}"; do
+  R1="$SERUM_RAW_DIR/${REPLICATE}_1.fastq.gz"
+  R2="$SERUM_RAW_DIR/${REPLICATE}_2.fastq.gz"
+  
+  if [ ! -f "$R1" ] || [ ! -f "$R2" ]; then
+    echo "ERROR: Missing files for Serum replicate $REPLICATE" >&2
+    continue
+  fi
+  
+  echo "Aligning: $REPLICATE (Serum condition)"
+  echo "  R1: $R1"
+  echo "  R2: $R2"
+  
+  OUT_BAM="$OUTDIR/rna_serum_${REPLICATE}_vs_spades.bam"
+  rm -f "$OUT_BAM" "$OUT_BAM.bai"
+  bwa mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
+  samtools index "$OUT_BAM"
+  echo "  Output: $OUT_BAM"
 done
 
 sync_human_readable_outputs "$OUTDIR" "06_rnaAlign/spades"
+
+echo ""
+echo "=== RNA alignment complete ==="
