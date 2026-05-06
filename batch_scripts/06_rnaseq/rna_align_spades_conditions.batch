@@ -8,11 +8,27 @@
 #SBATCH -n 4
 #SBATCH -t 10:00:00
 
-set -euo pipefail
+set -uo pipefail
+
+# Trap to show which command fails
+trap 'echo "ERROR: Command failed at line $LINENO" >&2' ERR
 
 module load bwa-mem2/2.3-GCC-13.3.0
 module load SAMtools/1.22.1-GCC-13.3.0
 module list
+
+# Function to check disk space
+check_disk_space() {
+  local dir="$1"
+  local min_gb="${2:-50}"
+  local available_kb=$(df "$dir" | tail -1 | awk '{print $4}')
+  local available_gb=$((available_kb / 1024 / 1024))
+  if [ "$available_gb" -lt "$min_gb" ]; then
+    echo "WARNING: Low disk space on $dir: ${available_gb}GB available (need at least ${min_gb}GB)" >&2
+    return 1
+  fi
+  return 0
+}
 
 REPO_DIR="$HOME/genome_analysis"
 RESULT_DIR="$REPO_DIR/result"
@@ -83,6 +99,15 @@ if [ ! -w "$OUTDIR" ]; then
   exit 1
 fi
 
+echo "Pre-run diagnostics:"
+echo "  HOME: $HOME"
+echo "  REPO_DIR: $REPO_DIR"
+echo "  OUTDIR: $OUTDIR"
+ls -ld "$OUTDIR"
+echo "  Disk space:"
+df "$OUTDIR" | tail -1
+check_disk_space "$OUTDIR" 100 || echo "Proceeding despite low disk space"
+
 log_run_parameters
 
 rm -f "$ASSEMBLY_FASTA".amb "$ASSEMBLY_FASTA".ann "$ASSEMBLY_FASTA".bwt "$ASSEMBLY_FASTA".pac "$ASSEMBLY_FASTA".sa
@@ -105,11 +130,47 @@ for REPLICATE in "${BH_REPLICATES[@]}"; do
   echo "  R2: $R2"
   
   OUT_BAM="$OUTDIR/rna_bh_${REPLICATE}_vs_spades.bam"
+  OUT_SAM="$OUTDIR/.tmp_${REPLICATE}.sam"
+  TMP_DIR="$OUTDIR/.tmp_${REPLICATE}_workdir"
+  
   mkdir -p "$(dirname "$OUT_BAM")"
-  rm -f "$OUT_BAM" "$OUT_BAM.bai"
-  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -T "$OUTDIR/.tmp_${REPLICATE}" -o "$OUT_BAM"
-  samtools index "$OUT_BAM"
-  echo "  Output: $OUT_BAM"
+  mkdir -p "$TMP_DIR"
+  rm -f "$OUT_BAM" "$OUT_BAM.bai" "$OUT_SAM"
+  
+  check_disk_space "$OUTDIR" 100 || true
+  
+  echo "  Step 1: Running bwa-mem2..."
+  if ! bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" > "$OUT_SAM" 2>&1; then
+    echo "ERROR: bwa-mem2 failed for $REPLICATE" >&2
+    continue
+  fi
+  echo "  SAM file size: $(du -h "$OUT_SAM" | cut -f1)"
+  
+  check_disk_space "$OUTDIR" 50 || true
+  
+  echo "  Step 2: Sorting and converting to BAM..."
+  if ! samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"; then
+    echo "ERROR: samtools sort failed for $REPLICATE" >&2
+    rm -f "$OUT_SAM"
+    continue
+  fi
+  rm -f "$OUT_SAM"
+  
+  echo "  Step 3: Indexing BAM..."
+  if ! samtools index "$OUT_BAM"; then
+    echo "ERROR: samtools index failed for $REPLICATE" >&2
+    continue
+  fi
+  
+  echo "  Output: $OUT_BAM ($(du -h "$OUT_BAM" | cut -f1))"
+  
+  # Verify the file exists and is readable
+  if [ -f "$OUT_BAM" ] && samtools view -c "$OUT_BAM" > /dev/null; then
+    echo "  SUCCESS: BAM verified"
+    rm -rf "$TMP_DIR"
+  else
+    echo "ERROR: BAM verification failed for $REPLICATE" >&2
+  fi
 done
 
 echo ""
@@ -128,11 +189,47 @@ for REPLICATE in "${SERUM_REPLICATES[@]}"; do
   echo "  R2: $R2"
   
   OUT_BAM="$OUTDIR/rna_serum_${REPLICATE}_vs_spades.bam"
+  OUT_SAM="$OUTDIR/.tmp_${REPLICATE}.sam"
+  TMP_DIR="$OUTDIR/.tmp_${REPLICATE}_workdir"
+  
   mkdir -p "$(dirname "$OUT_BAM")"
-  rm -f "$OUT_BAM" "$OUT_BAM.bai"
-  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -T "$OUTDIR/.tmp_${REPLICATE}" -o "$OUT_BAM"
-  samtools index "$OUT_BAM"
-  echo "  Output: $OUT_BAM"
+  mkdir -p "$TMP_DIR"
+  rm -f "$OUT_BAM" "$OUT_BAM.bai" "$OUT_SAM"
+  
+  check_disk_space "$OUTDIR" 100 || true
+  
+  echo "  Step 1: Running bwa-mem2..."
+  if ! bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" > "$OUT_SAM" 2>&1; then
+    echo "ERROR: bwa-mem2 failed for $REPLICATE" >&2
+    continue
+  fi
+  echo "  SAM file size: $(du -h "$OUT_SAM" | cut -f1)"
+  
+  check_disk_space "$OUTDIR" 50 || true
+  
+  echo "  Step 2: Sorting and converting to BAM..."
+  if ! samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"; then
+    echo "ERROR: samtools sort failed for $REPLICATE" >&2
+    rm -f "$OUT_SAM"
+    continue
+  fi
+  rm -f "$OUT_SAM"
+  
+  echo "  Step 3: Indexing BAM..."
+  if ! samtools index "$OUT_BAM"; then
+    echo "ERROR: samtools index failed for $REPLICATE" >&2
+    continue
+  fi
+  
+  echo "  Output: $OUT_BAM ($(du -h "$OUT_BAM" | cut -f1))"
+  
+  # Verify the file exists and is readable
+  if [ -f "$OUT_BAM" ] && samtools view -c "$OUT_BAM" > /dev/null; then
+    echo "  SUCCESS: BAM verified"
+    rm -rf "$TMP_DIR"
+  else
+    echo "ERROR: BAM verification failed for $REPLICATE" >&2
+  fi
 done
 
 sync_human_readable_outputs "$OUTDIR" "06_rnaAlign/spades"
