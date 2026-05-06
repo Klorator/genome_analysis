@@ -94,7 +94,6 @@ echo "Running: ${canu_cmd[*]}"
 
 # Copy results back to HOME and create a tarball there
 rsync -av "${WORKDIR}/${RUN_PREFIX}" "${OUTDIR}/"
-tar -czf "${OUTDIR}/${RUN_PREFIX}_canu_output.tar.gz" -C "$OUTDIR" "$RUN_PREFIX"
 sync_human_readable_outputs "${OUTDIR}/${RUN_PREFIX}" "01_genomeAssembly/${RUN_PREFIX}"
 
 # Cleanup is handled by trap
