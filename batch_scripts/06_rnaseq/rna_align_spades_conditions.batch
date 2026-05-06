@@ -78,6 +78,10 @@ if [ -z "$ASSEMBLY_FASTA" ] || [ ! -f "$ASSEMBLY_FASTA" ]; then
 fi
 
 mkdir -p "$OUTDIR"
+if [ ! -w "$OUTDIR" ]; then
+  echo "Output directory is not writable: $OUTDIR" >&2
+  exit 1
+fi
 
 log_run_parameters
 
@@ -101,8 +105,9 @@ for REPLICATE in "${BH_REPLICATES[@]}"; do
   echo "  R2: $R2"
   
   OUT_BAM="$OUTDIR/rna_bh_${REPLICATE}_vs_spades.bam"
+  mkdir -p "$(dirname "$OUT_BAM")"
   rm -f "$OUT_BAM" "$OUT_BAM.bai"
-  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
+  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -T "$OUTDIR/.tmp_${REPLICATE}" -o "$OUT_BAM"
   samtools index "$OUT_BAM"
   echo "  Output: $OUT_BAM"
 done
@@ -123,8 +128,9 @@ for REPLICATE in "${SERUM_REPLICATES[@]}"; do
   echo "  R2: $R2"
   
   OUT_BAM="$OUTDIR/rna_serum_${REPLICATE}_vs_spades.bam"
+  mkdir -p "$(dirname "$OUT_BAM")"
   rm -f "$OUT_BAM" "$OUT_BAM.bai"
-  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
+  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -T "$OUTDIR/.tmp_${REPLICATE}" -o "$OUT_BAM"
   samtools index "$OUT_BAM"
   echo "  Output: $OUT_BAM"
 done
