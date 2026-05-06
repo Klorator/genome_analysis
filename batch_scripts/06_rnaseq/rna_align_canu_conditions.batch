@@ -12,6 +12,7 @@ set -euo pipefail
 
 module load bwa-mem2/2.3-GCC-13.3.0
 module load SAMtools/1.22.1-GCC-13.3.0
+module list
 
 REPO_DIR="$HOME/genome_analysis"
 RESULT_DIR="$REPO_DIR/result"
@@ -81,7 +82,7 @@ mkdir -p "$OUTDIR"
 log_run_parameters
 
 rm -f "$ASSEMBLY_FASTA".amb "$ASSEMBLY_FASTA".ann "$ASSEMBLY_FASTA".bwt "$ASSEMBLY_FASTA".pac "$ASSEMBLY_FASTA".sa
-bwa index "$ASSEMBLY_FASTA"
+bwa-mem2 index "$ASSEMBLY_FASTA"
 
 
 echo ""
