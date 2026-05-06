@@ -5,12 +5,12 @@
 #SBATCH -J align_rna_canu_conditions
 #SBATCH --mail-type=ALL
 #SBATCH -p pelle
-#SBATCH -n 2
-#SBATCH -t 01:00:00
+#SBATCH -n 4
+#SBATCH -t 10:00:00
 
 set -euo pipefail
 
-module load BWA/0.7.19-GCCcore-13.3.0
+module load bwa-mem2/2.3-GCC-13.3.0
 module load SAMtools/1.22.1-GCC-13.3.0
 
 REPO_DIR="$HOME/genome_analysis"
@@ -101,7 +101,7 @@ for REPLICATE in "${BH_REPLICATES[@]}"; do
   
   OUT_BAM="$OUTDIR/rna_bh_${REPLICATE}_vs_canu.bam"
   rm -f "$OUT_BAM" "$OUT_BAM.bai"
-  bwa mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
+  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
   samtools index "$OUT_BAM"
   echo "  Output: $OUT_BAM"
 done
@@ -123,7 +123,7 @@ for REPLICATE in "${SERUM_REPLICATES[@]}"; do
   
   OUT_BAM="$OUTDIR/rna_serum_${REPLICATE}_vs_canu.bam"
   rm -f "$OUT_BAM" "$OUT_BAM.bai"
-  bwa mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
+  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" | samtools sort -@ "$THREADS" -o "$OUT_BAM"
   samtools index "$OUT_BAM"
   echo "  Output: $OUT_BAM"
 done
