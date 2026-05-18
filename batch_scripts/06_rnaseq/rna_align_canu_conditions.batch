@@ -97,14 +97,14 @@ for REPLICATE in "${BH_REPLICATES[@]}"; do
   mkdir -p "$TMP_DIR"
   
   echo "  Step 1: Running bwa-mem2..."
-  echo bwa-mem2 mem -t "$THREADS" "$LOCAL_ASSEMBLY_FASTA" "$LOCAL_R1" "$LOCAL_R2" > "$OUT_SAM"
+  bwa-mem2 mem -t "$THREADS" "$LOCAL_ASSEMBLY_FASTA" "$LOCAL_R1" "$LOCAL_R2" > "$OUT_SAM"
   
   echo "  Step 2: Sorting and converting to BAM..."
-  echo samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"
+  samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"
   
   echo "  Step 3: Indexing BAM..."
-  echo samtools index "$OUT_BAM"
-  
+  samtools index "$OUT_BAM"
+
   echo "  Output: $OUT_BAM ($(du -h "$OUT_BAM" | cut -f1))"
 done
 
@@ -132,13 +132,13 @@ for REPLICATE in "${SERUM_REPLICATES[@]}"; do
   mkdir -p "$TMP_DIR"
   
   echo "  Step 1: Running bwa-mem2..."
-  echo bwa-mem2 mem -t "$THREADS" "$LOCAL_ASSEMBLY_FASTA" "$LOCAL_R1" "$LOCAL_R2" > "$OUT_SAM"
+  bwa-mem2 mem -t "$THREADS" "$LOCAL_ASSEMBLY_FASTA" "$LOCAL_R1" "$LOCAL_R2" > "$OUT_SAM"
   
   echo "  Step 2: Sorting and converting to BAM..."
-  echo samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"
+  samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"
   
   echo "  Step 3: Indexing BAM..."
-  echo samtools index "$OUT_BAM"
+  samtools index "$OUT_BAM"
 
   echo "  Output: $OUT_BAM ($(du -h "$OUT_BAM" | cut -f1))"
 done
