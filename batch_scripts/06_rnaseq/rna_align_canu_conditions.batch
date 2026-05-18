@@ -21,32 +21,15 @@ RESULT_DIR="$REPO_DIR/result"
 ASSEMBLY_DIR="$REPO_DIR/analysis/01_genomeAssembly"
 OUTDIR="$REPO_DIR/analysis/06_rnaAlign/canu"
 
-sync_human_readable_outputs() {
-  local source_dir="$1"
-  local target_subdir="$2"
-  local target_dir="$RESULT_DIR/$target_subdir"
-
-  if [ ! -d "$source_dir" ]; then
-    return
-  fi
-
-  mkdir -p "$target_dir"
-  while IFS= read -r -d '' file; do
-    rel_path="${file#${source_dir}/}"
-    dest_path="$target_dir/$rel_path"
-    mkdir -p "$(dirname "$dest_path")"
-    cp -f "$file" "$dest_path"
-  done < <(
-    find "$source_dir" -type f -size -20M \
-      \( -iname "*.html" -o -iname "*.pdf" -o -iname "*.txt" -o -iname "*.tsv" -o -iname "*.csv" -o -iname "*.log" -o -iname "*.json" -o -iname "*.yaml" -o -iname "*.yml" -o -iname "*.md" -o -iname "*.png" -o -iname "*.svg" \) \
-      -print0
-  )
-}
-
 ## Use local node storage (SNIC_TMP) for heavy I/O work
 WORKDIR="${SNIC_TMP:-/tmp}/rna_align_canu_conditions_${SLURM_JOB_ID:-$$}"
 mkdir -p "$WORKDIR"
 cd "$WORKDIR"
+
+LOCAL_ASSEMBLY_DIR="$WORKDIR/assembly"
+LOCAL_READ_DIR="$WORKDIR/reads"
+LOCAL_OUTDIR="$WORKDIR/outputs"
+mkdir -p "$LOCAL_ASSEMBLY_DIR" "$LOCAL_READ_DIR" "$LOCAL_OUTDIR"
 
 # Variables
 declare -a BH_REPLICATES=(
@@ -72,7 +55,17 @@ if [ ! -f "$ASSEMBLY_FASTA" ]; then
   exit 1
 fi
 
-bwa-mem2 index "$ASSEMBLY_FASTA"
+LOCAL_ASSEMBLY_FASTA="$LOCAL_ASSEMBLY_DIR/$(basename "$ASSEMBLY_FASTA")"
+cp -f "$ASSEMBLY_FASTA" "$LOCAL_ASSEMBLY_FASTA"
+
+echo bwa-mem2 index "$LOCAL_ASSEMBLY_FASTA"
+
+cleanup() {
+  rsync -av "$LOCAL_OUTDIR/" "$OUTDIR/" || true
+  chmod -R u+w "$WORKDIR" || true
+  rm -rf "$WORKDIR" || true
+}
+trap cleanup EXIT
 
 # Echo stuff
 echo "=== RNA alignment run ==="
@@ -91,7 +84,12 @@ for REPLICATE in "${BH_REPLICATES[@]}"; do
   echo "  R1: $R1"
   echo "  R2: $R2"
   
-  OUT_BAM="$OUTDIR/rna_bh_${REPLICATE}_vs_canu.bam"
+  LOCAL_R1="$LOCAL_READ_DIR/BH_${REPLICATE}_R1.paired.fastq.gz"
+  LOCAL_R2="$LOCAL_READ_DIR/BH_${REPLICATE}_R2.paired.fastq.gz"
+  cp -f "$R1" "$LOCAL_R1"
+  cp -f "$R2" "$LOCAL_R2"
+
+  OUT_BAM="$LOCAL_OUTDIR/rna_bh_${REPLICATE}_vs_canu.bam"
   OUT_SAM="$WORKDIR/.tmp_${REPLICATE}.sam"
   TMP_DIR="$WORKDIR/.tmp_${REPLICATE}_workdir"
   
@@ -99,13 +97,13 @@ for REPLICATE in "${BH_REPLICATES[@]}"; do
   mkdir -p "$TMP_DIR"
   
   echo "  Step 1: Running bwa-mem2..."
-  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" > "$OUT_SAM"
+  echo bwa-mem2 mem -t "$THREADS" "$LOCAL_ASSEMBLY_FASTA" "$LOCAL_R1" "$LOCAL_R2" > "$OUT_SAM"
   
   echo "  Step 2: Sorting and converting to BAM..."
-  samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"
+  echo samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"
   
   echo "  Step 3: Indexing BAM..."
-  samtools index "$OUT_BAM"
+  echo samtools index "$OUT_BAM"
   
   echo "  Output: $OUT_BAM ($(du -h "$OUT_BAM" | cut -f1))"
 done
@@ -121,7 +119,12 @@ for REPLICATE in "${SERUM_REPLICATES[@]}"; do
   echo "  R1: $R1"
   echo "  R2: $R2"
   
-  OUT_BAM="$OUTDIR/rna_serum_${REPLICATE}_vs_canu.bam"
+  LOCAL_R1="$LOCAL_READ_DIR/Serum_${REPLICATE}_R1.paired.fastq.gz"
+  LOCAL_R2="$LOCAL_READ_DIR/Serum_${REPLICATE}_R2.paired.fastq.gz"
+  cp -f "$R1" "$LOCAL_R1"
+  cp -f "$R2" "$LOCAL_R2"
+
+  OUT_BAM="$LOCAL_OUTDIR/rna_serum_${REPLICATE}_vs_canu.bam"
   OUT_SAM="$WORKDIR/.tmp_${REPLICATE}.sam"
   TMP_DIR="$WORKDIR/.tmp_${REPLICATE}_workdir"
   
@@ -129,18 +132,18 @@ for REPLICATE in "${SERUM_REPLICATES[@]}"; do
   mkdir -p "$TMP_DIR"
   
   echo "  Step 1: Running bwa-mem2..."
-  bwa-mem2 mem -t "$THREADS" "$ASSEMBLY_FASTA" "$R1" "$R2" > "$OUT_SAM"
+  echo bwa-mem2 mem -t "$THREADS" "$LOCAL_ASSEMBLY_FASTA" "$LOCAL_R1" "$LOCAL_R2" > "$OUT_SAM"
   
   echo "  Step 2: Sorting and converting to BAM..."
-  samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"
+  echo samtools sort -@ "$THREADS" -T "$TMP_DIR/sort" -o "$OUT_BAM" "$OUT_SAM"
   
   echo "  Step 3: Indexing BAM..."
-  samtools index "$OUT_BAM"
+  echo samtools index "$OUT_BAM"
 
   echo "  Output: $OUT_BAM ($(du -h "$OUT_BAM" | cut -f1))"
 done
 
-sync_human_readable_outputs "$OUTDIR" "06_rnaAlign/canu"
+rsync -av "$LOCAL_OUTDIR/" "$OUTDIR/"
 
 echo ""
 echo "=== RNA alignment complete ==="
