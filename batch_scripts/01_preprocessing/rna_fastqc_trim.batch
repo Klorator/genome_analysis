@@ -17,8 +17,26 @@ module load FastQC/0.12.1-Java-17
 module load Trimmomatic/0.39-Java-17
 
 REPO_DIR="$HOME/genome_analysis"
-OUTDIR="$REPO_DIR/analysis/05_rnaPreProcessing"
+ANALYSIS_OUTDIR="$REPO_DIR/analysis/05_rnaPreProcessing"
+DIAG_OUTDIR="$REPO_DIR/result/RNA_trim"
 THREADS=1
+
+WORKDIR="${SNIC_TMP:-/tmp}/rna_fastqc_trim_${SLURM_JOB_ID:-$$}"
+LOCAL_INPUT_DIR="$WORKDIR/input"
+LOCAL_OUTPUT_DIR="$WORKDIR/output"
+mkdir -p "$WORKDIR" "$LOCAL_INPUT_DIR" "$LOCAL_OUTPUT_DIR"
+
+cleanup() {
+  if [ -d "$LOCAL_OUTPUT_DIR" ]; then
+    mkdir -p "$ANALYSIS_OUTDIR"
+    mkdir -p "$DIAG_OUTDIR"
+    rsync -av --include='*/' --include='*_R*_paired.fastq.gz' --exclude='*' "$LOCAL_OUTPUT_DIR/" "$ANALYSIS_OUTDIR/" || true
+    rsync -av --include='*/' --include='*_fastqc.html' --exclude='*' "$LOCAL_OUTPUT_DIR/" "$DIAG_OUTDIR/" || true
+  fi
+  chmod -R u+w "$WORKDIR" || true
+  rm -rf "$WORKDIR" || true
+}
+trap cleanup EXIT
 
 # Replicate definitions (same as alignment scripts)
 declare -a BH_REPLICATES=(
@@ -49,7 +67,7 @@ if [ -z "$ADAPTERS" ]; then
   exit 1
 fi
 
-mkdir -p "$OUTDIR"
+mkdir -p "$ANALYSIS_OUTDIR" "$DIAG_OUTDIR"
 
 for CONDITION in BH Serum; do
   if [ "$CONDITION" = "BH" ]; then
@@ -72,33 +90,34 @@ for CONDITION in BH Serum; do
       continue
     fi
     
-    WORKDIR="${SNIC_TMP:-/tmp}/${CONDITION}_${REPLICATE}_${SLURM_JOB_ID:-$$}"
-    mkdir -p "$WORKDIR"
+    LOCAL_R1="$LOCAL_INPUT_DIR/${CONDITION}_${REPLICATE}_1.fastq.gz"
+    LOCAL_R2="$LOCAL_INPUT_DIR/${CONDITION}_${REPLICATE}_2.fastq.gz"
+    cp -f "$R1" "$LOCAL_R1"
+    cp -f "$R2" "$LOCAL_R2"
     
     echo "  Pre-trimming QC..."
-    fastqc -t "$THREADS" -o "$WORKDIR" "$R1" "$R2"
+    fastqc -t "$THREADS" -o "$LOCAL_OUTPUT_DIR" "$LOCAL_R1" "$LOCAL_R2"
     
-    TRIM_R1_P="$WORKDIR/${REPLICATE}_R1.paired.fastq"
-    TRIM_R1_U="$WORKDIR/${REPLICATE}_R1.unpaired.fastq"
-    TRIM_R2_P="$WORKDIR/${REPLICATE}_R2.paired.fastq"
-    TRIM_R2_U="$WORKDIR/${REPLICATE}_R2.unpaired.fastq"
+    TRIM_R1_P="$LOCAL_OUTPUT_DIR/${CONDITION}_${REPLICATE}_R1.paired.fastq"
+    TRIM_R1_U="$LOCAL_OUTPUT_DIR/${CONDITION}_${REPLICATE}_R1.unpaired.fastq"
+    TRIM_R2_P="$LOCAL_OUTPUT_DIR/${CONDITION}_${REPLICATE}_R2.paired.fastq"
+    TRIM_R2_U="$LOCAL_OUTPUT_DIR/${CONDITION}_${REPLICATE}_R2.unpaired.fastq"
     
     echo "  Trimming..."
     trimmomatic PE -threads "$THREADS" -phred33 \
-      "$R1" "$R2" \
+      "$LOCAL_R1" "$LOCAL_R2" \
       "$TRIM_R1_P" "$TRIM_R1_U" \
       "$TRIM_R2_P" "$TRIM_R2_U" \
       ILLUMINACLIP:"$ADAPTERS":2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+    gzip -f "$TRIM_R1_P" "$TRIM_R2_P" "$TRIM_R1_U" "$TRIM_R2_U"
     
     echo "  Post-trimming QC..."
-    fastqc -t "$THREADS" -o "$WORKDIR" "$WORKDIR"/*.paired.fastq.gz
-    
-    echo "  Copying results to $OUTDIR..."
-    cp "$WORKDIR"/${REPLICATE}_R*.paired.fastq.gz "$OUTDIR/"
-    cp "$WORKDIR"/*_fastqc.html "$OUTDIR/" 2>/dev/null || true
-    
-    rm -rf "$WORKDIR"
-    echo "  ✓ Complete: $OUTDIR/${CONDITION}_${REPLICATE}_R{1,2}.paired.fastq.gz"
+    fastqc -t "$THREADS" -o "$LOCAL_OUTPUT_DIR" \
+      "$LOCAL_OUTPUT_DIR/${CONDITION}_${REPLICATE}_R1.paired.fastq.gz" \
+      "$LOCAL_OUTPUT_DIR/${CONDITION}_${REPLICATE}_R2.paired.fastq.gz"
+
+    echo "  ✓ Created trimmed FASTQs and FastQC reports in local storage"
   done
 done
 
