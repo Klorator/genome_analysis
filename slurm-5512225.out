@@ -1,0 +1,29 @@
+
+Currently Loaded Modules:
+  1) GCCcore/13.3.0                      8) libdeflate/1.20-GCCcore-13.3.0
+  2) zlib/1.3.1-GCCcore-13.3.0           9) bzip2/1.0.8-GCCcore-13.3.0
+  3) binutils/2.42-GCCcore-13.3.0       10) XZ/5.4.5-GCCcore-13.3.0
+  4) GCC/13.3.0                         11) OpenSSL/3
+  5) safestringlib/20240228-GCC-13.3.0  12) cURL/8.7.1-GCCcore-13.3.0
+  6) bwa-mem2/2.3-GCC-13.3.0            13) SAMtools/1.22.1-GCC-13.3.0
+  7) ncurses/6.5-GCCcore-13.3.0
+
+ 
+
+bwa-mem2 index /scratch/rna_align_canu_conditions_5512225/assembly/E_faecium_PacBio_20260415_114224.contigs.fasta
+=== RNA alignment run ===
+Assembly mode : Canu
+Assembly FASTA: /home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta
+Output dir    : /home/raha1670/genome_analysis/analysis/06_rnaAlign/canu
+Work dir      : /scratch/rna_align_canu_conditions_5512225
+
+=== Processing BH replicates ===
+Aligning: ERR1797972 (BH condition)
+  R1: /home/raha1670/genome_analysis/analysis/05_rnaPreProcessing/BH_ERR1797972_R1.paired.fastq.gz
+  R2: /home/raha1670/genome_analysis/analysis/05_rnaPreProcessing/BH_ERR1797972_R2.paired.fastq.gz
+cp: cannot stat '/home/raha1670/genome_analysis/analysis/05_rnaPreProcessing/BH_ERR1797972_R1.paired.fastq.gz': No such file or directory
+sending incremental file list
+./
+
+sent 72 bytes  received 19 bytes  182.00 bytes/sec
+total size is 0  speedup is 0.00
