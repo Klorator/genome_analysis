@@ -71,18 +71,55 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Helper: find paired trimmed reads (returns two lines: R1 then R2)
+find_read_pair() {
+  local dir="$1" prefix="$2"
+  local candidates=(
+    "$dir/${prefix}_R1.paired.fastq.gz"
+    "$dir/${prefix}_R1_paired.fastq.gz"
+    "$dir/${prefix}_R1.paired.fastq"
+    "$dir/${prefix}_R1_paired.fastq"
+  )
+  for f in "${candidates[@]}"; do
+    if [ -f "$f" ]; then
+      local f2="${f/_R1/_R2}"
+      if [ -f "$f2" ]; then
+        printf '%s\n%s' "$f" "$f2"
+        return 0
+      fi
+    fi
+  done
+  shopt -s nullglob
+  local g
+  for g in "$dir/${prefix}_R1"*; do
+    if [[ "$g" == *R1*paired* ]] || [[ "$g" == *R1.paired* ]]; then
+      local g2="${g/_R1/_R2}"
+      if [ -f "$g2" ]; then
+        printf '%s\n%s' "$g" "$g2"
+        shopt -u nullglob
+        return 0
+      fi
+    fi
+  done
+  shopt -u nullglob
+  return 1
+}
+
 echo ""
 echo "=== Processing BH replicates ==="
 for REPLICATE in "${BH_REPLICATES[@]}"; do
-  R1="$REPO_DIR/analysis/05_rnaPreProcessing/BH_${REPLICATE}_R1.paired.fastq.gz"
-  R2="$REPO_DIR/analysis/05_rnaPreProcessing/BH_${REPLICATE}_R2.paired.fastq.gz"
-  
   echo "Aligning: $REPLICATE (BH condition)"
+  mapfile -t READS < <(find_read_pair "$REPO_DIR/analysis/05_rnaPreProcessing" "BH_${REPLICATE}") || {
+    echo "ERROR: Could not find trimmed reads for BH_${REPLICATE}" >&2
+    continue
+  }
+  R1="${READS[0]:-}"
+  R2="${READS[1]:-}"
   echo "  R1: $R1"
   echo "  R2: $R2"
-  
-  LOCAL_R1="$LOCAL_READ_DIR/BH_${REPLICATE}_R1.paired.fastq.gz"
-  LOCAL_R2="$LOCAL_READ_DIR/BH_${REPLICATE}_R2.paired.fastq.gz"
+
+  LOCAL_R1="$LOCAL_READ_DIR/$(basename "$R1")"
+  LOCAL_R2="$LOCAL_READ_DIR/$(basename "$R2")"
   cp -f "$R1" "$LOCAL_R1"
   cp -f "$R2" "$LOCAL_R2"
 
@@ -109,15 +146,18 @@ done
 echo ""
 echo "=== Processing Serum replicates ==="
 for REPLICATE in "${SERUM_REPLICATES[@]}"; do
-  R1="$REPO_DIR/analysis/05_rnaPreProcessing/Serum_${REPLICATE}_R1.paired.fastq.gz"
-  R2="$REPO_DIR/analysis/05_rnaPreProcessing/Serum_${REPLICATE}_R2.paired.fastq.gz"
-  
   echo "Aligning: $REPLICATE (Serum condition)"
+  mapfile -t READS < <(find_read_pair "$REPO_DIR/analysis/05_rnaPreProcessing" "Serum_${REPLICATE}") || {
+    echo "ERROR: Could not find trimmed reads for Serum_${REPLICATE}" >&2
+    continue
+  }
+  R1="${READS[0]:-}"
+  R2="${READS[1]:-}"
   echo "  R1: $R1"
   echo "  R2: $R2"
-  
-  LOCAL_R1="$LOCAL_READ_DIR/Serum_${REPLICATE}_R1.paired.fastq.gz"
-  LOCAL_R2="$LOCAL_READ_DIR/Serum_${REPLICATE}_R2.paired.fastq.gz"
+
+  LOCAL_R1="$LOCAL_READ_DIR/$(basename "$R1")"
+  LOCAL_R2="$LOCAL_READ_DIR/$(basename "$R2")"
   cp -f "$R1" "$LOCAL_R1"
   cp -f "$R2" "$LOCAL_R2"
 
