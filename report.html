@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Rasmus Hammar">
+<meta name="dcterms.date" content="2026-05-21">
+
+<title>Genome Analysis Project Report</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="report_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="report_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="report_files/libs/quarto-html/popper.min.js"></script>
+<script src="report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="report_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="report_files/libs/bootstrap/bootstrap-67270d1595a62d14f123c043d4fb2f18.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a>
+  <ul class="collapse">
+  <li><a href="#paper-and-project-focus" id="toc-paper-and-project-focus" class="nav-link" data-scroll-target="#paper-and-project-focus">Paper and project focus</a>
+  <ul class="collapse">
+  <li><a href="#genes-of-interest-from-the-paper" id="toc-genes-of-interest-from-the-paper" class="nav-link" data-scroll-target="#genes-of-interest-from-the-paper">Genes of interest from the paper</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#project-plan-versus-completed-work" id="toc-project-plan-versus-completed-work" class="nav-link" data-scroll-target="#project-plan-versus-completed-work">Project plan versus completed work</a></li>
+  <li><a href="#methods-summary" id="toc-methods-summary" class="nav-link" data-scroll-target="#methods-summary">Methods summary</a>
+  <ul class="collapse">
+  <li><a href="#current-implementation-status" id="toc-current-implementation-status" class="nav-link" data-scroll-target="#current-implementation-status">Current implementation status</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
+  <ul class="collapse">
+  <li><a href="#assembly-evaluation" id="toc-assembly-evaluation" class="nav-link" data-scroll-target="#assembly-evaluation">Assembly evaluation</a></li>
+  <li><a href="#synteny-and-closest-species" id="toc-synteny-and-closest-species" class="nav-link" data-scroll-target="#synteny-and-closest-species">Synteny and closest species</a></li>
+  <li><a href="#rna-seq-preprocessing-and-alignment" id="toc-rna-seq-preprocessing-and-alignment" class="nav-link" data-scroll-target="#rna-seq-preprocessing-and-alignment">RNA-seq preprocessing and alignment</a></li>
+  <li><a href="#differential-expression-analysis" id="toc-differential-expression-analysis" class="nav-link" data-scroll-target="#differential-expression-analysis">Differential expression analysis</a></li>
+  </ul></li>
+  <li><a href="#documentation-and-evaluation" id="toc-documentation-and-evaluation" class="nav-link" data-scroll-target="#documentation-and-evaluation">Documentation and evaluation</a>
+  <ul class="collapse">
+  <li><a href="#current-repository-status" id="toc-current-repository-status" class="nav-link" data-scroll-target="#current-repository-status">Current repository status</a></li>
+  <li><a href="#remaining-gaps" id="toc-remaining-gaps" class="nav-link" data-scroll-target="#remaining-gaps">Remaining gaps</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Genome Analysis Project Report</h1>
+<p class="subtitle lead">E. faecium adaptation to human serum</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Rasmus Hammar </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 21, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level1">
+<h1>Overview</h1>
+<p>This report documents the genome analysis project for <em>Enterococcus faecium</em>. The biological motivation is the study behind DOI 10.1186/s12864-017-4299-9, which investigates fitness determinants during growth in human serum. The project goal in the wiki is to identify genes in <em>E. faecium</em> that are relevant for adaptation to human serum.</p>
+<p>The current workspace contains a dual-assembly workflow, downstream evaluation, annotation, synteny analysis, RNA-seq preprocessing/alignment, read counting, and differential expression analysis.</p>
+<section id="paper-and-project-focus" class="level2">
+<h2 class="anchored" data-anchor-id="paper-and-project-focus">Paper and project focus</h2>
+<ul>
+<li>Paper: RNA-seq and Tn-seq reveal fitness determinants of vancomycin-resistant <em>Enterococcus faecium</em> during growth in human serum</li>
+<li>DOI: 10.1186/s12864-017-4299-9</li>
+<li>Organism: vancomycin-resistant <em>E. faecium</em></li>
+<li>Conditions: human serum versus rich medium (BHI/BH)</li>
+</ul>
+<section id="genes-of-interest-from-the-paper" class="level3">
+<h3 class="anchored" data-anchor-id="genes-of-interest-from-the-paper">Genes of interest from the paper</h3>
+<p>The report currently focuses on the genes of interest already used in the RNA analysis:</p>
+<ul>
+<li><code>manZ_3</code>, <code>manY_2</code>, <code>ptsL</code>, <code>algB</code></li>
+<li><code>guaB</code>, <code>purA</code>, <code>pyrF</code>, <code>pyrK_2</code></li>
+<li><code>purD</code>, <code>purH</code>, <code>purL</code>, <code>purQ</code>, <code>purC</code></li>
+<li><code>clsA_1</code>, <code>ddcP</code>, <code>ldt_fmp</code>, <code>mgs</code>, <code>lytA_2</code></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="project-plan-versus-completed-work" class="level1">
+<h1>Project plan versus completed work</h1>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Planned work versus what is currently present in the workspace.</caption>
+<colgroup>
+<col style="width: 36%">
+<col style="width: 10%">
+<col style="width: 53%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Planned_item</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">PacBio assembly</td>
+<td style="text-align: left;">Completed</td>
+<td style="text-align: left;">Canu outputs and QUAST/BUSCO summaries present</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Illumina + Nanopore assembly</td>
+<td style="text-align: left;">Completed</td>
+<td style="text-align: left;">SPAdes outputs and summaries present</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Assembly evaluation</td>
+<td style="text-align: left;">Completed</td>
+<td style="text-align: left;">QUAST and BUSCO reports for both branches</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Structural / functional annotation</td>
+<td style="text-align: left;">Completed</td>
+<td style="text-align: left;">Prokka outputs and GFF files present</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Synteny comparison</td>
+<td style="text-align: left;">Completed</td>
+<td style="text-align: left;">MUMmerplot summaries for both branches</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Read preprocessing</td>
+<td style="text-align: left;">Completed</td>
+<td style="text-align: left;">FastQC and trimming outputs in result/RNA_trim</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">RNA alignment to assemblies</td>
+<td style="text-align: left;">Completed</td>
+<td style="text-align: left;">BWA + SAMtools alignment logs for Canu and SPAdes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Differential expression</td>
+<td style="text-align: left;">Completed</td>
+<td style="text-align: left;">DESeq2 script and plots present</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Annotation refinement</td>
+<td style="text-align: left;">Not found</td>
+<td style="text-align: left;">No dedicated refinement step identified</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Plasmid identification</td>
+<td style="text-align: left;">Not found</td>
+<td style="text-align: left;">No plasmid analysis outputs identified</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SNP calling</td>
+<td style="text-align: left;">Not found</td>
+<td style="text-align: left;">No SNP calling outputs identified</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Antibiotic resistance evaluation</td>
+<td style="text-align: left;">Not found</td>
+<td style="text-align: left;">No dedicated resistance analysis outputs identified</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tn-seq / essential-gene analysis</td>
+<td style="text-align: left;">Not found</td>
+<td style="text-align: left;">No Tn-seq analysis outputs identified</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The core analyses in the wiki plan are implemented. The extra analyses listed in the course brief are not currently present in the workspace as dedicated output or analysis scripts.</p>
+</section>
+<section id="methods-summary" class="level1">
+<h1>Methods summary</h1>
+<p>The workflow is implemented as SLURM batch jobs with two assembly branches:</p>
+<ol type="1">
+<li>Canu long-read assembly from PacBio data.</li>
+<li>SPAdes hybrid assembly from Illumina and Nanopore data.</li>
+</ol>
+<p>Downstream analyses are run separately for each branch:</p>
+<ul>
+<li>QUAST and BUSCO evaluation</li>
+<li>Prokka annotation</li>
+<li>BLAST-based related species identification</li>
+<li>MUMmerplot synteny visualization</li>
+<li>RNA-seq trimming and QC</li>
+<li>RNA alignment with BWA and SAMtools</li>
+<li>HTSeq read counting</li>
+<li>DESeq2 differential expression analysis</li>
+</ul>
+<section id="current-implementation-status" class="level2">
+<h2 class="anchored" data-anchor-id="current-implementation-status">Current implementation status</h2>
+<ul>
+<li>Workflow description and job structure are documented in the repository.</li>
+<li>Assembly and evaluation logs are present for both branches.</li>
+<li>RNA-seq preprocessing and alignment logs are present.</li>
+<li>A Canu-based differential-expression script produces the current figures.</li>
+</ul>
+</section>
+</section>
+<section id="results" class="level1">
+<h1>Results</h1>
+<section id="assembly-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="assembly-evaluation">Assembly evaluation</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<caption>Assembly evaluation summary from BUSCO and QUAST outputs.</caption>
+<colgroup>
+<col style="width: 4%">
+<col style="width: 5%">
+<col style="width: 10%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 5%">
+<col style="width: 11%">
+<col style="width: 2%">
+<col style="width: 4%">
+<col style="width: 2%">
+<col style="width: 2%">
+<col style="width: 11%">
+<col style="width: 7%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Branch</th>
+<th style="text-align: left;">Assembly</th>
+<th style="text-align: left;">Complete_buscos</th>
+<th style="text-align: left;">Single_copy</th>
+<th style="text-align: left;">Duplicated</th>
+<th style="text-align: left;">Fragmented</th>
+<th style="text-align: left;">Missing</th>
+<th style="text-align: left;">Total_length_bp.x</th>
+<th style="text-align: left;">N50</th>
+<th style="text-align: left;">N50_bp</th>
+<th style="text-align: left;">L50</th>
+<th style="text-align: left;">auN</th>
+<th style="text-align: left;">Total_length_bp.y</th>
+<th style="text-align: left;">GC_percent</th>
+<th style="text-align: left;">Ns_per_100kbp</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+</div>
+<p>The Canu assembly is much more contiguous than the SPAdes assembly. BUSCO is slightly better for SPAdes in completeness, but QUAST shows a large gap in contiguity and many more ambiguous bases in the hybrid assembly.</p>
+</section>
+<section id="synteny-and-closest-species" class="level2">
+<h2 class="anchored" data-anchor-id="synteny-and-closest-species">Synteny and closest species</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Synteny summary tables for both assembly branches.</caption>
+<colgroup>
+<col style="width: 0%">
+<col style="width: 4%">
+<col style="width: 18%">
+<col style="width: 6%">
+<col style="width: 2%">
+<col style="width: 22%">
+<col style="width: 21%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Branch</th>
+<th style="text-align: left;">run_prefix</th>
+<th style="text-align: left;">assembly_fasta</th>
+<th style="text-align: left;">closest_accession</th>
+<th style="text-align: left;">closest_species</th>
+<th style="text-align: left;">reference_fasta</th>
+<th style="text-align: left;">filtered_delta</th>
+<th style="text-align: left;">plot_png</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Canu</td>
+<td style="text-align: left;">E_faecium_PacBio_20260415_114224</td>
+<td style="text-align: left;">/home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224.contigs.fasta</td>
+<td style="text-align: left;">gi|1250053801|gb|CP018129.1|</td>
+<td style="text-align: left;">Enterococcus faecium</td>
+<td style="text-align: left;">/home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_closest_reference.fasta</td>
+<td style="text-align: left;">/home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_vs_closest.1delta</td>
+<td style="text-align: left;">/home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_canu/E_faecium_PacBio_20260415_114224/E_faecium_PacBio_20260415_114224_mummerplot.png</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SPAdes</td>
+<td style="text-align: left;">E_faecium_SPAdes_20260415_121016</td>
+<td style="text-align: left;">/home/raha1670/genome_analysis/analysis/01_genomeAssembly/E_faecium_SPAdes_20260415_121016/scaffolds.fasta</td>
+<td style="text-align: left;">gi|1072833967|gb|CP014529.1|</td>
+<td style="text-align: left;">Enterococcus faecium</td>
+<td style="text-align: left;">/home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_spades/E_faecium_SPAdes_20260415_121016/E_faecium_SPAdes_20260415_121016_closest_reference.fasta</td>
+<td style="text-align: left;">/home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_spades/E_faecium_SPAdes_20260415_121016/E_faecium_SPAdes_20260415_121016_vs_closest.1delta</td>
+<td style="text-align: left;">/home/raha1670/genome_analysis/analysis/04_genomeSynteny/mummerplot_spades/E_faecium_SPAdes_20260415_121016/E_faecium_SPAdes_20260415_121016_mummerplot.png</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Both assemblies identify <em>Enterococcus faecium</em> as the closest species.</p>
+</section>
+<section id="rna-seq-preprocessing-and-alignment" class="level2">
+<h2 class="anchored" data-anchor-id="rna-seq-preprocessing-and-alignment">RNA-seq preprocessing and alignment</h2>
+<p>The repository contains FastQC reports for pre- and post-trim RNA reads in <a href="result/RNA_trim">result/RNA_trim</a>. Alignment logs show BWA mapping against both assembly branches using the trimmed Serum and BH paired reads.</p>
+<p>One preprocessing log reports missing paired FASTQ files in a specific run directory, so the RNA workflow should be reviewed for path consistency before final submission.</p>
+</section>
+<section id="differential-expression-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="differential-expression-analysis">Differential expression analysis</h2>
+<p>The current differential-expression script uses DESeq2 and produces:</p>
+<ul>
+<li>a volcano plot</li>
+<li>a heatmap of normalized counts</li>
+<li>barplots for genes of interest with significance markers</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="result/volcano_plot.png" class="img-fluid figure-img"></p>
+<figcaption>Volcano plot</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="result/heatmap.png" class="img-fluid figure-img"></p>
+<figcaption>Heatmap</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="result/barplot_goi_positive_fitness.png" class="img-fluid figure-img"></p>
+<figcaption>Positive fitness genes</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="result/barplot_goi_nucleotide.png" class="img-fluid figure-img"></p>
+<figcaption>Nucleotide synthesis genes</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="result/barplot_goi_pts.png" class="img-fluid figure-img"></p>
+<figcaption>PTS genes</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="result/barplot_goi_cellwall.png" class="img-fluid figure-img"></p>
+<figcaption>Cell wall genes</figcaption>
+</figure>
+</div>
+<p>The script currently operates on the Canu-derived read counts and focuses on the gene set defined from the paper.</p>
+</section>
+</section>
+<section id="documentation-and-evaluation" class="level1">
+<h1>Documentation and evaluation</h1>
+<p>The student manual requires the GitHub repository and wiki to function as a clear, organized, reproducible project record. The required content includes:</p>
+<ul>
+<li>the paper being worked on</li>
+<li>the project plan</li>
+<li>goals and hypotheses</li>
+<li>one section per analysis step</li>
+<li>methods, results, and short discussion for each analysis</li>
+<li>general thoughts and interpretation</li>
+<li>preferably a daily log</li>
+</ul>
+<section id="current-repository-status" class="level2">
+<h2 class="anchored" data-anchor-id="current-repository-status">Current repository status</h2>
+<ul>
+<li>Code and workflow scripts are saved in the repository.</li>
+<li>The wiki already contains the project overview and plan.</li>
+<li>Analysis outputs are saved under <code>result/</code>.</li>
+<li>A Quarto report draft now exists as the main written summary.</li>
+</ul>
+</section>
+<section id="remaining-gaps" class="level2">
+<h2 class="anchored" data-anchor-id="remaining-gaps">Remaining gaps</h2>
+<ul>
+<li>Expand the wiki into per-analysis pages if that is not already done.</li>
+<li>Add a daily log if the course expects one explicitly.</li>
+<li>Integrate the student-manual GitHub and evaluation guidance more directly once the page excerpts are added.</li>
+</ul>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<ol type="1">
+<li>Zhang et al.&nbsp;2017. RNA-seq and Tn-seq reveal fitness determinants of vancomycin-resistant <em>Enterococcus faecium</em> during growth in human serum. DOI: 10.1186/s12864-017-4299-9.</li>
+</ol>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -362,49 +362,49 @@ genes_of_interest <- data.frame(
 
 ###################
 genes_subsets <- list(
-  ## Core metabolic bottlenecks (nucleotide + PTS)
-  goi_nucleotide = c(
-    "guaB",
-    "purA",
-    "purD",
-    "purH",
-    "purL",
-    "purQ",
-    "purC",
-    "pyrF",
-    "pyrK_2"
-  ),
+  # ## Core metabolic bottlenecks (nucleotide + PTS)
+  # goi_nucleotide = c(
+  #   "guaB",
+  #   "purA",
+  #   "purD",
+  #   "purH",
+  #   "purL",
+  #   "purQ",
+  #   "purC",
+  #   "pyrF",
+  #   "pyrK_2"
+  # ),
 
-  goi_pts = c(
-    "manZ_3",
-    "manY_2",
-    "ptsL",
-    "ptsI"
-  ),
+  # goi_pts = c(
+  #   "manZ_3",
+  #   "manY_2",
+  #   "ptsL",
+  #   "ptsI"
+  # ),
 
-  ## Cell wall / envelope genes (including negative-fitness hits)
-  goi_cellwall = c(
-    "clsA_1",
-    "ddcP",
-    "ldt_fmp",
-    "mgs",
-    "lytA_2"
-  ),
+  # ## Cell wall / envelope genes (including negative-fitness hits)
+  # goi_cellwall = c(
+  #   "clsA_1",
+  #   "ddcP",
+  #   "ldt_fmp",
+  #   "mgs",
+  #   "lytA_2"
+  # ),
 
-  ## Regulators (good for “control layer” plots)
-  goi_regulators = c(
-    "algB",
-    "afr_2",
-    "rpoN",
-    "IsrC_1"
-  ),
+  # ## Regulators (good for “control layer” plots)
+  # goi_regulators = c(
+  #   "algB",
+  #   "afr_2",
+  #   "rpoN",
+  #   "IsrC_1"
+  # ),
 
-  ## Transporters beyond PTS
-  goi_transport_nonPTS = c(
-    "artM_1",
-    "bioY2",
-    "hmpT"
-  ),
+  # ## Transporters beyond PTS
+  # goi_transport_nonPTS = c(
+  #   "artM_1",
+  #   "bioY2",
+  #   "hmpT"
+  # ),
 
   ## “Negative fitness” genes (mutants grow better in serum)
   goi_negative_fitness = c(
@@ -417,67 +417,48 @@ genes_subsets <- list(
 
   ## “Positive fitness” genes (required for growth in serum)
   goi_positive_fitness = c(
-    "manZ_3",
-    "manY_2",
-    "ptsL",
-    "ptsI",
-    "algB",
-    "afr_2",
-    "rpoN",
-    "IsrC_1",
-    "guaB",
-    "purA",
-    "purD",
-    "purH",
-    "purL",
-    "purQ",
-    "purC",
-    "pyrF",
     "pyrK_2",
-    "artM_1",
-    "bioY2",
-    "hmpT",
-    "hypBA2",
-    "EfmE745_03139",
-    "EfmE745_03220",
-    "EfmE745_03141",
-    "EfmE745_03101",
-    "EfmE745_03147",
-    "EfmE745_03131",
-    "EfmE745_01958",
-    "EfmE745_01972",
-    "EfmE745_02302",
-    "EfmE745_00881",
-    "rpsN2"
-  ),
-
-  ## “High-confidence, story-driving” genes (nice for clean summary plots)
-  nucleotide_synthesis = c(
-    # nucleotide
+    "pyrF",
     "purD",
     "purH",
-    "purL",
-    "purQ",
-    "purC",
-    "purA",
-    "guaB",
-    "pyrF",
-    "pyrK_2"
-  ),
-  pts = c(
-    # PTS
     "manY_2",
     "manZ_3",
-    "ptsL"
-  ),
-  cell_wall = c(
-    # cell wall negative-fitness
-    "clsA_1",
-    "ddcP",
-    "ldt_fmp",
-    "mgs",
-    "lytA_2"
+    "ptsL",
+    "algB",
+    "guaB",
+    "purA",
+    "purL",
+    "purQ",
+    "purC"
   )
+
+  # ## “High-confidence, story-driving” genes (nice for clean summary plots)
+  # nucleotide_synthesis = c(
+  #   # nucleotide
+  #   "purD",
+  #   "purH",
+  #   "purL",
+  #   "purQ",
+  #   "purC",
+  #   "purA",
+  #   "guaB",
+  #   "pyrF",
+  #   "pyrK_2"
+  # ),
+  # pts = c(
+  #   # PTS
+  #   "manY_2",
+  #   "manZ_3",
+  #   "ptsL"
+  # ),
+  # cell_wall = c(
+  #   # cell wall negative-fitness
+  #   "clsA_1",
+  #   "ddcP",
+  #   "ldt_fmp",
+  #   "mgs",
+  #   "lytA_2"
+  # )
 )
 
 gff <- rtracklayer::import(file.path(
@@ -495,6 +476,8 @@ barplot_genes_fun <- function(
   heatmap_df,
   canu_sampleTable
 ) {
+  genes_subset <- unique(genes_subset)
+
   # Join gff annotation with logFC_df to get gene names
   logFC_df_annotated <- logFC_df |>
     left_join(gff_df[, c("locus_tag", "gene")], by = c("ID" = "locus_tag"))
@@ -516,6 +499,7 @@ barplot_genes_fun <- function(
     left_join(genes_of_interest, by = c("gene" = "Gene"))
   # Cleanup duplicated columns and reorder
   logFC_genes_of_interest <- logFC_genes_of_interest |>
+    mutate(gene = factor(gene, levels = genes_subset)) |>
     # mutate(
     #   Log2FC = Log2FC.x,
     #   p_val = p_val.x,
@@ -650,6 +634,7 @@ barplot_genes_fun <- function(
       canu_sampleTable |> select(sampleName, condition),
       by = "sampleName"
     ) |>
+    mutate(gene = factor(gene, levels = genes_subset)) |>
     mutate(condition = factor(condition, levels = c("serum", "bh")))
 
   # Calculate summary statistics per gene and condition
@@ -669,6 +654,7 @@ barplot_genes_fun <- function(
       by = c("gene", "Group", "condition")
     ) |>
     select(gene, Group, condition, sampleName, sample_count, avg, sd) |>
+    mutate(gene = factor(gene, levels = genes_subset)) |>
     mutate(
       avg_log10 = log10(avg),
       sample_count_log10 = log10(sample_count),
@@ -792,6 +778,7 @@ barplot_genes_fun <- function(
       breaks = y_major_breaks,
       minor_breaks = y_minor_breaks
     ) +
+    scale_x_discrete(drop = FALSE) +
     annotation_logticks(sides = "l", outside = FALSE) +
     labs(
       title = if (nzchar(plot_title)) plot_title else NULL,
